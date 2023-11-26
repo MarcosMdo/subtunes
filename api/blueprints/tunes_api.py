@@ -14,7 +14,7 @@ bp = Blueprint('tunes_api', __name__)
 SPOTIFY_API_URL = spotify_endpoints['SPOTIFY_API_URL']
 
 
-@bp.route("/get/tune/<id>")
+@bp.route("/tune/<id>", methods=["GET"])
 def get_tune(id = "-1"):
     """
         get spotify track for a given id (or a random one if no id is given)
