@@ -10,15 +10,9 @@ bleach==5.0.1
 brotlipy==0.7.0
 cachelib==0.10.2
 certifi==2023.11.17
-cffi @ file:///private/var/folders/sy/f16zz6x50xz3113nwtb9bvq00000gp/T/croot-2p6q7e2r/cffi_1642701115063/work
 chardet==3.0.4
 charset-normalizer==3.3.2
 click==8.1.7
-colorama @ file:///tmp/build/80754af9/colorama_1607707115595/work
-conda==4.12.0
-conda-content-trust @ file:///tmp/build/80754af9/conda-content-trust_1617045594566/work
-conda-package-handling @ file:///opt/concourse/worker/volumes/live/0cf65687-72c2-4e51-5322-1b3a8c3aa6f5/volume/conda-package-handling_1649105815927/work
-cryptography @ file:///opt/concourse/worker/volumes/live/a9ca20dd-e1fe-4ed3-754e-0db64082a5d2/volume/cryptography_1639414576087/work
 debugpy==1.6.3
 decorator==5.1.1
 defusedxml==0.7.1
@@ -73,13 +67,10 @@ psycopg2-binary==2.9.9
 ptyprocess==0.7.0
 pure-eval==0.2.2
 pycosat==0.6.3
-pycparser @ file:///tmp/build/80754af9/pycparser_1636541352034/work
 Pygments==2.13.0
 PyMySQL==1.0.2
-pyOpenSSL @ file:///opt/conda/conda-bld/pyopenssl_1643788558760/work
 pyparsing==3.0.9
 pyrsistent==0.18.1
-PySocks @ file:///opt/concourse/worker/volumes/live/112288ac-9cb0-4e73-768b-13baf4ca6419/volume/pysocks_1605305820043/work
 pytest==7.2.0
 python-dateutil==2.8.2
 python-dotenv==0.21.0
@@ -87,9 +78,7 @@ PyYAML==6.0.1
 pyzmq==24.0.1
 requests==2.31.0
 requests-toolbelt==0.10.1
-ruamel-yaml-conda @ file:///opt/concourse/worker/volumes/live/e81cf0fe-611a-498e-6e69-a7320057c1ac/volume/ruamel_yaml_1616016689696/work
 Send2Trash==1.8.0
-six @ file:///tmp/build/80754af9/six_1644875935023/work
 soupsieve==2.3.2.post1
 SQLAlchemy==1.4.42
 stack-data==0.5.0
@@ -97,7 +86,6 @@ terminado==0.15.0
 tinycss2==1.1.1
 tomli==2.0.1
 tornado==6.2
-tqdm @ file:///opt/conda/conda-bld/tqdm_1647339053476/work
 traitlets==5.4.0
 turtle==0.0.1
 typing_extensions==4.8.0
