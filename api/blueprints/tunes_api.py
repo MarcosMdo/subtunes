@@ -28,7 +28,10 @@ def get_tune(id = "-1"):
     auth_header = get_auth_header(session['expire_time'])
     tune_data_response = requests.get(track_endpoint, headers=auth_header)
     tune = None
-    if tune_data_response.status_code == 200:
+    
+    if tune_data_response.status_code != 200:
+        return {"status": f"error getting track with {tune_id} from Spotify", "HTTPResponse Code": tune_data_response.status_code}, tune_data_response.status_code
+    else:
         tune_data = tune_data_response.json()
         current_app.logger.info(f"\ntune data: {tune_data}")
         
@@ -54,7 +57,8 @@ def get_tune(id = "-1"):
             db.session.commit()
             current_app.logger.info(f"\n\ntune: {tune}, saved to db\n")
 
-    return {"status": "tune saved to db", "tune": str(tune)}, 200
+    
+    return {"status": "tune saved to db", "tune": tune}, 200
 
 
 @bp.route("/search/<query>")
