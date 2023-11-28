@@ -18,6 +18,8 @@
 # misc
 .DS_Store
 *.pem
+conf.json
+spotify_secrets.json
 
 # debug
 npm-debug.log*
@@ -38,3 +40,6 @@ venv
 *.tsbuildinfo
 next-env.d.ts
 __pycache__
+
+# database
+migrations/
