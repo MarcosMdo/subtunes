@@ -2,7 +2,7 @@
 
 from urllib.parse import quote
 from ..spotify_api_endpoints import spotify_endpoints
-from ..model.user import UserModel
+from ..model.user import User
 from ..database.db import db
 import requests
 import base64
@@ -131,9 +131,9 @@ def login_user_from_spotify(access_token, refresh_token):
 
         #Check if the user exists in the database, otherwise create a new user
         with current_app.app_context():
-            user = UserModel.query.filter_by(spotify_id=user_info['id']).first()
+            user = User.query.filter_by(spotify_id=user_info['id']).first()
         if not user:
-            user = UserModel(
+            user = User(
                 spotify_id=user_info['id'],
                 display_name=user_info.get('display_name'),
                 email=user_info.get('email'),

@@ -3,7 +3,7 @@
 from urllib.parse import quote
 from flask import Flask, request, redirect, session, url_for, Blueprint, jsonify, current_app
 from ..database.db import db
-from ..model.tune import TuneModel
+from ..model.tune import Tune
 from ..spotify_api_endpoints import spotify_endpoints
 from ..blueprints.spotify_auth_api import get_auth_header
 import requests
@@ -37,13 +37,13 @@ def get_tune(id = "-1"):
         
         # check if the tune is already in the database
         with current_app.app_context():
-            tune = TuneModel.query.filter_by(id=tune_data["id"]).first()
+            tune = Tune.query.filter_by(id=tune_data["id"]).first()
             current_app.logger.info(f"\n\ntune already in db: {tune}\n")
             
         # if not, create a TuneModel object from the response
         if tune is None:
             # create a TuneModel object from the response   
-            tune = TuneModel(
+            tune = Tune(
                 id=tune_data["id"],
                 url=tune_data["external_urls"]["spotify"],
                 uri=tune_data["uri"],

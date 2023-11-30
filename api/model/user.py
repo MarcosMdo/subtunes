@@ -4,7 +4,7 @@ from flask_login import UserMixin
 
 
 @dataclass(init=True, repr=True, eq=True, order=True)
-class UserModel(db.Model, UserMixin):
+class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     spotify_id = db.Column(db.String(50), unique=True, nullable=False)
     display_name = db.Column(db.String(100))

@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from ..database.db import db
 
 @dataclass(init=True, repr=True, eq=True, order=True)
-class TuneModel(db.Model):
+class Tune(db.Model):
     id: str = db.Column(db.String(100), primary_key=True)
     url: str  = db.Column(db.String(100), unique=True, nullable=False)
     uri: str  = db.Column(db.String(100), unique=True, nullable=False)
