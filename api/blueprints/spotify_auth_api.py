@@ -111,7 +111,7 @@ def callback():
 
         if login_successful:
             # Redirect to the home page or wherever you want
-            return redirect(url_for('index'))
+            return redirect(url_for('home'))
         else:
             return 'Failed to log in user', 500
     else:

@@ -3,8 +3,8 @@ from flask import Flask, redirect, url_for
 from flask_migrate import Migrate
 import secrets
 from .database.db import db
-from .model import user, tune
-from flask_login import LoginManager, current_user
+from .model.user import User
+from flask_login import LoginManager, current_user, login_required, logout_user
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:password@localhost/subtunes'
@@ -29,3 +29,23 @@ app.register_blueprint(tunes_api)
 @app.route("/")
 def index():
     return redirect(url_for('spotify_auth_api.login'))
+
+@app.route("/logout")
+def logout():
+    logout_user()
+    
+    if current_user.is_authenticated:
+        return "{} should not be logged in".format(current_user.display_name)
+    else:
+        return "user has been logged out."
+
+@app.route("/home")
+def home():
+    if current_user.is_authenticated:
+        return "{} logged in".format(current_user.display_name)
+    else:
+        return "no user logged in."
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
