@@ -1,8 +1,9 @@
 """" This module contains the blueprint for the tunes api endpoints. """
 
 from urllib.parse import quote
-from flask import Flask, request, redirect, session, url_for, Blueprint, jsonify
-from ..model.tune import TuneModel
+from flask import Flask, request, redirect, session, url_for, Blueprint, jsonify, current_app
+from ..database.db import db
+from ..model.tune import Tune
 from ..spotify_api_endpoints import spotify_endpoints
 from ..blueprints.spotify_auth_api import get_auth_header
 import requests
@@ -25,19 +26,39 @@ def get_tune(id = "-1"):
     track_endpoint = f"{SPOTIFY_API_URL}/tracks/{tune_id}"
     
     auth_header = get_auth_header(session['expire_time'])
-    response = requests.get(track_endpoint, headers=auth_header)
+    tune_data_response = requests.get(track_endpoint, headers=auth_header)
+    tune = None
     
-    tune_id = response.json()["id"]
-    tune_url = response.json()["external_urls"]["spotify"]
-    tune_uri = response.json()["uri"]
-    tune_name = response.json()["name"]
-    tune_artist = response.json()["artists"][0]["name"]
-    tune_album = response.json()["album"]["name"]
-    tune_image_url = response.json()["album"]["images"][0]["url"]
-    tune_duration = response.json()["duration_ms"]
-    tune = TuneModel(tune_id, tune_url, tune_uri, tune_name, tune_artist, tune_album, tune_image_url, tune_duration)
+    if tune_data_response.status_code != 200:
+        return {"status": f"error getting track with {tune_id} from Spotify", "HTTPResponse Code": tune_data_response.status_code}, tune_data_response.status_code
+    else:
+        tune_data = tune_data_response.json()
+        current_app.logger.info(f"\ntune data: {tune_data}")
+        
+        # check if the tune is already in the database
+        with current_app.app_context():
+            tune = Tune.query.filter_by(id=tune_data["id"]).first()
+            current_app.logger.info(f"\n\ntune already in db: {tune}\n")
+            
+        # if not, create a TuneModel object from the response
+        if tune is None:
+            # create a TuneModel object from the response   
+            tune = Tune(
+                id=tune_data["id"],
+                url=tune_data["external_urls"]["spotify"],
+                uri=tune_data["uri"],
+                name=tune_data["name"],
+                artist=tune_data["artists"][0]["name"],
+                album=tune_data["album"]["name"],
+                image_url=tune_data["album"]["images"][0]["url"],
+                duration=tune_data["duration_ms"]
+            )
+            db.session.add(tune)
+            db.session.commit()
+            current_app.logger.info(f"\n\ntune: {tune}, saved to db\n")
+
     
-    return {"Tune obj": tune}
+    return {"status": "tune saved to db", "tune": tune}, 200
 
 
 @bp.route("/search/<query>")

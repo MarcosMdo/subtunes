@@ -43,4 +43,5 @@ In a seperate terminal, from the home directory, run the following commands
 This should create the schemas necessary for the subtunes application.
 
 ### Updating the schema
-When the schema needs updating, or a new schema is added, attempt tot revise the database and upgrade it. if it does not work, delete the migration folder and run the above steps.
+When the schema needs updating, or a new schema is added, attempt tot revise the database and upgrade it. if it does not work, delete the migration folder and run the above steps. 
+If error talking about a "migration version does not exist", delete alembic_version table in the postgres db
