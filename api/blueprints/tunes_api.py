@@ -61,13 +61,13 @@ def get_tune(id = "-1"):
     return {"status": "tune saved to db", "tune": tune}, 200
 
 
-@bp.route("/search/<query>")
-def search(query = ""):
-    """ simple search endpoint just to f-around for now"""
-    search_endpoint = f"{SPOTIFY_API_URL}/search"
+# @bp.route("/search/<query>")
+# def search(query = ""):
+#     """ simple search endpoint just to f-around for now"""
+#     search_endpoint = f"{SPOTIFY_API_URL}/search"
 
-    auth_header = get_auth_header(session['expire_time'])
-    params = {"q": query, "type": "track,playlist,artist,album", "limit": 10, "offset": 0}
-    response = requests.get(search_endpoint, headers=auth_header, params=params)
+#     auth_header = get_auth_header(session['expire_time'])
+#     params = {"q": query, "type": "track,playlist,artist,album", "limit": 10, "offset": 0}
+#     response = requests.get(search_endpoint, headers=auth_header, params=params)
 
-    return response.json()
+#     return response.json()

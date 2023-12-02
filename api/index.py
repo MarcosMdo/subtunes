@@ -26,6 +26,9 @@ app.register_blueprint(spotify_auth_api)
 from .blueprints.tunes_api import bp as tunes_api
 app.register_blueprint(tunes_api)
 
+from .blueprints.search import bp as search_api
+app.register_blueprint(search_api)
+
 @app.route("/")
 def index():
     return redirect(url_for('spotify_auth_api.login'))
