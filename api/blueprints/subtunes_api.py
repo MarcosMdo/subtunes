@@ -31,7 +31,49 @@ def get_subtune_by_id(id=-1):
 
 
 
-@bp.route("/create/subtune", methods=["POST"])
+@bp.route("/create/subtune")
 def save_subtune():
-    return {"status": "Unimplemented"}, 200
+    tunes_arg = request.args.getlist('tunes')
+    tunes = tunes_arg.split(",") if tunes_arg else []
+    if len(tunes) == 0:
+        return {"status": "no tunes given"}, 400
+
+    with current_app.app_context():
+        subtune = Subtune()
+        db.session.add(subtune)
+        # db.session.commit()
+        current_app.logger.info(f"\n\nsubtune: {subtune}, saved to db\n")
+        for tune_id in tunes:
+            # check if the tune is already in the database
+            tune = Tune.query.filter_by(id=tune_id).first()
+            if tune is None:
+                track_endpoint = f"{SPOTIFY_API_URL}/tracks/{tune_id}"
+                auth_header = get_auth_header(session['expire_time'])
+                tune_data_response = requests.get(track_endpoint, headers=auth_header)
+                if tune_data_response.status_code != 200:
+                    return {"status": f"error getting track with {tune_id} from Spotify", "HTTPResponse Code": tune_data_response.status_code}, tune_data_response.status_code
+                else:
+                    tune_data = tune_data_response.json()
+                    current_app.logger.info(f"\ntune data: {tune_data}")
+                    # create a TuneModel object from the response   
+                    tune = Tune(
+                        id=tune_data["id"],
+                        url=tune_data["external_urls"]["spotify"],
+                        uri=tune_data["uri"],
+                        name=tune_data["name"],
+                        artist=tune_data["artists"][0]["name"],
+                        album=tune_data["album"]["name"],
+                        image_url=tune_data["album"]["images"][0]["url"],
+                        duration=tune_data["duration_ms"]
+                    )
+                    db.session.add(tune)
+                    # db.session.commit()
+                    current_app.logger.info(f"\n\ntune: {tune}, saved to db\n")
+            subtune_tune = Subtune_Tune(subtune_id=subtune.id, tune_id=tune.id)
+            db.session.add(subtune_tune)
+            db.session.commit()
+            current_app.logger.info(f"\n\nsubtune_tune: {subtune_tune}, saved to db\n")
+    return {"tune ids": tunes}, 200
     
+
+#https://127.0.0.1:5328/create/subtune?tune=1&tune=2&tune=3
