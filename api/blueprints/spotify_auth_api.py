@@ -54,7 +54,7 @@ def get_auth_header(expire_time = -1):
     return {"Authorization": "Bearer " + session['access_token']}
 
 
-@bp.route("/login")
+@bp.route("/api/login")
 def login():
     """"
         login endpoint for spotify. redirects to the spotify login page.
