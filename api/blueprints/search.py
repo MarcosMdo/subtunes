@@ -45,7 +45,7 @@ def search_tune(query = "name=nadie sabe lo que"):
         tracks = response.json().get('tracks', {}).get('items', [])
 
         # Extract relevant information from each track
-        track_info = [{'name': track['name'], 'artist': track['artists'][0]['name'], 'external': track['preview_url']} for track in tracks]
+        track_info = [{'id': track['id'], 'name': track['name'], 'artist': track['artists'][0]['name'], 'external': track['preview_url']} for track in tracks]
 
         return jsonify({'tracks': track_info})
     else:

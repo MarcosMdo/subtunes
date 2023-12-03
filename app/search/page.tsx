@@ -41,6 +41,7 @@ const Home = () => {
       <ul>
         {musicData.map((item, index) => (
           <li key={index}>
+            <p>ID: {item.id}</p>
             <p>Name: {item.name}</p>
             <p>Artist: {item.artist}</p>
             <a href={item.external}>preview song</a>
