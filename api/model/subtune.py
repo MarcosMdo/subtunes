@@ -9,6 +9,6 @@ class Subtune(db.Model):
     description: str = db.Column(db.String(150), nullable=False)
     user_id: int = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     
-    subtune_tunes = db.relationship('Subtune_Tune', backref='subtune', lazy='dynamic')
+    subtune_tunes = db.relationship('Subtune_Tune', backref='Subtune', lazy='subquery', cascade="all, delete-orphan")
     
     

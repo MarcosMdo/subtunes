@@ -1,5 +1,5 @@
 from urllib.parse import quote
-from flask import Flask, redirect, url_for
+from flask import Flask, redirect, url_for, flash
 from flask_migrate import Migrate
 import secrets
 from .database.db import db
@@ -48,6 +48,7 @@ def logout():
 @app.route("/home")
 def home():
     if current_user.is_authenticated:
+        return redirect('http://127.0.0.1:3000/')
         return "{} logged in".format(current_user.display_name)
     else:
         return "no user logged in."
@@ -55,3 +56,8 @@ def home():
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
+
+@login_manager.unauthorized_handler
+def unauthorized_callback():
+    flash("You need to be logged in to access this page.", "error")
+    return redirect(url_for('spotify_auth_api.login')) 

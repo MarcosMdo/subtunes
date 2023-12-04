@@ -22,5 +22,5 @@ class Subtune_Tune(db.Model):
         and then getting the tune objects from the tune table with another 
         query, we can just get the tune objects directly from the subtune_tune table.
     """
-    tunes = db.relationship('Tune', backref='subtune_tune', lazy=True)
-    subtunes = db.relationship('Subtune', backref='subtune_tune', lazy=True)
+    tunes = db.relationship('Tune', backref='subtune_tune', lazy='subquery')
+    subtunes = db.relationship('Subtune', backref='subtune_tune', lazy='subquery')
