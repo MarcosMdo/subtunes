@@ -104,8 +104,7 @@ def save_subtune():
             continue
         
         # 'add' tune to subtune
-        subtune_tune = Subtune_Tune(subtunes=subtune, tunes=res['tune'], order_in_subtune=idx)
-        db.session.add(subtune_tune)
+        subtune.subtune_tunes.append(Subtune_Tune(tune_id=tune_id, order_in_subtune=idx))
 
     # save all subtune_tune's and subtune object to db
     db.session.commit()

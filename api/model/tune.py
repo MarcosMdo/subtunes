@@ -12,5 +12,3 @@ class Tune(db.Model):
     album: str  = db.Column(db.String(100), nullable=False)
     image_url: str = db.Column(db.String(100))
     duration: int = db.Column(db.Integer, nullable=False)
-    
-    subtune_tunes = db.relationship('Subtune_Tune', backref='tune', lazy='subquery', cascade='all, delete-orphan') #lazy='dynamic' # lazy='subquery' # lazy='joined' # lazy='select' # lazy='immediate' # lazy='noload' # lazy='raise'    
