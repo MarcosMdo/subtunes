@@ -18,6 +18,8 @@ SPOTIFY_API_URL = spotify_endpoints['SPOTIFY_API_URL']
 @bp.route("/tune/<id>", methods=["GET"])
 def get_tune(id = "-1"):
     """
+        NOTE: should probably change name to get_tune_from_db_or_spotify or something more descriptive
+        
         get spotify track for a given id (or a random one if no id is given)
         creates a TuneModel object from the spotify track and returns it as a json
     """
@@ -36,9 +38,9 @@ def get_tune(id = "-1"):
         current_app.logger.info(f"\ntune data: {tune_data}")
         
         # check if the tune is already in the database
-        with current_app.app_context():
-            tune = Tune.query.filter_by(id=tune_data["id"]).first()
-            current_app.logger.info(f"\n\ntune already in db: {tune}\n")
+        # with current_app.app_context():
+        tune = db.session.execute(db.select(Tune).filter_by(id=tune_data["id"])).scalar_one()
+        current_app.logger.info(f"\n\ntune already in db: {tune}\n")
             
         # if not, create a TuneModel object from the response
         if tune is None:

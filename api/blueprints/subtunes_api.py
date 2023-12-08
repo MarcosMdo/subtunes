@@ -1,13 +1,20 @@
 import requests
+import copy
+import uuid
 from urllib.parse import quote
 
+
 from ..database.db import db
+from flask_sqlalchemy import SQLAlchemy
+
 from ..model.subtune import Subtune
 from ..model.subtune_tune import Subtune_Tune
 from ..model.tune import Tune
 
 from ..spotify_api_endpoints import spotify_endpoints
+
 from ..blueprints.spotify_auth_api import get_auth_header
+from ..blueprints.tunes_api import get_tune
 
 from flask import Flask, request, redirect, session, url_for, Blueprint, jsonify, current_app
 from flask_login import current_user, login_required
@@ -35,9 +42,9 @@ def get_subtune_by_id(id=1):
             return {"status": "user does not own this subtune"}, 401
         
         # get all records in subtune_tunes table for this subtune
-        subtune_tunes = subtune.subtune_tunes
+        subtune_tunes = sorted(subtune.subtune_tunes, key=lambda subtune_tune: subtune_tune.order_in_subtune)
         # get all the tune records in tune table for this subtune given the subtune_tunes link table
-        tune_objects = [subtune_tune.tune for subtune_tune in subtune_tunes]
+        tune_objects = [( subtune_tune.order_in_subtune, subtune_tune.tune) for subtune_tune in subtune_tunes]
         tunes_in_subtune[subtune.name] = [tune for tune in tune_objects]
         
         return tunes_in_subtune, 200
@@ -54,19 +61,14 @@ def get_user_subtunes(user_id=-1):
         if not user_subtunes:
             return {"status": "no subtunes found for this user"}, 404
         subtune_res = {}
-        buff = 0 # appends a number to the subtune name to make it unique (for testing), 
         # should we enforce unique subtune names??
         for subtune in user_subtunes:
-            # get all records in subtune_tunes table for this subtune
-            subtune_tunes = subtune.subtune_tunes
-            # get all the tune records in tune table for this subtune given the subtune_tunes link table
-            tune_objects = [subtune_tune.tune for subtune_tune in subtune_tunes]
-            # subtune_res[subtune.name] = jsonify(tunes=[tune for tune in tune_objects])
-            subtune_res[subtune.name+str(buff)] = [tune for tune in tune_objects]
-            buff += 1
+            res, code = get_subtune_by_id(subtune.id)
+            if ("status", "Error") in res:
+                return res, code
+            subtune_res[subtune.name] = res
         current_app.logger.info(f"\n\n\tsubtune_res length: {len(subtune_res)}\n\n")
         return subtune_res, 200
-        # return tunes_json, 200
 
 # dummy_data = ["5YY7ht3PCArlLjLbcTiAvh", "4urciuKll77Us0CpoAaYt0", "2zSuWrakRZKwWaLtHUvtnz", "7v8kE3NhsgbTtJnI0fwoss", "2Nd1dImwW0VVN5HJ9MfvUd"]
 dummy_data = ["1jlKdNbOA90rjnt88GJnwO", "1xuYajTJZh8zZrPRmUaagf", "3kNVYo6BJE9AENxzokM9YC", "1q8NdCAQ9QUjpYiqzdd3mv", "1U5X9bPu8xXHuejzUAi4Bx"]
@@ -74,51 +76,44 @@ dummy_data = ["1jlKdNbOA90rjnt88GJnwO", "1xuYajTJZh8zZrPRmUaagf", "3kNVYo6BJE9AE
 @bp.route("/create/subtune", methods=["POST", "GET"]) # `/create/` & `GET` for testing for now, should remove once we have a front end
 @login_required
 def save_subtune():
+    """
+    NOTE: added a `error_with_tunes` field to the response, this will be a list of 
+    errors if any for a given tune id. may not need but just in case for now.
+    """
+    # maybe we want to pass data through body instead of query params once front end is set up
+    subtune_name = request.args.get('name') if request.args.get('name') \
+        else f"{current_user.display_name}'s subtune {uuid.uuid4().hex[:6]}"
+    subtune_desc = request.args.get('description') if request.args.get('description') else "test description"
+    
     tunes_arg = request.args.getlist('tunes')
-    tunes = tunes_arg.split(",") if tunes_arg else dummy_data
-    if len(tunes) == 0:
+    tune_ids = tunes_arg.split(",") if tunes_arg else dummy_data # change to [] eventually
+    if len(tune_ids) == 0:
         return {"status": "no tunes given"}, 400
 
-    with current_app.app_context():
-        subtune_object = Subtune(name="test2", description="test description", user_id=1)
-        current_app.logger.info(f"\n\nsubtune: {subtune_object}, saved to db\n")
-        db.session.add(subtune_object)
-        db.session.commit()
-        subtune_id = subtune_object.id  
-        for tune_id in tunes:
-            # check if the tune is already in the database
-            tune = Tune.query.filter_by(id=tune_id).first()
-            # if its not in the db, get it from spotify and save it to the db
-            if tune is None:
-                track_endpoint = f"{SPOTIFY_API_URL}/tracks/{tune_id}"
-                auth_header = get_auth_header(session['expire_time'])
-                tune_data_response = requests.get(track_endpoint, headers=auth_header)
-                if tune_data_response.status_code != 200:
-                    return {"status": f"error getting track with {tune_id} from Spotify", "HTTPResponse Code": tune_data_response.status_code}, tune_data_response.status_code
-                else:
-                    tune_data = tune_data_response.json()
-                    current_app.logger.info(f"\ntune data: {tune_data}")
-                    # create a TuneModel object from the response   
-                    tune = Tune(
-                        id=tune_data["id"],
-                        url=tune_data["external_urls"]["spotify"],
-                        uri=tune_data["uri"],
-                        name=tune_data["name"],
-                        artist=tune_data["artists"][0]["name"],
-                        album=tune_data["album"]["name"],
-                        image_url=tune_data["album"]["images"][0]["url"],
-                        duration=tune_data["duration_ms"]
-                    )
-                    db.session.add(tune)
-            # have to re-query the subtune again if not it raises a sqlalchemy.orm.exc.DetachedInstanceError, need a fix later
-            subtune_object = Subtune.query.get(subtune_id)
-            subtune_object.subtune_tunes.append(Subtune_Tune(subtune_id=subtune_id, tune_id=tune.id))
-            current_app.logger.info(f"\n\nsubtune_tune: {subtune_object}, saved to db\n")
+    subtune= Subtune(name=subtune_name, description=subtune_desc, user_id=current_user.id)
+    current_app.logger.info(f"\n\nsubtune: {subtune}, saved to db\n")
+    db.session.add(subtune)
+    
+    error_with_tunes = []
 
-        db.session.add(subtune_object)
-        db.session.commit()
-        subtune_final = Subtune.query.get(subtune_id)
-        return {"subtune": subtune_final}, 200
+    # get tune objects
+    for idx, tune_id in enumerate(tune_ids, 1):
+        res, http_res_code = get_tune(tune_id)
+        
+        # something went wrong retrieving the tune
+        if "tune" not in res:
+            error_with_tunes.append({"Error": res, "HTTPResponse code": http_res_code})
+            continue
+        
+        # 'add' tune to subtune
+        subtune_tune = Subtune_Tune(subtunes=subtune, tunes=res['tune'], order_in_subtune=idx)
+        db.session.add(subtune_tune)
+
+    # save all subtune_tune's and subtune object to db
+    db.session.commit()
+    
+    error_with_tunes = error_with_tunes if len(error_with_tunes) > 0 else None
+    return {"subtune": subtune, "Error with tunes": error_with_tunes}, 200
 
 @bp.route("/delete/subtune/<id>", methods=["DELETE", 'GET']) # `/delete/` & `GET` added just for testing for now, should remove once we have a front end
 def delete_subtune(id=1):
