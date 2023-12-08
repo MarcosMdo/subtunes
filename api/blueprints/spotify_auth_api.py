@@ -145,6 +145,7 @@ def login_user_from_spotify(access_token, refresh_token):
 
         #Log in the user
         login_user(user)
+        current_app.logger.info(f"\n\n\tuser logged in: {user}\n\n")
 
         return True  # User successfully logged in
     else:
