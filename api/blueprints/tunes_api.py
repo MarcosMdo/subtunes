@@ -38,8 +38,7 @@ def get_tune(id = "-1"):
         current_app.logger.info(f"\ntune data: {tune_data}")
         
         # check if the tune is already in the database
-        # with current_app.app_context():
-        tune = db.session.execute(db.select(Tune).filter_by(id=tune_data["id"])).scalar_one()
+        tune = Tune.query.get(tune_data["id"])
         current_app.logger.info(f"\n\ntune already in db: {tune}\n")
             
         # if not, create a TuneModel object from the response
