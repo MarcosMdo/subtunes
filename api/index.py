@@ -49,7 +49,6 @@ def logout():
 def home():
     if current_user.is_authenticated:
         return redirect('http://127.0.0.1:3000/')
-        return "{} logged in".format(current_user.display_name)
     else:
         return "no user logged in."
 
