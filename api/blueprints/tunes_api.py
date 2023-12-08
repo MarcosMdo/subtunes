@@ -35,11 +35,9 @@ def get_tune(id = "-1"):
         return {"status": f"error getting track with {tune_id} from Spotify", "HTTPResponse Code": tune_data_response.status_code}, tune_data_response.status_code
     else:
         tune_data = tune_data_response.json()
-        current_app.logger.info(f"\ntune data: {tune_data}")
         
         # check if the tune is already in the database
         tune = Tune.query.get(tune_data["id"])
-        current_app.logger.info(f"\n\ntune already in db: {tune}\n")
             
         # if not, create a TuneModel object from the response
         if tune is None:
@@ -56,7 +54,7 @@ def get_tune(id = "-1"):
             )
             db.session.add(tune)
             db.session.commit()
-            current_app.logger.info(f"\n\ntune: {tune}, saved to db\n")
+
 
     
     return {"status": "tune saved to db", "tune": tune}, 200

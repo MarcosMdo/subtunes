@@ -57,7 +57,7 @@ def get_user_subtunes(user_id=-1):
     with current_app.app_context():
         # return all subtunes for this user
         user_subtunes = Subtune.query.filter_by(user_id=user_id).all()
-        current_app.logger.info(f"\n\n\tnumber of subtunes: {len(user_subtunes)}\n\n")
+
         if not user_subtunes:
             return {"status": "no subtunes found for this user"}, 404
         subtune_res = {}
@@ -67,7 +67,6 @@ def get_user_subtunes(user_id=-1):
             if ("status", "Error") in res:
                 return res, code
             subtune_res[subtune.name] = res
-        current_app.logger.info(f"\n\n\tsubtune_res length: {len(subtune_res)}\n\n")
         return subtune_res, 200
 
 # dummy_data = ["5YY7ht3PCArlLjLbcTiAvh", "4urciuKll77Us0CpoAaYt0", "2zSuWrakRZKwWaLtHUvtnz", "7v8kE3NhsgbTtJnI0fwoss", "2Nd1dImwW0VVN5HJ9MfvUd"]
@@ -91,7 +90,6 @@ def save_subtune():
         return {"status": "no tunes given"}, 400
 
     subtune= Subtune(name=subtune_name, description=subtune_desc, user_id=current_user.id)
-    current_app.logger.info(f"\n\nsubtune: {subtune}, saved to db\n")
     db.session.add(subtune)
     
     error_with_tunes = []
