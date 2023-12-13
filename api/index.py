@@ -6,6 +6,8 @@ from .database.db import db
 from .model.user import User
 from flask_login import LoginManager, current_user, login_required, logout_user
 
+PREFIX = "/api"
+
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:password@localhost/subtunes'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -27,7 +29,7 @@ from .blueprints.tunes_api import bp as tunes_api
 app.register_blueprint(tunes_api)
 
 from .blueprints.search import bp as search_api
-app.register_blueprint(search_api)
+app.register_blueprint(search_api, url_prefix=PREFIX)
 
 from .blueprints.subtunes_api import bp as subtunes_api
 app.register_blueprint(subtunes_api)

@@ -2,7 +2,7 @@
 'use client'
 
 import { useState, useEffect } from 'react';
-import '../globals.css';
+import '../../globals.css';
 import './page.css'
 
 const Home = () => {
