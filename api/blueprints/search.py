@@ -17,7 +17,7 @@ SPOTIFY_SEARCH_API_URL = f"{SPOTIFY_API_URL}/search"
 
 the_query="nadie&type=album&include_external=audio&locale=en-US%2Cen%3Bq%3D0.9%2Ces%3Bq%3D0.8&offset=0&limit=20"
 
-@bp.route("/api/search/tune", methods=["GET"])
+@bp.route("/search/tune", methods=["GET"])
 def search_tune(query = "name=nadie sabe lo que"):
     # Get the search term from the query parameters
     query = "name={}".format(request.args.get('query'))
@@ -52,7 +52,7 @@ def search_tune(query = "name=nadie sabe lo que"):
     else:
         return jsonify({'error': 'Failed to fetch tracks from Spotify'}), response.status_code
 
-@bp.route("/api/search/subtune", methods=["GET"])
+@bp.route("/search/subtune", methods=["GET"])
 def search_subtune(query = ""):
     query = "{}%".format(request.args.get('query'))
 
