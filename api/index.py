@@ -6,33 +6,10 @@ from .database.db import db
 from .model.user import User
 from flask_login import LoginManager, current_user, login_required, logout_user
 
-PREFIX = "/api"
+from . import create_app
 
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:password@localhost/subtunes'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SESSION_TYPE'] = 'filesystem' 
+app = create_app()
 
-secret_key = secrets.token_hex(24)
-app.config['SECRET_KEY'] = secret_key
-
-db.init_app(app)
-migrate = Migrate(app, db)
-
-login_manager = LoginManager()
-login_manager.init_app(app)
-
-from .blueprints.spotify_auth_api import bp as spotify_auth_api
-app.register_blueprint(spotify_auth_api)
-
-from .blueprints.tunes_api import bp as tunes_api
-app.register_blueprint(tunes_api)
-
-from .blueprints.search import bp as search_api
-app.register_blueprint(search_api, url_prefix=PREFIX)
-
-from .blueprints.subtunes_api import bp as subtunes_api
-app.register_blueprint(subtunes_api)
 
 @app.route("/")
 def index():
@@ -54,11 +31,11 @@ def home():
     else:
         return "no user logged in."
 
-@login_manager.user_loader
+@app.login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-@login_manager.unauthorized_handler
+@app.login_manager.unauthorized_handler
 def unauthorized_callback():
     flash("You need to be logged in to access this page.", "error")
     return redirect(url_for('spotify_auth_api.login')) 
