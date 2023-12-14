@@ -52,7 +52,7 @@ def get_tune(id = "-1"):
                 image_url=tune_data["album"]["images"][0]["url"],
                 duration=tune_data["duration_ms"],
                 popularity=tune_data["popularity"],
-                external_url=tune_data["preview_url"]
+                preview_url=tune_data["preview_url"]
             )
             db.session.add(tune)
             db.session.commit()
