@@ -12,3 +12,5 @@ class Tune(db.Model):
     album: str  = db.Column(db.String(100), nullable=False)
     image_url: str = db.Column(db.String(100))
     duration: int = db.Column(db.Integer, nullable=False)
+    popularity: int = db.Column(db.Integer, nullable=False)
+    preview_url: str = db.Column(db.String(500), nullable=True)

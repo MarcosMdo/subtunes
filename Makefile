@@ -1,4 +1,5 @@
-msg="update"
+msg=update
+
 init:
 	flask --app api/index db init
 
@@ -7,3 +8,6 @@ migrate:
 
 upgrade:
 	flask --app api/index db upgrade
+
+downgrade:
+	flask --app api/index db downgrade

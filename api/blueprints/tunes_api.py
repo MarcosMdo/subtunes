@@ -50,7 +50,9 @@ def get_tune(id = "-1"):
                 artist=tune_data["artists"][0]["name"],
                 album=tune_data["album"]["name"],
                 image_url=tune_data["album"]["images"][0]["url"],
-                duration=tune_data["duration_ms"]
+                duration=tune_data["duration_ms"],
+                popularity=tune_data["popularity"],
+                external_url=tune_data["preview_url"]
             )
             db.session.add(tune)
             db.session.commit()
