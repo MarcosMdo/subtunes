@@ -38,8 +38,12 @@ def register_blueprints(app):
     from .blueprints.search import bp as search_api
     app.register_blueprint(search_api, url_prefix=PREFIX)
 
+    from .blueprints.playlist_api import bp as playlist_api
+    app.register_blueprint(playlist_api)
+
     from .blueprints.subtunes_api import bp as subtunes_api
     app.register_blueprint(subtunes_api)
+    
 
 
 def register_extensions(app):

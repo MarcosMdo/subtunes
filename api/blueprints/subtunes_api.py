@@ -44,8 +44,8 @@ def get_subtune_by_id(id=1):
         # get all records in subtune_tunes table for this subtune
         subtune_tunes = sorted(subtune.subtune_tunes, key=lambda subtune_tune: subtune_tune.order_in_subtune)
         # get all the tune records in tune table for this subtune given the subtune_tunes link table
-        tune_objects = [( subtune_tune.order_in_subtune, subtune_tune.tune) for subtune_tune in subtune_tunes]
-        tunes_in_subtune[subtune.name] = [tune for tune in tune_objects]
+        tune_objects = [subtune_tune.tune for subtune_tune in subtune_tunes]
+        tunes_in_subtune[subtune.id] = [tune for tune in tune_objects]
         
         return tunes_in_subtune, 200
         
@@ -64,7 +64,8 @@ def get_user_subtunes(user_id=-1):
         # should we enforce unique subtune names??
         for subtune in user_subtunes:
             res, code = get_subtune_by_id(subtune.id)
-            if ("status", "Error") in res:
+            current_app.logger.info(f"res: {res}")
+            if "status" in res or "Error" in res:
                 return res, code
             subtune_res[subtune.name] = res
         return subtune_res, 200
