@@ -7,7 +7,7 @@ from ..database.db import db
 from flask_sqlalchemy import SQLAlchemy
 
 from ..model.playlist import Playlist
-from ..model.playlist_subtune_tune import Playlist_Subtune_Tune
+from ..model.playlist_tune import Playlist_Tune
 from ..model.subtune import Subtune
 from ..model.subtune_tune import Subtune_Tune
 from ..model.tune import Tune
@@ -39,7 +39,7 @@ def save_playlist():
     user_id = current_user.id
     subtunes_arg = request.args.get('subtunes') if request.args.get('subtunes') \
         else None
-    subtune_ids = subtunes_arg.split(',') if subtunes_arg else []
+    subtune_ids = subtunes_arg.split(',') if subtunes_arg else [20, 110]
     
     if len(subtune_ids) == 0:
         return {"status": "no subtunes given"}, 400
@@ -54,12 +54,19 @@ def save_playlist():
     playlist_res = requests.post(f"{SPOTIFY_API_URL}/users/{user_spotify_id}/playlists", headers=headers, json=body)
 
     spotify_playlist_id = playlist_res.json()['id']
+    playlist_snapshot_id = playlist_res.json()['snapshot_id']
     
-    playlist = Playlist(id=spotify_playlist_id, name=playlist_name, description=description, user_id=user_id)
+    playlist = Playlist(
+        id=spotify_playlist_id,
+        name=playlist_name,
+        description=description,
+        user_id=user_id,
+        snapshot_id=playlist_snapshot_id
+    )
     db.session.add(playlist)
     
     subtune_tunes = []
-    for subtune_idx, subtune_id in enumerate(subtune_ids):
+    for subtune_id in subtune_ids:
         subtune = Subtune.query.get(subtune_id)
         
         if subtune is None:
@@ -78,7 +85,7 @@ def save_playlist():
         tune_id = subtune_tune.tune_id
             
         playlist.playlist_subtune_tunes.append(
-            Playlist_Subtune_Tune(subtune_id=subtune_id, tune_id=tune_id, order_in_playlist=idx)
+            Playlist_Tune(subtune_id=subtune_id, tune_id=tune_id, order_in_playlist=idx)
         )
 
     db.session.commit()
@@ -91,6 +98,4 @@ def save_playlist():
         db.session.rollback()
         return {"status": "failed to add tracks to playlist"}, res.status_code
     
-
-
     return jsonify(playlist), 200
