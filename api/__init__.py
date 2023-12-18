@@ -33,13 +33,17 @@ def register_blueprints(app):
     app.register_blueprint(spotify_auth_api)
 
     from .blueprints.tunes_api import bp as tunes_api
-    app.register_blueprint(tunes_api)
+    app.register_blueprint(tunes_api, url_prefix=PREFIX)
 
     from .blueprints.search import bp as search_api
     app.register_blueprint(search_api, url_prefix=PREFIX)
 
+    from .blueprints.playlist_api import bp as playlist_api
+    app.register_blueprint(playlist_api, url_prefix=PREFIX)
+
     from .blueprints.subtunes_api import bp as subtunes_api
-    app.register_blueprint(subtunes_api)
+    app.register_blueprint(subtunes_api, url_prefix=PREFIX)
+    
 
 
 def register_extensions(app):
