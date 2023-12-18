@@ -39,7 +39,7 @@ def save_playlist():
     user_id = current_user.id
     subtunes_arg = request.args.get('subtunes') if request.args.get('subtunes') \
         else None
-    subtune_ids = subtunes_arg.split(',') if subtunes_arg else [20, 110]
+    subtune_ids = subtunes_arg.split(',') if subtunes_arg else []
     
     if len(subtune_ids) == 0:
         return {"status": "no subtunes given"}, 400
