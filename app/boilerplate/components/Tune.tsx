@@ -7,8 +7,22 @@ interface Tune {
   url_preview: string;
 }
 
+interface Tune {
+  id: string;
+  name: string;
+  artist: string;
+  url_preview: string;
+}
+
 const Tune = ({ tuneObj, onClick }) => {
-  const tune: Tune = tuneObj;
+  const tune: Tune = JSON.parse(tuneObj)
+
+  // until endpoint on backend returns these fields, need to blank them out.
+  //const album = tuneData["album"]["name"];
+  //const imageUrl = tuneData["album"]["images"][0]["url"];
+  //const duration = tuneData["duration_ms"];
+  //const popularity = tuneData["popularity"];
+  //const uri = tuneData["uri"];
 
   return (
     <div className='tune'>
