@@ -14,7 +14,6 @@ type Subtune = {
   tunes: Array<TuneObj>;
 }
 
-
 const Subtune = ({ subtuneObj }) => {
   //console.log(subtuneObj);
   const subtune: Subtune = subtuneObj;
