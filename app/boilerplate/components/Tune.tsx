@@ -4,11 +4,15 @@ import React from 'react';
 // Originally I planned on making this a class, but for rendering 
 // purposes and nextjs standards, this seems expected.
 
-const Tune = ({ tune, onClick }) => {
-  const id = tune["id"];
-  const name = tune["name"];
-  const artist = tune["artist"];
-  const url = tune["preview_url"];
+interface Tune {
+  id: string;
+  name: string;
+  artist: string;
+  url_preview: string;
+}
+
+const Tune = ({ tuneObj, onClick }) => {
+  const tune: Tune = JSON.parse(tuneObj)
 
   // until endpoint on backend returns these fields, need to blank them out.
   //const album = tuneData["album"]["name"];
@@ -19,11 +23,11 @@ const Tune = ({ tune, onClick }) => {
 
   return (
     <div className='tune'>
-        <li onClick={() => onClick({ id, name, artist, external: url })}>
-            <p>Name: {name}</p>
-            <p>Artist: {artist}</p>
-            <a href={url}>Preview Song</a>
-            <p>ID: {id}</p>
+        <li onClick={() => onClick({ tune })}>
+            <p>Name: {tune.name}</p>
+            <p>Artist: {tune.artist}</p>
+            <a href={tune.url_preview}>Preview Song</a>
+            <p>ID: {tune.id}</p>
         </li>
     </div>
   );
