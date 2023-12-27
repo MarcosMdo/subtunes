@@ -2,11 +2,17 @@
 
 import { useEffect, useState } from 'react';
 import Subtune from '../components/Subtune';
+<<<<<<< HEAD
 import SearchBar from '../components/SearchBar';
 
 const ViewSubtunes = () => {
   const [subtunes, setSubtunes] = useState([]);
   const [backup, setBackup] = useState([]);
+=======
+
+const ViewSubtunes = () => {
+  const [subtunes, setSubtunes] = useState([]);
+>>>>>>> b767d8d (adds viewsubtune and viewsubtunes view which pulls from backend)
 
   useEffect(() => {
     const fetchSubtune = async () => {
