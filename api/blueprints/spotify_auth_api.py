@@ -113,9 +113,9 @@ def callback():
             # Redirect to the home page or wherever you want
             return redirect(url_for('home'))
         else:
-            return 'Failed to log in user', 500
+            return {'error': 'Failed to log in user'}, 500
     else:
-        return 'Failed to authenticate with Spotify', response.status_code
+        return {'error': 'Failed to authenticate with Spotify'}, response.status_code
 
 def login_user_from_spotify(access_token, refresh_token):
 

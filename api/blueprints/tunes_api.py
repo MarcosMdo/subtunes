@@ -41,7 +41,7 @@ def get_tune(id = "-1"):
     tune_data_response = requests.get(track_endpoint, headers=auth_header)
     
     if tune_data_response.status_code != 200:
-        return {"status": f"error getting track with {tune_id} from Spotify", "HTTPResponse Code": tune_data_response.status_code}, tune_data_response.status_code
+        return {"error": f"error getting track with {tune_id} from Spotify", "HTTPResponse Code": tune_data_response.status_code}, tune_data_response.status_code
 
     tune_data = tune_data_response.json()
     
@@ -70,12 +70,12 @@ def delete_tune(id="-1"):
     with current_app.app_context():
         tune = Tune.query.get(id)
         if tune is None:
-            return {"status": "tune not found"}, 404
+            return {"error": "tune not found"}, 404
         
         subtunes = Subtune_Tune.query.filter_by(tune_id=id).all()
         if len(subtunes) > 0:
-            return {"status": f"Tune was not removed. Tune {tune.name} is currently in {len(subtunes)} subtunes."}, 400
+            return {"error": f"Tune was not removed. Tune {tune.name} is currently in {len(subtunes)} subtunes."}, 400
         
         db.session.delete(tune)
         db.session.commit()
-        return {"status": "tune deleted"}, 200
+        return {"error": "tune deleted"}, 200

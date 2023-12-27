@@ -36,23 +36,24 @@ def get_subtune_by_id(id=1):
         
         # check if the subtune exists
         if subtune is None:
-            return {"status": "subtune not found"}, 404
+            return {"error": "subtune not found"}, 404
         
         # check if the user owns this subtune
         if subtune.user_id != user_id:
-            return {"status": "user does not own this subtune"}, 401
+            return {"error": "user does not own this subtune"}, 401
         
         response = {"title": subtune.name, "description": subtune.description}
         
-        # get relavent rows from link table
+        # get relevant rows from link table
         subtune_tunes = sorted(subtune.subtune_tunes, key=lambda subtune_tune: subtune_tune.order_in_subtune)
         
         # get tunes from link table 
         response["tunes"] = [subtune_tune.tune for subtune_tune in subtune_tunes]
-        
+        response["id"] = subtune.id
+
         return response, 200
         
-    return {"Error": "something went really wrong"}, 500
+    return {"error": "something went really wrong"}, 500
 
 # get all subtunes for a user
 @bp.route("/user/<user_id>/subtunes", methods=["GET"])
@@ -63,14 +64,14 @@ def get_user_subtunes(user_id=-1):
         user_subtunes = Subtune.query.filter_by(user_id=user_id).all()
 
         if not user_subtunes:
-            return {"status": "no subtunes found for this user"}, 404
+            return {"error": "no subtunes found for this user"}, 404
         
         response = []
 
         for subtune in user_subtunes:
             res, code = get_subtune_by_id(subtune.id)
 
-            if "status" in res or "Error" in res:
+            if "error" in res:
                 return res, code
             
             response.append(res)
@@ -89,16 +90,16 @@ def save_subtune():
     request_body = request.get_json()
     
     if "name" not in request_body:
-        return {"status": "subtune name is required"}, 400
+        return {"error": "subtune name is required"}, 400
     if "tunes" not in request_body or len(request_body["tunes"]) == 0:
-        return {"status": "no tunes given"}, 400
+        return {"error": "no tunes given"}, 400
     
     
     name = request_body["name"]
     description = request_body["description"]
     tune_ids = request_body["tunes"]
 
-    subtune= Subtune(name=name, description=description, user_id=current_user.id)
+    subtune = Subtune(name=name, description=description, user_id=current_user.id)
     db.session.add(subtune)
     
     error_with_tunes = []
@@ -109,7 +110,7 @@ def save_subtune():
         
         # something went wrong retrieving the tune
         if "tune" not in res:
-            error_with_tunes.append({"Error": res, "HTTPResponse code": http_res_code})
+            error_with_tunes.append({"error": res, "HTTPResponse code": http_res_code})
             continue
         
         # 'add' tune to subtune
@@ -127,12 +128,13 @@ def update_subtune(id=-1):
     subtune = Subtune.query.get(id)
     
     if subtune is None:
-        return {"status": "subtune not found"}, 404
+        return {"error": "subtune not found"}, 404
     
     body = request.get_json()
     
     if "name" in body:
         subtune.name = body["name"]
+
     if "description" in body:
         subtune.description = body["description"]
     
@@ -144,22 +146,14 @@ def update_subtune(id=-1):
             
             # something went wrong retrieving the tune
             if "tune" not in res:
-                return {"Error": res, "HTTPResponse code": http_res_code}, http_res_code
+                return {"error": res, "HTTPResponse code": http_res_code}, http_res_code
             
-            # 'add' tune to subtune
-            stmt = insert(Subtune_Tune).values(subtune_id=1, tune_id=tune_id)
-            stmt = stmt.on_conflict_do_nothing(index_elements=['subtune_id', 'tune_id'])
-            db.session.execute(stmt)
-    
-    #deletes tune from subtune, or do nothing
-    if "remove_tunes" in body:
-        for tune_id in body["remove_tunes"]:
-            subtune_tune = Subtune_Tune.query.filter_by(subtune_id=id, tune_id=tune_id).delete()
     
     if "order" in body:
+        subtune_tune = Subtune_Tune.query.filter_by(subtune_id=subtune.id).delete()
+
         for idx, tune_id in enumerate(body["order"]):
-            subtune_tune = Subtune_Tune.query.filter_by(subtune_id=id, tune_id=tune_id).first()
-            subtune_tune.order_in_subtune = idx
+            subtune.subtune_tunes.append(Subtune_Tune(tune_id=tune_id, order_in_subtune=idx))
     
     db.session.commit()
     return {"subtune": subtune}, 200
@@ -174,7 +168,7 @@ def delete_subtune(id=1):
     with current_app.app_context():
         subtune = Subtune.query.get(id)
         if subtune is None:
-            return {"status": "subtune not found"}, 404
+            return {"error": "subtune not found"}, 404
         db.session.delete(subtune)
         db.session.commit()
-        return {"status": "subtune deleted"}, 200
+        return {"error": "subtune deleted"}, 200

@@ -42,7 +42,7 @@ def save_playlist():
     subtune_ids = subtunes_arg.split(',') if subtunes_arg else []
     
     if len(subtune_ids) == 0:
-        return {"status": "no subtunes given"}, 400
+        return {"error": "no subtunes given"}, 400
     
     headers = {"Content-Type": "application/json"}
     headers.update(get_auth_header(session['expire_time']))
@@ -70,10 +70,10 @@ def save_playlist():
         subtune = Subtune.query.get(subtune_id)
         
         if subtune is None:
-            return {"status": "subtune not found"}, 404
+            return {"error": "subtune not found"}, 404
 
         if subtune.user_id != user_id:
-            return {"status": "user does not own this subtune"}, 401
+            return {"error": "user does not own this subtune"}, 401
         
         # 'add' subtunes to tunes list
         for subtune_tune in subtune.subtune_tunes:
@@ -96,6 +96,6 @@ def save_playlist():
     if res.status_code != 201:
         # delete playlist
         db.session.rollback()
-        return {"status": "failed to add tracks to playlist"}, res.status_code
+        return {"error": "failed to add tracks to playlist"}, res.status_code
     
     return jsonify(playlist), 200

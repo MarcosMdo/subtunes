@@ -8,7 +8,7 @@ class Subtune_Tune(db.Model):
     __tablename__ = 'subtune_tune'
     id: int = db.Column(db.Integer, primary_key=True)
     subtune_id: int = db.Column(db.Integer, db.ForeignKey('subtune.id'), nullable=False)
-    tune_id: str = db.Column(db.String(100), db.ForeignKey('tune.id') ,nullable=False)
+    tune_id: str = db.Column(db.String(100), db.ForeignKey('tune.id'), nullable=False)
     order_in_subtune: int = db.Column(db.Integer, default=0, nullable=False)
     db.UniqueConstraint(subtune_id, tune_id, name='_subtune_tune_uc') # explicitly name unique constraint
     
@@ -23,5 +23,5 @@ class Subtune_Tune(db.Model):
         query, we can just get the tune objects directly from the subtune_tune table.
     """
 
-    tune = db.relationship('Tune',backref='subtune_tune', lazy='subquery', viewonly=True)
+    tune = db.relationship('Tune', backref='subtune_tune', lazy='subquery', viewonly=True)
     subtune = db.relationship('Subtune', backref='subtune_tune', lazy='subquery', viewonly=True)
