@@ -42,17 +42,17 @@ def get_subtune_by_id(id=1):
         if subtune.user_id != user_id:
             return {"error": "user does not own this subtune"}, 401
         
-        response = {"title": subtune.name, "description": subtune.description}
+        subtune_obj = {"name": subtune.name, "description": subtune.description}
         
         # get relevant rows from link table
         subtune_tunes = sorted(subtune.subtune_tunes, key=lambda subtune_tune: subtune_tune.order_in_subtune)
         
         # get tunes from link table 
-        response["tunes"] = [subtune_tune.tune for subtune_tune in subtune_tunes]
-        response["id"] = subtune.id
+        subtune_obj["tunes"] = [subtune_tune.tune for subtune_tune in subtune_tunes]
+        subtune_obj["id"] = subtune.id
 
-        return response, 200
-        
+        return {"subtune" : subtune_obj}, 200
+
     return {"error": "something went really wrong"}, 500
 
 # get all subtunes for a user

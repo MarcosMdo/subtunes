@@ -12,11 +12,15 @@ type Subtune = {
   tunes: Array<TuneObj>;
 }
 
-const Subtune = ({ subtune }) => {
-  const id = subtune["id"];
-  const name = subtune["name"];
-  const description = subtune["description"];
-  const tunes = subtune["tunes"];
+const Subtune = ({ subtuneObj }) => {
+  console.log(subtuneObj);
+  const subtune: Subtune = subtuneObj;
+  console.log("\n\n\n\n");
+  console.log("subtune: " + subtune);
+  // const id = subtune["id"];
+  // const name = subtune["name"];
+  // const description = subtune["description"];
+  // const tunes = subtune["tunes"];
 
   // until endpoint on backend returns these fields, need to blank them out.
   //const album = tuneData["album"]["name"];
@@ -28,11 +32,11 @@ const Subtune = ({ subtune }) => {
   return (
     <div>
       <div className='subtune-meta'>
-        <p>Title: {name}</p>
-        <p>Description: {description}</p>
+        <p>Title: {subtune.name}</p>
+        <p>Description: {subtune.description}</p>
       </div>
       <div className='tunes'>
-        <TuneList tunes={tunes} onAddTune={null}/>
+        <TuneList tunes={subtune.tunes} onAddTune={null}/>
       </div>
     </div>
   );

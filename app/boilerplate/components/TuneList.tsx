@@ -6,7 +6,7 @@ const TuneList = ({ tunes, onAddTune }) => {
   return (
     <ul>
       {tunes && tunes.map((tune, index) => (
-          <Tune key={index} tune={tune} onClick={() => onAddTune(tune)} />
+          <Tune key={index} tuneObj={tune} onClick={() => onAddTune(tune)} />
       ))}
     </ul>
   );

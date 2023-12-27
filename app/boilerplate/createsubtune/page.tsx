@@ -8,9 +8,11 @@ import TuneList from '../components/TuneList';
 
 import "../../globals.css"
 
-const PlaylistCreator = () => {
+const SubtuneCreator = () => {
   const [searchResults, setSearchResults] = useState([]);
   const [selectedTunes, setSelectedTunes] = useState([]);
+  const [subtuneTitle, setSubtuneTitle] = useState("");
+  const [subtuneDescription, setSubtuneDescription] = useState("");
 
   const handleSearch = async (query) => {
     // Trigger API call with query and update searchResults
@@ -28,7 +30,7 @@ const PlaylistCreator = () => {
     setSelectedTunes((prevTunes) => [...prevTunes, tune]);
   };
 
-  const handleSubmitPlaylist = () => {
+  const handleSubmitSubtune = () => {
     // TODO: Implement logic to submit the subtune
     const subtuneData = {
       title: subtuneTitle,
@@ -48,9 +50,9 @@ const PlaylistCreator = () => {
       <div className='split-view'>
         <div className='left-column'>
           <SubtuneForm
-            onSubmit={handleSubmitPlaylist}
-            onTitleChange={(e) => setPlaylistTitle(e.target.value)}
-            onDescriptionChange={(e) => setPlaylistDescription(e.target.value)}
+            onSubmit={handleSubmitSubtune}
+            onTitleChange={(e) => setSubtuneTitle(e.target.value)}
+            onDescriptionChange={(e) => setSubtuneDescription(e.target.value)}
             tunes={selectedTunes}
           />
         </div>
@@ -64,4 +66,4 @@ const PlaylistCreator = () => {
   );
 };
 
-export default PlaylistCreator;
+export default SubtuneCreator;

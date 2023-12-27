@@ -12,7 +12,7 @@ interface Tune {
 }
 
 const Tune = ({ tuneObj, onClick }) => {
-  const tune: Tune = JSON.parse(tuneObj)
+  const tune: Tune = tuneObj;
 
   // until endpoint on backend returns these fields, need to blank them out.
   //const album = tuneData["album"]["name"];

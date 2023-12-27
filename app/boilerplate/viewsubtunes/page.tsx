@@ -3,16 +3,16 @@
 import { useEffect, useState } from 'react';
 import Subtune from '../components/Subtune';
 
-const ViewSubtune = () => {
-  const [subtune, setSubtune] = useState({});
+const ViewSubtunes = () => {
+  const [subtunes, setSubtunes] = useState([]);
 
   useEffect(() => {
     const fetchSubtune = async () => {
       try {
-        const response = await fetch(`/api/subtune/1`);
+        const response = await fetch('/api/user/1/subtunes');
         const data = await response.json();
         console.log("return from api: \n\n" + JSON.stringify(data));
-        setSubtune(data["subtune"]);
+        setSubtunes(data);
       } catch (error) {
         console.error('Error fetching subtune:', error);
       }
@@ -23,9 +23,13 @@ const ViewSubtune = () => {
 
   return (
     <div>
-      <Subtune subtuneObj={subtune} />
+      {/* <Subtune subtuneObj={subtunes} /> */}
+      {
+      subtunes.map((subtune) => (
+        <Subtune subtuneObj={subtune["subtune"]} />
+      ))}
     </div>
   );
 };
 
-export default ViewSubtune;
+export default ViewSubtunes;
