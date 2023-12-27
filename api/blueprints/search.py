@@ -67,7 +67,7 @@ def search_subtune(query = ""):
         
         # check if the subtune exists
         if subtunes is None:
-            return {"status": "subtune not found"}, 404
+            return {"error": "subtune not found"}, 404
         
         current_app.logger.info(subtunes)
         
