@@ -13,4 +13,4 @@ class Playlist(db.Model):
     snapshot_id: str = db.Column(db.String(100), nullable=True)
     
     db.UniqueConstraint(name, user_id, name='_playlist_uc')
-    playlist_subtune_tunes = db.relationship('Playlist_Tune', backref='Playlist', lazy='subquery', cascade="all, delete-orphan")
+    playlist_tunes = db.relationship('Playlist_Tune', backref='Playlist', lazy='subquery', cascade="all, delete-orphan")

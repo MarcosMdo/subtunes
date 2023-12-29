@@ -158,9 +158,6 @@ def update_subtune(id=-1):
     
     db.session.commit()
     return {"subtune": subtune}, 200
-    
-
-
 
 # Delete subtune from db
 @bp.route("/subtune/<id>", methods=["DELETE"]) 
@@ -170,6 +167,8 @@ def delete_subtune(id=1):
         subtune = Subtune.query.get(id)
         if subtune is None:
             return {"error": "subtune not found"}, 404
+        
         db.session.delete(subtune)
         db.session.commit()
-        return {"error": "subtune deleted"}, 200
+        
+        return {"status": "subtune deleted"}, 200
