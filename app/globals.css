@@ -51,7 +51,10 @@ body {
 }
  
 .tune {
-  padding-bottom: 5vh;
+    padding: 2vh;
+    border: 1px solid gray;
+    border-radius: 5px;
+    margin: 2vh;
 }
 
 .title-container,
@@ -70,4 +73,15 @@ body {
   padding: 8px; 
   box-sizing: border-box;
   color:black;
+}
+
+.subtune-meta p{
+  font-size: 20px;
+  padding: 1vh;
+}
+
+.subtune {
+  border: 1px solid gray;
+  margin-bottom: 1vh;
+  border-radius: 3px;
 }

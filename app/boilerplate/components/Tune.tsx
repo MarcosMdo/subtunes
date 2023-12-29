@@ -1,9 +1,5 @@
 import React from 'react';
 
-// Note on Tune component:
-// Originally I planned on making this a class, but for rendering 
-// purposes and nextjs standards, this seems expected.
-
 interface Tune {
   id: string;
   name: string;
@@ -13,13 +9,6 @@ interface Tune {
 
 const Tune = ({ tuneObj, onClick }) => {
   const tune: Tune = tuneObj;
-
-  // until endpoint on backend returns these fields, need to blank them out.
-  //const album = tuneData["album"]["name"];
-  //const imageUrl = tuneData["album"]["images"][0]["url"];
-  //const duration = tuneData["duration_ms"];
-  //const popularity = tuneData["popularity"];
-  //const uri = tuneData["uri"];
 
   return (
     <div className='tune'>

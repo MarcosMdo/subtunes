@@ -1,6 +1,6 @@
 import TuneList from './TuneList';
 
-const SubtuneForm = ({ onSubmit, tunes }) => {
+const SubtuneForm = ({ onSubmit, tunes, onTitleChange, onDescriptionChange }) => {
     
     // TODO: must make onAddTune nullified somehow... right now throws error
     // when the user clicks on the tune within the subtune creator.
@@ -10,12 +10,14 @@ const SubtuneForm = ({ onSubmit, tunes }) => {
         <input className="title"
             type="text"
             placeholder="Title"
+            onChange={onTitleChange}
         />
         </div>
        <div className="decription-container">
         <input className='description'
                 type="text"
                 placeholder="Description"
+                onChange={onDescriptionChange}
             />
        </div>
         

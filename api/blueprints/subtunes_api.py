@@ -88,7 +88,8 @@ def save_subtune():
     """
     
     request_body = request.get_json()
-    
+    current_app.logger.info(request_body)
+
     if "name" not in request_body:
         return {"error": "subtune name is required"}, 400
     if "tunes" not in request_body or len(request_body["tunes"]) == 0:

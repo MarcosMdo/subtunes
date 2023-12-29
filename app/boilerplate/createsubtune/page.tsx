@@ -30,16 +30,36 @@ const SubtuneCreator = () => {
     setSelectedTunes((prevTunes) => [...prevTunes, tune]);
   };
 
-  const handleSubmitSubtune = () => {
+  const handleSubmitSubtune = async () => {
     // TODO: Implement logic to submit the subtune
+    const tune_ids = selectedTunes.map(tune => tune.id);
+    
     const subtuneData = {
-      title: subtuneTitle,
-      description: subtuneDescription,
-      songs: selectedTunes,
+      "name": subtuneTitle,
+      "description": subtuneDescription,
+      "tunes": tune_ids
     };
 
-    console.log('Submitting Subtune:', subtuneData);
-    // TODO: call endpoint to create subtune and properly format body.
+    try {
+      const response = await fetch('/api/subtune', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(subtuneData),
+      });
+  
+      if (!response.ok) {
+        throw new Error('Failed to create subtune');
+      }
+  
+      const responseData = await response.json();
+      console.log('Subtune created successfully:', responseData);
+      // Handle any further logic after creating the subtune
+    } catch (error) {
+      console.error('Error creating subtune:', error);
+      // Handle error scenarios
+    }
   };
 
   return (
