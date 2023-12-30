@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react';
+import Navigation from '../components/Navigation';
 import Subtune from '../components/Subtune';
 import Playlist from '../components/Playlist';
 
@@ -43,11 +44,11 @@ const Home = () => {
 
   return (
     <div>
-      
+      <Navigation />
       <div className='preview'>
         <p>Subtunes</p>
         {
-        subtunes.slice(0, 5).map((subtune) => (
+        subtunes && Array.isArray(subtunes) && subtunes.slice(0, 5).map((subtune) => (
           <div className='item'>
             <Subtune subtuneObj={subtune["subtune"]} />
           </div>
@@ -60,7 +61,7 @@ const Home = () => {
       <div className='preview'>
         <p>Playlists</p>
         {
-        playlists.slice(0, 5).map((playlist) => (
+        playlists && Array.isArray(playlists) && playlists.slice(0, 5).map((playlist) => (
           <div className='item'>
             <Playlist playlistObj={playlist["playlist"]} />
           </div>

@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react';
+import Navigation from '../components/Navigation';
 import Subtune from '../components/Subtune';
 
 const ViewSubtunes = () => {
@@ -41,6 +42,7 @@ const ViewSubtunes = () => {
 
   return (
     <div>
+      <Navigation />
       <div className='search-bar'>
         <SearchBar onSearch={handleSearch} />
       </div>

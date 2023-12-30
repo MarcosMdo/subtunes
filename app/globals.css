@@ -93,6 +93,12 @@ body {
   border-radius: 3px;
 }
 
+.playlist {
+  border: 1px solid gray;
+  margin-bottom: 1vh;
+  border-radius: 3px;
+}
+
 .preview {
   overflow: auto;
   white-space: nowrap;
@@ -105,7 +111,7 @@ body {
 }
 
 .item {
-  display: inline-block;
+  display: inline-flex;
   padding: 4vh;
   border-radius: 2px;
 }

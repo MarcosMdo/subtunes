@@ -17,7 +17,7 @@ const Playlist = ({ playlistObj }) => {
   const playlist: Playlist = playlistObj;
 
   return (
-    <div className='subtune'>
+    <div className='playlist'>
       <div className='subtune-meta'>
         <h1>{playlist.name}</h1>
         <p>{playlist.description}</p>

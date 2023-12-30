@@ -1,28 +1,35 @@
 'use client'
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation'
+import Navigation from '../components/Navigation';
 import Subtune from '../components/Subtune';
 
-const ViewSubtune = () => {
+const ViewSubtune = ({searchParams}) => {
   const [subtune, setSubtune] = useState({});
+  const router = useRouter();
 
   useEffect(() => {
     const fetchSubtune = async () => {
       try {
-        const response = await fetch(`/api/subtune/1`);
-        const data = await response.json();
-        console.log("return from api: \n\n" + JSON.stringify(data));
-        setSubtune(data["subtune"]);
+        if (searchParams && searchParams.id) {
+          const id  = searchParams.id;
+          const response = await fetch(`/api/subtune/${id}`);
+          const data = await response.json();
+          console.log("return from api: \n\n" + JSON.stringify(data));
+          setSubtune(data["subtune"]);
+        }
       } catch (error) {
         console.error('Error fetching subtune:', error);
       }
     };
 
     fetchSubtune();
-  }, []); // Empty dependency array to fetch data once on component mount
+  }, [router, searchParams]); // Empty dependency array to fetch data once on component mount
 
   return (
     <div>
+      <Navigation />
       <Subtune subtuneObj={subtune} />
     </div>
   );
