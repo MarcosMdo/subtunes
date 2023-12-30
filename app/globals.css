@@ -51,10 +51,10 @@ body {
 }
  
 .tune {
-    padding: 2vh;
-    border: 1px solid gray;
-    border-radius: 5px;
-    margin: 2vh;
+  padding: 2vh;
+  border: 1px solid gray;
+  border-radius: 5px;
+  margin: 2vh;
 }
 
 .title-container,
@@ -75,13 +75,49 @@ body {
   color:black;
 }
 
-.subtune-meta p{
-  font-size: 20px;
-  padding: 1vh;
+.subtune-meta p {
+  font-size: 16px;
+  padding-left: 2vh;
+  color: gray;
 }
+
+.subtune-meta h1{
+  font-size: 32px;
+  padding-left: 2vh;
+}
+
 
 .subtune {
   border: 1px solid gray;
   margin-bottom: 1vh;
   border-radius: 3px;
+}
+
+.preview {
+  overflow: auto;
+  white-space: nowrap;
+  border: gray solid 1px;
+  margin-top: 3vh;
+  margin-bottom: 1vh;
+  margin-left: 1vh;
+  margin-right: 1vh;
+  border-radius: 1px;
+}
+
+.item {
+  display: inline-block;
+  padding: 4vh;
+  border-radius: 2px;
+}
+
+.see-all-button {
+  float: right;
+  border: solid gray 1px;
+  border-radius: 3px;
+  padding: 1vh;
+  margin-right: 1vh;
+}
+
+.see-all-button:hover {
+  background-color: gray;
 }

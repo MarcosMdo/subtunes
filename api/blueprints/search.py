@@ -3,6 +3,7 @@
 from urllib.parse import quote
 from flask import Flask, request, redirect, session, url_for, Blueprint, jsonify, current_app
 from ..database.db import db
+from ..model.playlist import Playlist
 from ..model.subtune import Subtune
 from ..model.tune import Tune
 from ..spotify_api_endpoints import spotify_endpoints
@@ -62,7 +63,6 @@ def search_subtune(query = ""):
     current_app.logger.info("query={}".format(query))
 
     with current_app.app_context():
-        #subtunes = Subtune.query.filter(Subtune.name.like(query)).all()
         subtunes = Subtune.query.filter(Subtune.name.ilike(query)).all()
         
         # check if the subtune exists
@@ -70,7 +70,51 @@ def search_subtune(query = ""):
             return {"error": "subtune not found"}, 404
         
         current_app.logger.info(subtunes)
+
+        resp = []
+
+        for subtune in subtunes:
+            subtune_obj = {"name": subtune.name, "description": subtune.description, "id": subtune.id}
+            tunes = sorted(subtune.subtune_tunes, key=lambda subtune_tune: subtune_tune.order_in_subtune)
+            subtune_obj["tunes"] = [subtune_tune.tune for subtune_tune in tunes]
+            
+            resp.append({"subtune": subtune_obj})
         
-        return {"subtunes": subtunes}, 200
+        current_app.logger.info("\n\n\n")
 
+        current_app.logger.info(resp)
+        
+        return resp, 200
 
+@bp.route("/search/playlist", methods=["GET"])
+def search_playlist(query = ""):
+    query = "{}%".format(request.args.get('query'))
+
+    if not query:
+        return jsonify({'error': 'Query parameter "query" is required'}), 400
+    
+    current_app.logger.info("query={}".format(query))
+
+    with current_app.app_context():
+        playlists = Playlist.query.filter(Playlist.name.ilike(query)).all()
+        
+        # check if the playlist exists
+        if playlists is None:
+            return {"error": "playlists not found"}, 404
+        
+        current_app.logger.info(playlists)
+
+        resp = []
+
+        for playlist in playlists:
+            playlist_obj = {"name": playlist.name, "description": playlist.description, "id": playlist.id}
+            tunes = sorted(playlist.playlist_tunes, key=lambda playlist_tune: playlist_tune.order_in_playlist)
+            playlist_obj["tunes"] = [playlist_tune.tune for playlist_tune in tunes]
+            
+            resp.append({"playlist": playlist_obj})
+        
+        current_app.logger.info("\n\n\n")
+
+        current_app.logger.info(resp)
+        
+        return resp, 200

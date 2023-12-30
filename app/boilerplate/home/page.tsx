@@ -2,9 +2,13 @@
 
 import { useEffect, useState } from 'react';
 import Subtune from '../components/Subtune';
+import Playlist from '../components/Playlist';
+
+import Link from 'next/link'
 
 const Home = () => {
   const [subtunes, setSubtunes] = useState([]);
+  const [playlists, setPlaylists] = useState([]);
 
   useEffect(() => {
     const fetchSubtunes = async () => {
@@ -25,10 +29,10 @@ const Home = () => {
   useEffect(() => {
     const fetchPlaylists = async () => {
       try {
-        const response = await fetch('/api/user/1/subtunes');
+        const response = await fetch('/api/user/1/playlists');
         const data = await response.json();
         console.log("return from api: \n\n" + JSON.stringify(data));
-        setSubtunes(data);
+        setPlaylists(data);
       } catch (error) {
         console.error('Error fetching subtune:', error);
       }
@@ -39,11 +43,32 @@ const Home = () => {
 
   return (
     <div>
-      {/* <Subtune subtuneObj={subtunes} /> */}
-      {
-      subtunes.map((subtune) => (
-        <Subtune subtuneObj={subtune["subtune"]} />
-      ))}
+      
+      <div className='preview'>
+        <p>Subtunes</p>
+        {
+        subtunes.slice(0, 5).map((subtune) => (
+          <div className='item'>
+            <Subtune subtuneObj={subtune["subtune"]} />
+          </div>
+        ))}
+      </div>
+      <div className='see-all-button'>
+        <Link href="/boilerplate/viewsubtunes">All Subtunes</Link>
+      </div>
+      <p> ___</p>
+      <div className='preview'>
+        <p>Playlists</p>
+        {
+        playlists.slice(0, 5).map((playlist) => (
+          <div className='item'>
+            <Playlist playlistObj={playlist["playlist"]} />
+          </div>
+        ))}
+      </div>
+      <div className='see-all-button'>
+        <Link href="/boilerplate/viewplaylists">All Playlists</Link>
+      </div>
     </div>
   );
 };

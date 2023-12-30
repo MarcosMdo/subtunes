@@ -13,10 +13,10 @@ const Tune = ({ tuneObj, onClick }) => {
   return (
     <div className='tune'>
         <li onClick={() => onClick({ tune })}>
-            <p>Name: {tune.name}</p>
-            <p>Artist: {tune.artist}</p>
-            <a href={tune.url_preview}>Preview Song</a>
-            <p>ID: {tune.id}</p>
+            <p>{tune.name}</p>
+            <p>{tune.artist}</p>
+            {/* <a href={tune.url_preview}>Preview Song</a> */}
+            {/* <p>ID: {tune.id}</p> */}
         </li>
     </div>
   );
