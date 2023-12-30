@@ -105,14 +105,15 @@ body {
 }
 
 .subtune {
-  border: 1px solid #ececec52;
-  border-radius: 10px;
+  border: 1px solid gray;
+  margin-bottom: 1vh;
+  border-radius: 3px;
 }
 
 .playlist {
-  border: 1px solid #ececec52;
-  border-radius: 10px;
-  font-family: 'Overused Grotesk';
+  border: 1px solid gray;
+  margin-bottom: 1vh;
+  border-radius: 3px;
 }
 
 .preview {
@@ -133,31 +134,9 @@ body {
 }
 
 .item {
-  display: block;
-  margin-right: 10vh;
-  border-radius: 8px;
-  background-color: #ececec52;
-  margin-inline: inherit;
-  flex-basis: calc(33.33% - 4vh); /* 20px margin between items, adjust as needed */
-  margin-bottom: 4vh;
-  margin-left: 2vh;
-  margin-right: 2vh;
-}
-
-.item:hover {
-  background-color: #ececec1e;
-  border-color: #ececec1e;
-}
-
-.subtune:hover {
-  background-color: #ececec1e;
-}
-
-.preview-title {
-  color: black;
-  padding-left: 1vh;
-  font-size: 36px;
-  font-family: 'Overused Grotesk';
+  display: inline-flex;
+  padding: 4vh;
+  border-radius: 2px;
 }
 
 .see-all-button {

@@ -5,9 +5,8 @@
   align-items: center;
   justify-content: space-between;
   padding: 10px;
-  background-color: #c4c4c456;
+  background-color: #c4c4c4;
   color: black;
-  font-family: 'Overused Grotesk';
 }
 
 .leftSection {
@@ -42,7 +41,7 @@
 .dropdownContent {
   display: none;
   position: absolute;
-  background-color: #dbdadacc;
+  background-color: #c4c4c4ce;
   min-width: 160px;
   z-index: 1;
 }
@@ -75,5 +74,4 @@
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  opacity: .75;
 }

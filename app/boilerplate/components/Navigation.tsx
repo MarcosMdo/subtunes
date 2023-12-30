@@ -1,10 +1,8 @@
 // components/Navigation.js
 import Link from 'next/link';
 import styles from './Navigation.module.css'
-import { useRouter } from 'next/navigation';
 
 const Navigation = () => {
-
   return (
     <nav className={styles.navigation}>
         <div className={styles.leftSection}>
@@ -21,10 +19,10 @@ const Navigation = () => {
             <div className={styles.dropdown}>
                 <Link className={styles.library} href="/boilerplate/home">Library</Link>
                 <div className={styles.dropdownContent}>
-                <Link href="/boilerplate/home?tab=subtunes">
+                <Link href="/boilerplate/viewsubtunes">
                     Subtunes
                 </Link>
-                <Link href="/boilerplate/home?tab=playlists">
+                <Link href="/boilerplate/viewplaylists">
                     Playlists
                 </Link>
                 </div>
@@ -46,9 +44,9 @@ const Navigation = () => {
 
       {/* User Info */}
       <div className={styles.userInfo}>
-        <span className={styles.userName}>User</span>
+        <span className={styles.userName}>Adriel</span>
         {/* Placeholder for the user's profile picture */}
-        <img src="/default.png" alt="Profile Picture" className={styles.profilePicture} />
+        <img src="/profile-picture-placeholder.png" alt="Profile Picture" className={styles.profilePicture} />
       </div>
     </nav>
   );

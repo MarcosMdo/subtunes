@@ -28,7 +28,7 @@ const ViewSubtune = ({searchParams}) => {
   }, [router, searchParams]); // Empty dependency array to fetch data once on component mount
 
   return (
-    <div style={{ backgroundImage: 'url(../background.png)', backgroundSize: 'cover' }}>
+    <div>
       <Navigation />
       <Subtune subtuneObj={subtune} />
     </div>

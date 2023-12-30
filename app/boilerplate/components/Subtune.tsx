@@ -20,15 +20,17 @@ const Subtune = ({ subtuneObj }) => {
   const subtune: Subtune = subtuneObj;
 
   return (
-    <div className='subtune'>
-      <div className='subtune-meta'>
-        <h1>{subtune.name}</h1>
-        <p>{subtune.description}</p>
+    <Link href={{pathname: `/boilerplate/viewsubtune`, query: {id: subtune.id}}}>
+      <div className='subtune'>
+        <div className='subtune-meta'>
+          <h1>{subtune.name}</h1>
+          <p>{subtune.description}</p>
+        </div>
+        <div className='tunes'>
+          <TuneList tunes={subtune.tunes} onAddTune={null} />
+        </div>
       </div>
-      <div className='tunes'>
-        <TuneList tunes={subtune.tunes} onAddTune={null}/>
-      </div>
-    </div>
+    </Link>
   );
 };
 
