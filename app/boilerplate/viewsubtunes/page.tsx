@@ -8,11 +8,6 @@ const ViewSubtunes = () => {
   const [subtunes, setSubtunes] = useState([]);
   const [backup, setBackup] = useState([]);
 
-
-const ViewSubtunes = () => {
-  const [subtunes, setSubtunes] = useState([]);
-
-
   useEffect(() => {
     const fetchSubtune = async () => {
       try {
