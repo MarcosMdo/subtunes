@@ -41,13 +41,13 @@ const ViewSubtunes = () => {
   }
 
   return (
-    <div>
+    <div style={{ backgroundImage: 'url(../background.png)', backgroundSize: 'cover' }}>
       <Navigation />
       <div className='search-bar'>
         <SearchBar onSearch={handleSearch} />
       </div>
       <a onClick={resetSearch}>Clear</a>
-      <div className='container'>
+      <div className='preview'>
         {
         subtunes.map((subtune) => (
           <div className='item'>

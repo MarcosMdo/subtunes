@@ -1,0 +1,6 @@
+@font-face {
+    font-family: 'Overused Grotesk';
+    src:
+      url('./fonts/OverusedGrotesk/OverusedGrotesk-Book.ttf') format('woff2 supports variations');
+    font-weight: 300 900;
+  }

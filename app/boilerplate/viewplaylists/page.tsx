@@ -42,7 +42,7 @@ const ViewPlaylists = () => {
   }
 
   return (
-    <div>
+    <div style={{ backgroundImage: 'url(../background.png)', backgroundSize: 'cover' }}>
       <Navigation />
       <div className='search-bar'>
         <SearchBar onSearch={handleSearch} />
