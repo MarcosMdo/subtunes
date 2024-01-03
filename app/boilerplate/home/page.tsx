@@ -60,10 +60,10 @@ const Home = ({searchParams}) => {
   
 
   return (
-    <div>
+    <div style={{ backgroundImage: 'url(../background.png)', backgroundSize: 'cover' }}>
       <Navigation />
       <div className='preview'>
-        <p>Subtunes</p>
+        <p className='preview-title'>Subtunes</p>
         {
         subtunes && Array.isArray(subtunes) && subtunes.slice(0, 5).map((subtune) => (
           <div className='item'>
@@ -76,7 +76,7 @@ const Home = ({searchParams}) => {
       </div>
       <p> ___</p>
       <div className='preview'>
-        <p>Playlists</p>
+        <p className='preview-title'>Playlists</p>
         {
         playlists && Array.isArray(playlists) && playlists.slice(0, 5).map((playlist) => (
           <div className='item'>

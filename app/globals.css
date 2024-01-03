@@ -63,7 +63,7 @@ body {
 }
  
 .tune {
-  padding: 10px;
+  padding: 2vh;
   border: 1px solid #ffffff84;
   border-radius: 5px;
   margin: 2vh;
@@ -105,15 +105,15 @@ body {
 }
 
 .subtune {
-  border: 1px solid gray;
-  margin-bottom: 1vh;
-  border-radius: 3px;
+  border: 1px solid #ececec52;
+  border-radius: 10px;
 }
 
 .playlist {
   border: 1px solid gray;
   margin-bottom: 1vh;
   border-radius: 3px;
+  font-family: 'Overused Grotesk';
 }
 
 .preview {
@@ -126,17 +126,30 @@ body {
   margin-right: 1vh;
   border-radius: 10px;
   /* background-color: #79726a1a; */
-
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between; /* Adjust as needed */
-  margin: 20px 0; /* Adjust the margin as needed */
 }
 
 .item {
   display: inline-flex;
-  padding: 4vh;
-  border-radius: 2px;
+  margin-right: 10vh;
+  border-radius: 8px;
+  background-color: #ececec52;
+  margin-inline: inherit;
+}
+
+.item:hover {
+  background-color: #ececec1e;
+  border-color: #ececec1e;
+}
+
+.subtune:hover {
+  background-color: #ececec1e;
+}
+
+.preview-title {
+  color: black;
+  padding-left: 1vh;
+  font-size: 36px;
+  font-family: 'Overused Grotesk';
 }
 
 .see-all-button {
@@ -163,27 +176,4 @@ body {
 }
 .edit-subtune-meta h1 {
   font-size: 120px;
-}
-
-/* .subtune-metaM {
-  display: none;
-} */
-
-.subtuneM {
-  display: block;
-  margin-right: 10vh;
-  border-radius: 8px;
-  background-color: #ececec52;
-  margin-inline: inherit;
-  flex-basis: calc(33.33% - 4vh); /* 20px margin between items, adjust as needed */
-  margin-bottom: 4vh;
-  margin-left: 2vh;
-  margin-right: 2vh;
-  background-color: #ececec1e;
-  border-color: #ececec1e;
-}
-
-.tabs {
-  color: black;
-  font-family: 'Overused Grotesk';
 }

@@ -20,7 +20,7 @@ const Subtune = ({ subtuneObj }) => {
   const subtune: Subtune = subtuneObj;
 
   return (
-    <Link href={{pathname: `/boilerplate/viewsubtune`, query: {id: subtune.id}}}>
+    <Link href={{pathname: `/boilerplate/editsubtune`, query: {id: subtune.id}}}>
       <div className='subtune'>
         <div className='subtune-meta'>
           <h1>{subtune.name}</h1>
