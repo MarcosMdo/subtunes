@@ -1,43 +1,43 @@
 'use client'
 
 import { useEffect, useState } from 'react';
-import Subtune from '../components/Subtune';
+import Subtune from '../components/Playlist';
 import SearchBar from '../components/SearchBar';
 
-const ViewSubtunes = () => {
-  const [subtunes, setSubtunes] = useState([]);
+const ViewPlaylists = () => {
+  const [playlists, setPlaylists] = useState([]);
   const [backup, setBackup] = useState([]);
 
   useEffect(() => {
-    const fetchSubtune = async () => {
+    const fetchPlaylist = async () => {
       try {
-        const response = await fetch('/api/user/1/subtunes');
+        const response = await fetch('/api/user/1/playlists');
         const data = await response.json();
         console.log("return from api: \n\n" + JSON.stringify(data));
-        setSubtunes(data);
+        setPlaylists(data);
         setBackup(data);
       } catch (error) {
         console.error('Error fetching subtune:', error);
       }
     };
 
-    fetchSubtune();
+    fetchPlaylist();
   }, []); // Empty dependency array to fetch data once on component mount
 
   const handleSearch = async (query) => {
     // Trigger API call with query and update searchResults
     try {
-      const response = await fetch(`/api/search/subtune?query=${encodeURIComponent(query)}`);
+      const response = await fetch(`/api/search/playlist?query=${encodeURIComponent(query)}`);
       const data = await response.json();
       console.log(data);
-      setSubtunes(data);
+      setPlaylists(data);
     } catch (error) {
       console.error('Error fetching search results:', error);
     }
   };
 
   const resetSearch = () => {
-    setSubtunes(backup);
+    setPlaylists(backup);
   }
 
   return (
@@ -46,17 +46,12 @@ const ViewSubtunes = () => {
         <SearchBar onSearch={handleSearch} />
       </div>
       <a onClick={resetSearch}>Clear</a>
-      <div className='container'>
-        {
-        subtunes.map((subtune) => (
-          <div className='item'>
-            <Subtune subtuneObj={subtune["subtune"]} />
-          </div>
-        ))}
-      </div>      
-      
+      {
+      playlists.map((playlist) => (
+        <Subtune playlistObj={playlist["playlist"]} />
+      ))}
     </div>
   );
 };
 
-export default ViewSubtunes;
+export default ViewPlaylists;
