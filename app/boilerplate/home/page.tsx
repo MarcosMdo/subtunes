@@ -62,30 +62,32 @@ const Home = ({searchParams}) => {
   return (
     <div style={{ backgroundImage: 'url(../background.png)', backgroundSize: 'cover' }}>
       <Navigation />
+
+      <div className='tabs'>
+        <Link href='/boilerplate/home?tab=subtunes' className={`tab ${selectedTab === 'subtunes' ? 'selected' : ''}`} onClick={() => handleTabClick('subtunes')}> Subtunes </Link>
+        <Link href='/boilerplate/home?tab=playlists' className={`tab ${selectedTab === 'playlists' ? 'selected' : ''}`} onClick={() => handleTabClick('playlists')}> Playlists </Link>
+      </div>
+
       <div className='preview'>
-        <p className='preview-title'>Subtunes</p>
-        {
-        subtunes && Array.isArray(subtunes) && subtunes.slice(0, 5).map((subtune) => (
-          <div className='item'>
-            <Subtune subtuneObj={subtune["subtune"]} />
-          </div>
-        ))}
-      </div>
-      <div className='see-all-button'>
-        <Link href="/boilerplate/viewsubtunes">All Subtunes</Link>
-      </div>
-      <p> ___</p>
-      <div className='preview'>
-        <p className='preview-title'>Playlists</p>
-        {
-        playlists && Array.isArray(playlists) && playlists.slice(0, 5).map((playlist) => (
-          <div className='item'>
-            <Playlist playlistObj={playlist["playlist"]} />
-          </div>
-        ))}
-      </div>
-      <div className='see-all-button'>
-        <Link href="/boilerplate/viewplaylists">All Playlists</Link>
+        {selectedTab === 'subtunes' && (
+          <>
+            {subtunes && Array.isArray(subtunes) && subtunes.slice(0, 15).map((subtune) => (
+              <div className='item' key={subtune.subtune.id}>
+                <Subtune subtuneObj={subtune.subtune} />
+              </div>
+            ))}
+          </>
+        )}
+
+        {selectedTab === 'playlists' && (
+          <>
+            {playlists && Array.isArray(playlists) && playlists.slice(0, 15).map((playlist) => (
+              <div className='item' key={playlist.playlist.id}>
+                <Playlist playlistObj={playlist.playlist} />
+              </div>
+            ))}
+          </>
+        )}
       </div>
     </div>
   );
