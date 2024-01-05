@@ -13,7 +13,7 @@ type Playlist = {
 }
 
 const Playlist = ({ playlistObj }) => {
-  console.log(playlistObj);
+  //console.log(playlistObj);
   const playlist: Playlist = playlistObj;
 
   return (

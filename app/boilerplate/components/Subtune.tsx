@@ -16,7 +16,7 @@ type Subtune = {
 
 
 const Subtune = ({ subtuneObj }) => {
-  console.log(subtuneObj);
+  //console.log(subtuneObj);
   const subtune: Subtune = subtuneObj;
 
   return (
