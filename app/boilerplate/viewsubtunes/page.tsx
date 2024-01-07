@@ -1,8 +1,8 @@
 'use client'
 
 import { useEffect, useState } from 'react';
+import Navigation from '../components/Navigation';
 import Subtune from '../components/Subtune';
-import SearchBar from '../components/SearchBar';
 
 const ViewSubtunes = () => {
   const [subtunes, setSubtunes] = useState([]);
@@ -41,12 +41,13 @@ const ViewSubtunes = () => {
   }
 
   return (
-    <div>
+    <div style={{ backgroundImage: 'url(../background.png)', backgroundSize: 'cover' }}>
+      <Navigation />
       <div className='search-bar'>
         <SearchBar onSearch={handleSearch} />
       </div>
       <a onClick={resetSearch}>Clear</a>
-      <div className='container'>
+      <div className='preview'>
         {
         subtunes.map((subtune) => (
           <div className='item'>

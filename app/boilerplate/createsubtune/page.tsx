@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import useSWR from 'swr';
+import Navigation from '../components/Navigation';
 import SearchBar from '../components/SearchBar';
 import SubtuneForm from '../components/SubtuneForm';
 import TuneList from '../components/TuneList';
@@ -63,7 +64,8 @@ const SubtuneCreator = () => {
   };
 
   return (
-    <div>
+    <div style={{ backgroundImage: 'url(../background.png)', backgroundSize: 'cover' }}>
+      <Navigation />
       <div className='search-bar'>
         <SearchBar onSearch={handleSearch} />
       </div>

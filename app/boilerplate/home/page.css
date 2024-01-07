@@ -4,23 +4,44 @@ ul {
     padding: 0;
   }
   
-  li {
-    border: 1px solid #ccc;
-    margin-bottom: 10px;
-    padding: 10px;
-  }
-  
   p {
     margin: 0;
     font-size: 20px;
+    font-family: 'Overused Grotesk';
+    color: black;
   }
   
   a {
-    color: #0070f3;
+    color: black;
     text-decoration: none;
     font-weight: bold;
+    font-family: 'Overused Grotesk';
   }
   
-  a:hover {
+  /* a:hover {
     text-decoration: underline;
-  }
+  } */
+  /* Add or modify styles in your CSS file */
+.tabs {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px; /* Adjust the margin as needed */
+}
+
+.tab {
+  cursor: pointer;
+  padding: 10px 20px;
+  margin: 0 10px;
+  border-bottom: 2px solid transparent;
+  transition: border-bottom 0.3s ease;
+
+  /* Add other styles as needed */
+}
+
+.tab:hover {
+  border-bottom: 2px solid black; /* Change the color as needed */
+}
+
+.selected {
+  border-bottom: 2px solid black; /* Change the color as needed */
+}

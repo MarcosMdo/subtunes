@@ -13,11 +13,11 @@ type Playlist = {
 }
 
 const Playlist = ({ playlistObj }) => {
-  console.log(playlistObj);
+  //console.log(playlistObj);
   const playlist: Playlist = playlistObj;
 
   return (
-    <div className='subtune'>
+    <div className='playlist'>
       <div className='subtune-meta'>
         <h1>{playlist.name}</h1>
         <p>{playlist.description}</p>

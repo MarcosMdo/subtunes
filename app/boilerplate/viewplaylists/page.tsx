@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react';
+import Navigation from '../components/Navigation';
 import Subtune from '../components/Playlist';
 import SearchBar from '../components/SearchBar';
 
@@ -41,13 +42,14 @@ const ViewPlaylists = () => {
   }
 
   return (
-    <div>
+    <div style={{ backgroundImage: 'url(../background.png)', backgroundSize: 'cover' }}>
+      <Navigation />
       <div className='search-bar'>
         <SearchBar onSearch={handleSearch} />
       </div>
       <a onClick={resetSearch}>Clear</a>
       {
-      playlists.map((playlist) => (
+      playlists && Array.isArray(playlists) && playlists.map((playlist) => (
         <Subtune playlistObj={playlist["playlist"]} />
       ))}
     </div>

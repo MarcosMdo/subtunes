@@ -4,8 +4,9 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation'
 import Navigation from '../components/Navigation';
 import Subtune from '../components/Subtune';
+import TuneList from '../components/TuneList';
 
-const ViewSubtune = ({searchParams}) => {
+const EditSubtune = ({searchParams}) => {
   const [subtune, setSubtune] = useState({});
   const router = useRouter();
 
@@ -28,11 +29,23 @@ const ViewSubtune = ({searchParams}) => {
   }, [router, searchParams]); // Empty dependency array to fetch data once on component mount
 
   return (
-    <div style={{ backgroundImage: 'url(../background.png)', backgroundSize: 'cover' }}>
+    <div style={{ backgroundImage: 'url(../background.png)', backgroundSize: 'cover', height: '100vh', width: '100vw' }}>
       <Navigation />
-      <Subtune subtuneObj={subtune} />
+      <div className='edit-subtune-meta'>
+        <h1> {subtune.name}</h1>
+        <p> {subtune.description}</p>
+      </div>
+      <div className='edit-subtune-tunes'>
+
+      </div>
+      <div className='edit-subtune-center'>
+      <TuneList tunes={subtune.tunes} onAddTune={null} />
+      </div>
+      <div className='edit-subtune-playlists'>
+
+      </div>
     </div>
   );
 };
 
-export default ViewSubtune;
+export default EditSubtune;

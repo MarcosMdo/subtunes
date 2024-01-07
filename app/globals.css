@@ -2,6 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
+@import "fonts.css";
+
 :root {
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 214, 219, 220;
@@ -14,6 +16,14 @@
     --background-start-rgb: 0, 0, 0;
     --background-end-rgb: 0, 0, 0;
   }
+}
+
+@font-face {
+  font-family: 'Overused Grotesk';
+  src:
+    url('./fonts/OverusedGrotesk/OverusedGrotesk-Book.woff2') format('woff2 supports variations'),
+    url('./fonts/OverusedGrotesk/OverusedGrotesk-Book.woff2') format('woff2-variations');
+  font-weight: 300 900;
 }
 
 body {
@@ -37,6 +47,8 @@ body {
 .search-bar input {
   margin-right: 2vh;
   color:black;
+  font-family: 'Overused Grotesk';
+  padding-left: 1vh;
 }
 
 .split-view {
@@ -51,10 +63,13 @@ body {
 }
  
 .tune {
-  padding: 2vh;
-  border: 1px solid gray;
+  padding: 10px;
+  border: 1px solid #ffffff84;
   border-radius: 5px;
   margin: 2vh;
+  background-color: #ffffff84;
+  color: black;
+  font-family: 'Overused Grotesk';
 }
 
 .title-container,
@@ -79,45 +94,117 @@ body {
   font-size: 16px;
   padding-left: 2vh;
   color: gray;
+  font-family: 'Overused Grotesk';
 }
 
 .subtune-meta h1{
   font-size: 32px;
   padding-left: 2vh;
+  color: black;
+  font-family: 'Overused Grotesk';
 }
 
-
 .subtune {
-  border: 1px solid gray;
-  margin-bottom: 1vh;
-  border-radius: 3px;
+  border: 1px solid #ececec52;
+  border-radius: 10px;
+}
+
+.playlist {
+  border: 1px solid #ececec52;
+  border-radius: 10px;
+  font-family: 'Overused Grotesk';
 }
 
 .preview {
   overflow: auto;
   white-space: nowrap;
-  border: gray solid 1px;
+  /* border: #79726a1a solid 1px; */
   margin-top: 3vh;
   margin-bottom: 1vh;
   margin-left: 1vh;
   margin-right: 1vh;
-  border-radius: 1px;
+  border-radius: 10px;
+  /* background-color: #79726a1a; */
+
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between; /* Adjust as needed */
+  margin: 20px 0; /* Adjust the margin as needed */
 }
 
 .item {
-  display: inline-block;
-  padding: 4vh;
-  border-radius: 2px;
+  display: block;
+  margin-right: 10vh;
+  border-radius: 8px;
+  background-color: #ececec52;
+  margin-inline: inherit;
+  flex-basis: calc(33.33% - 4vh); /* 20px margin between items, adjust as needed */
+  margin-bottom: 4vh;
+  margin-left: 2vh;
+  margin-right: 2vh;
+}
+
+.item:hover {
+  background-color: #ececec1e;
+  border-color: #ececec1e;
+}
+
+.subtune:hover {
+  background-color: #ececec1e;
+}
+
+.preview-title {
+  color: black;
+  padding-left: 1vh;
+  font-size: 36px;
+  font-family: 'Overused Grotesk';
 }
 
 .see-all-button {
   float: right;
-  border: solid gray 1px;
+  border: solid #ececec52 1px;
   border-radius: 3px;
   padding: 1vh;
   margin-right: 1vh;
+  font-family: 'Overused Grotesk';
+  background-color: #ececec52;
+  color: black;
 }
 
 .see-all-button:hover {
-  background-color: gray;
+  background-color: #ececec1e;
+}
+
+.edit-subtune-meta {
+  color: black;
+  font-family: 'Overused Grotesk';
+  margin: auto;
+  width: 50%;
+  text-align: center;
+}
+.edit-subtune-meta h1 {
+  font-size: 120px;
+}
+
+/* .subtune-metaM {
+  display: none;
+} */
+
+.subtuneM {
+  display: block;
+  margin-right: 10vh;
+  border-radius: 8px;
+  background-color: #ececec52;
+  margin-inline: inherit;
+  flex-basis: calc(33.33% - 4vh); /* 20px margin between items, adjust as needed */
+  margin-bottom: 4vh;
+  margin-left: 2vh;
+  margin-right: 2vh;
+  background-color: #ececec1e;
+  border-color: #ececec1e;
+}
+
+.tabs {
+  color: black;
+  font-family: 'Overused Grotesk';
 }
