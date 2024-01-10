@@ -1,21 +1,33 @@
 'use client'
 
-import { useState } from 'react';
+import { ChangeEvent, useState }  from 'react';
 import useSWR from 'swr';
 import Navigation from '../components/Navigation';
 import SearchBar from '../components/SearchBar';
 import SubtuneForm from '../components/SubtuneForm';
 import TuneList from '../components/TuneList';
+import { tune } from '../../subtuneTypes/Tune';
+
 
 import "../../globals.css"
 
 const SubtuneCreator = () => {
   const [searchResults, setSearchResults] = useState([]);
-  const [selectedTunes, setSelectedTunes] = useState([]);
+  const [selectedTunes, setSelectedTunes] = useState<tune[]>([]);
   const [subtuneTitle, setSubtuneTitle] = useState("");
   const [subtuneDescription, setSubtuneDescription] = useState("");
+  const [subtuneColor, setSubtuneColor] = useState("#aabbcc");
+  const [imageFile, setImageFile] = useState<File>();
 
-  const handleSearch = async (query) => {
+  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    // should set size limit and file type checks later
+    const files = event.target.files;
+    if (files && files.length > 0){
+      setImageFile(files[0]);
+    }
+  };
+
+  const handleSearch = async (query: string) => {
     // Trigger API call with query and update searchResults
     try {
       const response = await fetch(`/api/search/tune?query=${encodeURIComponent(query)}`);
@@ -26,9 +38,9 @@ const SubtuneCreator = () => {
     }
   };
 
-  const handleAddTune = (tune) => {
+  const handleAddTune = (tune : tune) => {
     // Add the selected song to the playlist
-    setSelectedTunes((prevTunes) => [...prevTunes, tune]);
+    setSelectedTunes((prevTunes: tune[]) => [...prevTunes, tune]);
   };
 
   const handleSubmitSubtune = async () => {
@@ -38,16 +50,19 @@ const SubtuneCreator = () => {
     const subtuneData = {
       "name": subtuneTitle,
       "description": subtuneDescription,
-      "tunes": tune_ids
+      "tunes": tune_ids,
+      "color": subtuneColor,
     };
+
+    const formData = new FormData();
+    formData.append("data", JSON.stringify(subtuneData));
+    // only append image if it exists
+    imageFile && formData.append("image", imageFile);
 
     try {
       const response = await fetch('/api/subtune', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(subtuneData),
+        body: formData,
       });
   
       if (!response.ok) {
@@ -70,12 +85,16 @@ const SubtuneCreator = () => {
         <SearchBar onSearch={handleSearch} />
       </div>
       <div className='split-view'>
-        <div className='left-column'>
+        <div className='left-column' style={{backgroundColor: subtuneColor, borderRadius: "15px"}}>
+
           <SubtuneForm
             onSubmit={handleSubmitSubtune}
-            onTitleChange={(e) => setSubtuneTitle(e.target.value)}
-            onDescriptionChange={(e) => setSubtuneDescription(e.target.value)}
+            onTitleChange={(e: ChangeEvent<HTMLInputElement>) => setSubtuneTitle(e.target.value)}
+            onDescriptionChange={(e: ChangeEvent<HTMLInputElement>) => setSubtuneDescription(e.target.value)}
             tunes={selectedTunes}
+            subtuneColor={subtuneColor}
+            setSubtuneColor={setSubtuneColor}
+            onSetImage={handleFileChange}
           />
         </div>
         <div className='right-column'>

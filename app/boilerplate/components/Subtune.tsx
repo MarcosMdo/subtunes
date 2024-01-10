@@ -1,5 +1,6 @@
 import TuneList from './TuneList';
 import TuneObj from './Tune';
+import { subtune } from '../../subtuneTypes/Subtune';
 
 import Link from 'next/link';
 
@@ -7,24 +8,30 @@ import Link from 'next/link';
 // Originally I planned on making this a class, but for rendering 
 // purposes and nextjs standards, this seems expected.
 
-type Subtune = {
-  id: string;
-  name: string;
-  description: string;
-  tunes: Array<TuneObj>;
-}
+// type Subtune = {
+//   id: string;
+//   name: string;
+//   description: string;
+//   tunes: Array<TuneObj>;
+//   color: string;
+// }
 
 
-const Subtune = ({ subtuneObj }) => {
+const Subtune = ({ subtuneObj }: {subtuneObj: subtune}) => {
   //console.log(subtuneObj);
-  const subtune: Subtune = subtuneObj;
+  const subtune: subtune = subtuneObj;
 
   return (
     <Link href={{pathname: `/boilerplate/editsubtune`, query: {id: subtune.id}}}>
-      <div className='subtune'>
-        <div className='subtune-meta'>
-          <h1>{subtune.name}</h1>
-          <p>{subtune.description}</p>
+      <div className='subtune' >
+      <div className='subtune-meta' style={{ display: 'flex', alignItems: 'center' }}>
+        <div style={{ marginRight: 'auto' }}>
+            <h1>{subtune.name}</h1>
+            <p>{subtune.description}</p>
+          </div>
+          <div>
+            <img src={subtune.image_url} width={'64px'} style={{paddingRight: '10px'}} />
+          </div>
         </div>
         <div className='tunes'>
           <TuneList tunes={subtune.tunes} onAddTune={null} />
