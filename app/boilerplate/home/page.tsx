@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import Navigation from '../components/Navigation';
-import Navigation from '../components/Navigation';
 import Subtune from '../components/Subtune';
 import Playlist from '../components/Playlist';
 import { useRouter } from 'next/navigation';
