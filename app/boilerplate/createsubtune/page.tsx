@@ -86,7 +86,6 @@ const SubtuneCreator = () => {
       </div>
       <div className='split-view'>
         <div className='left-column' style={{backgroundColor: subtuneColor, borderRadius: "15px"}}>
-
           <SubtuneForm
             onSubmit={handleSubmitSubtune}
             onTitleChange={(e: ChangeEvent<HTMLInputElement>) => setSubtuneTitle(e.target.value)}
