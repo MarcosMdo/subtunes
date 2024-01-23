@@ -3,6 +3,7 @@ import copy
 import secrets
 import boto3
 import json
+import uuid
 from urllib.parse import quote
 
 from ..database.db import db
@@ -143,7 +144,7 @@ def save_subtune():
     
     # save image to s3 bucket
     if image_file:
-        img_path = f'user/{current_user.id}/subtunes/{secrets.token_hex(12)}'
+        img_path = f'user/{current_user.id}/subtunes/{uuid.uuid4()}'
         isSaved, url_or_error = save_image_to_s3(image_file, img_path)
     
     subtune = Subtune(
@@ -183,7 +184,6 @@ def update_subtune(id=-1):
     if subtune is None:
         return {"error": "subtune not found"}, 404
     
-    # body = request.get_json()
     image_file = request.files["image"] if "image" in request.files else None
     body = json.loads(request.form.to_dict()['data'])
     

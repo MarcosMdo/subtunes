@@ -1,12 +1,6 @@
 import React from 'react';
 import { Tune } from '../../subtuneTypes/Tune';
 
-// interface Tune {
-//   id: string;
-//   name: string;
-//   artist: string;
-//   url_preview: string;
-// }
 
 const Tune = ({ tuneObj, onClick }) => {
   const tune: Tune = tuneObj;

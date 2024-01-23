@@ -8,14 +8,6 @@ import Link from 'next/link';
 // Originally I planned on making this a class, but for rendering 
 // purposes and nextjs standards, this seems expected.
 
-// type Subtune = {
-//   id: string;
-//   name: string;
-//   description: string;
-//   tunes: Array<TuneObj>;
-//   color: string;
-// }
-
 
 const Subtune = ({ subtuneObj }: {subtuneObj: subtune}) => {
   //console.log(subtuneObj);
