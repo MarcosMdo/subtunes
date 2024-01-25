@@ -7,6 +7,7 @@ import Playlist from '../components/Playlist';
 import { useRouter } from 'next/navigation';
 import { useSearchParams } from "next/navigation";
 import Link from 'next/link';
+import { subtune } from '../../subtuneTypes/Subtune';
 
 import './page.css';
 
@@ -71,7 +72,7 @@ const Home = ({searchParams}) => {
         {selectedTab === 'subtunes' && (
           <>
             {subtunes && Array.isArray(subtunes) && subtunes.slice(0, 15).map((subtune) => (
-              <div className='item' key={subtune.subtune.id}>
+              <div className='item' key={subtune.subtune.id} >
                 <Subtune subtuneObj={subtune.subtune} />
               </div>
             ))}

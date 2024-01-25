@@ -11,6 +11,8 @@ class Playlist(db.Model):
     user_id: int = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     from_subtunes: bool = db.Column(db.Boolean, default=True, nullable=True)
     snapshot_id: str = db.Column(db.String(100), nullable=True)
+    created_at: str = db.Column(db.DateTime, nullable=False, default=db.func.current_timestamp())
+    last_edited: str = db.Column(db.DateTime, nullable=False, default=db.func.current_timestamp())
     
     db.UniqueConstraint(name, user_id, name='_playlist_uc')
     playlist_tunes = db.relationship('Playlist_Tune', backref='Playlist', lazy='subquery', cascade="all, delete-orphan")

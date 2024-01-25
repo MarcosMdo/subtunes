@@ -1,5 +1,8 @@
 import requests
 import copy
+import secrets
+import boto3
+import json
 import uuid
 from urllib.parse import quote
 
@@ -20,9 +23,45 @@ from flask import Flask, request, redirect, session, url_for, Blueprint, jsonify
 from flask_login import current_user, login_required
 
 
+
+
 bp = Blueprint('subtunes_api', __name__)
 
 SPOTIFY_API_URL = spotify_endpoints['SPOTIFY_API_URL']
+
+def get_image_url(img_path):
+    s3_base_url = f'https://subtunes.s3.amazonaws.com/'
+    image_url = f'{s3_base_url}{img_path}'
+    return image_url
+
+# save subtune image to aws s3 bucket
+def save_image_to_s3(file, img_path):
+    s3 = boto3.client('s3', 
+            aws_access_key_id=current_app.config["AWS_ACCESS_KEY_ID"],
+            aws_secret_access_key=current_app.config["AWS_SECRET_ACCESS_KEY"],
+            region_name='us-east-2')
+    try:
+        s3.upload_fileobj(file, 'subtunes', img_path)
+        return True, get_image_url(img_path)
+    except Exception as e:
+        print(e)
+        return False, e
+
+# delete subtune image from aws s3 bucket
+def delete_file_from_s3(file_url):
+
+    # Initialize the S3 resource
+    s3 = boto3.resource('s3',
+                        aws_access_key_id=current_app.config["AWS_ACCESS_KEY_ID"],
+                        aws_secret_access_key=current_app.config["AWS_SECRET_ACCESS_KEY"])
+
+    # Delete the file from the S3 bucket
+    try:
+        s3.Object(bucket_name, file_key).delete()
+        return True  # Deletion successful
+    except Exception as e:
+        print(e)  # Handle or log the error
+        return False  # Deletion failed
 
 # get subtune by id
 @bp.route("/subtune/<id>", methods=["GET"])
@@ -50,6 +89,8 @@ def get_subtune_by_id(id=1):
         # get tunes from link table 
         subtune_obj["tunes"] = [subtune_tune.tune for subtune_tune in subtune_tunes]
         subtune_obj["id"] = subtune.id
+        subtune_obj["color"] = subtune.color
+        subtune_obj["image_url"] = subtune.image_url if subtune.image_url else None
 
         return {"subtune" : subtune_obj}, 200
 
@@ -87,20 +128,32 @@ def save_subtune():
     errors if any for a given tune id. may not need but just in case for now.
     """
     
-    request_body = request.get_json()
-    current_app.logger.info(request_body)
+    image_file = request.files["image"] if "image" in request.files else None
+    request_body = json.loads(request.form.to_dict()['data'])
 
     if "name" not in request_body:
         return {"error": "subtune name is required"}, 400
     if "tunes" not in request_body or len(request_body["tunes"]) == 0:
         return {"error": "no tunes given"}, 400
-    
-    
+
     name = request_body["name"]
     description = request_body["description"]
     tune_ids = request_body["tunes"]
-
-    subtune = Subtune(name=name, description=description, user_id=current_user.id)
+    
+    color = request_body["color"] if "color" in request_body else None
+    
+    # save image to s3 bucket
+    if image_file:
+        img_path = f'user/{current_user.id}/subtunes/{uuid.uuid4()}'
+        isSaved, url_or_error = save_image_to_s3(image_file, img_path)
+    
+    subtune = Subtune(
+            name=name, 
+            description=description, 
+            user_id=current_user.id, 
+            color=color, 
+            image_url=url_or_error if isSaved else None
+        )
     db.session.add(subtune)
     
     error_with_tunes = []
@@ -116,7 +169,7 @@ def save_subtune():
         
         # 'add' tune to subtune
         subtune.subtune_tunes.append(Subtune_Tune(tune_id=tune_id, order_in_subtune=idx))
-
+        
     # save all subtune_tune's and the subtune object to db
     db.session.commit()
     
@@ -131,7 +184,8 @@ def update_subtune(id=-1):
     if subtune is None:
         return {"error": "subtune not found"}, 404
     
-    body = request.get_json()
+    image_file = request.files["image"] if "image" in request.files else None
+    body = json.loads(request.form.to_dict()['data'])
     
     if "name" in body:
         subtune.name = body["name"]

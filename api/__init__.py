@@ -4,7 +4,7 @@ from flask_migrate import Migrate
 import secrets
 from .database.db import db
 from flask_login import LoginManager, current_user, login_required, logout_user
-
+import json
 
 def create_app():
     
@@ -20,7 +20,14 @@ def create_app():
     
     register_extensions(app)
     
+    add_aws_configs(app)
+    
     return app
+
+def add_aws_configs(app):
+    aws_configs = json.load(open("./api/aws_creds.json", "r+")) #api/aws_creds.json
+    app.config["AWS_ACCESS_KEY_ID"] = aws_configs["aws_access_key_id"]
+    app.config["AWS_SECRET_ACCESS_KEY"] = aws_configs["aws_secret_access_key"]
 
 def app_configs(app, configs):
     pass
