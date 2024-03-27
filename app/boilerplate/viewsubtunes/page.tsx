@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Navigation from '../components/Navigation';
 import Subtune from '../components/Subtune';
+import SearchBar from '../components/SearchBar';
 
 const ViewSubtunes = () => {
   const [subtunes, setSubtunes] = useState([]);
