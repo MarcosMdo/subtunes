@@ -1,20 +1,21 @@
-import React from 'react';
-import { Tune } from '../../subtuneTypes/Tune';
+import React, { ForwardedRef, forwardRef } from 'react';
 
+import { tune } from '../../subtuneTypes/Tune';
 
-const Tune = ({ tuneObj, onClick }) => {
-  const tune: Tune = tuneObj;
+import { CSS } from '@dnd-kit/utilities';
+
+// (props: { tuneObj: tune; onClick: (arg0: { tune: tune; }) => void; })
+export const Tune = (props: { tuneObj: tune; onClick: (arg0: { tune: tune; }) => void; })=> {
+  const tune: tune = props.tuneObj;
 
   return (
     <div className='tune'>
-        <li onClick={() => onClick({ tune })}>
+        <li onClick={() => props.onClick({ tune })}>
             <p>{tune.name}</p>
             <p>{tune.artist}</p>
-            {/* <a href={tune.url_preview}>Preview Song</a> */}
-            {/* <p>ID: {tune.id}</p> */}
         </li>
     </div>
   );
-};
+}
 
 export default Tune;

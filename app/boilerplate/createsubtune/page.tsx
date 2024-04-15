@@ -8,6 +8,8 @@ import SubtuneForm from '../components/SubtuneForm';
 import TuneList from '../components/TuneList';
 import { tune } from '../../subtuneTypes/Tune';
 
+import { Reorder } from 'framer-motion';
+
 
 import "../../globals.css"
 
@@ -33,6 +35,7 @@ const SubtuneCreator = () => {
       const response = await fetch(`/api/search/tune?query=${encodeURIComponent(query)}`);
       const data = await response.json();
       setSearchResults(data["tracks"]);
+      console.log('Search results:', data);
     } catch (error) {
       console.error('Error fetching search results:', error);
     }

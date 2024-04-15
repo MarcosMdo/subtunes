@@ -1,0 +1,5 @@
+
+input[type="text"] {
+    filter: blur(10px);
+    background-color: red !important;
+}

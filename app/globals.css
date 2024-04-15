@@ -10,7 +10,7 @@
   --background-end-rgb: 255, 255, 255;
 }
 
-@media (prefers-color-scheme: dark) {
+@media (prefers-color-scheme: light) {
   :root {
     --foreground-rgb: 255, 255, 255;
     --background-start-rgb: 0, 0, 0;
@@ -68,8 +68,10 @@ body {
   border-radius: 5px;
   margin: 2vh;
   background-color: #ffffff84;
+  opacity: 85%;
   color: black;
   font-family: 'Overused Grotesk';
+  font-size: larger;
 }
 
 .title-container,
