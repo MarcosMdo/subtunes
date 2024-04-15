@@ -46,3 +46,5 @@ __pycache__
 
 # database
 migrations/
+# React Component Preview
+previewConfig.json

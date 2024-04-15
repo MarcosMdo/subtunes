@@ -18,6 +18,22 @@ SPOTIFY_SEARCH_API_URL = f"{SPOTIFY_API_URL}/search"
 
 the_query="nadie&type=album&include_external=audio&locale=en-US%2Cen%3Bq%3D0.9%2Ces%3Bq%3D0.8&offset=0&limit=20"
 
+@bp.route("/search/next", methods=["GET"])
+def search_next():
+    next_results = session.get('next', None)
+    if next_results is None:
+        return jsonify({'error': 'No more results'}), 404
+    query = next_results.split('?')[1]
+    current_app.logger.info("next query:" + query)
+    resp = search_tune(query)
+    data = resp[0].get_json()
+    current_app.logger.info(data)
+    if resp[0].status_code == 200:
+        return jsonify(data), 200
+    else:
+        return jsonify({'error': 'Failed to fetch tracks from Spotify'}), resp[0].status_code
+    
+
 @bp.route("/search/tune", methods=["GET"])
 def search_tune(query = "name=nadie sabe lo que"):
     # Get the search term from the query parameters
@@ -32,24 +48,30 @@ def search_tune(query = "name=nadie sabe lo que"):
     auth_header = get_auth_header(session['expire_time'])
     params = {
         "q": query,
-        "type": "track",
-        "limit": 10,
+        "type": "album,artist,track",
+        "limit": 20,
         "offset": 0,
+        "market": "US",
         "include_external": "audio"
     }
 
     response = requests.get(SPOTIFY_SEARCH_API_URL, headers=auth_header, params=params)
 
     current_app.logger.info(response)
-
+    
+    hasNext = None
     if response.status_code == 200:
         # Parse the response and extract track information
         tracks = response.json().get('tracks', {}).get('items', [])
-
+        next_results = response.json().get('tracks', {}).get('next', '')
+        session['next'] = next_results
+        if next_results is None:
+            del session['next']
+        current_app.logger.info(tracks[0].keys())
         # Extract relevant information from each track
-        track_info = [{'id': track['id'], 'name': track['name'], 'artist': track['artists'][0]['name'], 'external': track['preview_url']} for track in tracks]
+        track_info = [{'id': track['id'], 'name': track['name'], 'artist': track['artists'][0]['name'], 'external': track['preview_url'], 'cover': track['album']['images'][0]['url']} for track in tracks]
 
-        return jsonify({'tracks': track_info})
+        return jsonify({'tracks': track_info, 'next': True if next_results else None}), 200
     else:
         return jsonify({'error': 'Failed to fetch tracks from Spotify'}), response.status_code
 
@@ -113,7 +135,7 @@ def search_playlist(query = ""):
             
             resp.append({"playlist": playlist_obj})
         
-        current_app.logger.info("\n\n\n")
+        current_app.logger.info("\n\n\nplaylist:")
 
         current_app.logger.info(resp)
         
