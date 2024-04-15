@@ -22,6 +22,7 @@ import { read } from "fs";
 
 
 export const SubtuneForm = ({ children, style }) => {
+    const reader = new FileReader();
 
     const [subtuneColor, setSubtuneColor] = useState("#0000");
     const [compColor, setCompColor] = useState("#0000");
@@ -64,7 +65,7 @@ export const SubtuneForm = ({ children, style }) => {
 
     const subtuneFormStyle = {
         // background: "rgba(0,0,0,0.8)",
-        backgroundImage: "url('lakeView.webp')",
+        backgroundImage: `url(${imageFile})`,
         backgroundSize: "cover",
         height: "100%",
         borderRadius: "8px",
@@ -77,31 +78,6 @@ export const SubtuneForm = ({ children, style }) => {
         height: "100%",
         borderRadius: "8px",
         padding: "2rem",
-    }
-
-    const findComplementaryColor = (subtuneColor: string) => {
-        const rgb = subtuneColor.match(/\w\w/g).map(x => parseInt(x, 16));
-        const complementaryRgb = rgb.map(x => 255 - x);
-        const complementaryColor = `#${complementaryRgb.map(x => x.toString(16).padStart(2, '0')).join('')}`;
-        setCompColor(complementaryColor);
-    };
-
-    const handleColorChange = (color: string) => {
-        findComplementaryColor(color);
-        // console.log("color: ", color, "compColor: ", compColor);
-        setAngle((angle) => angle + 5 % 360);
-        setSubtuneData({ ...subtuneData, subtuneColor: color });
-    }
-    
-    const handleImageUpload = (e) => {
-        e.target.files && e.target.files[0] ? setSubtuneData({...subtuneData, subtuneImage: e.target.files[0]}) : null
-        const reader = new FileReader();
-        reader.onload = () => {
-            setImageFile(reader.result);
-        }
-        if (e.target.files[0]){
-            reader.readAsDataURL(e.target.files[0]);
-        }
     }
 
     const VisuallyHiddenInput = styled('input')({
@@ -125,6 +101,33 @@ export const SubtuneForm = ({ children, style }) => {
         boxShadow: "0 0 5px 0 rgba(0,0,0,0.5)",
         outlineStyle: "none",
     }
+
+    const findComplementaryColor = (subtuneColor: string) => {
+        const rgb = subtuneColor.match(/\w\w/g).map(x => parseInt(x, 16));
+        const complementaryRgb = rgb.map(x => 255 - x);
+        const complementaryColor = `#${complementaryRgb.map(x => x.toString(16).padStart(2, '0')).join('')}`;
+        setCompColor(complementaryColor);
+    };
+
+    const handleColorChange = (color: string) => {
+        findComplementaryColor(color);
+        // console.log("color: ", color, "compColor: ", compColor);
+        setAngle((angle) => angle + 5 % 360);
+        setSubtuneData({ ...subtuneData, subtuneColor: color });
+    }
+    
+    const handleImageUpload = (e) => {
+        e.target.files && e.target.files[0] ? setSubtuneData({...subtuneData, subtuneImage: e.target.files[0]}) : null
+        
+        reader.onload = () => {
+            setImageFile(reader.result);
+        }
+        if (e.target.files[0]){
+            reader.readAsDataURL(e.target.files[0]);
+        }
+    }
+
+    
 
     // TODO: implement handleSubmit of subtune form
     const handleSubmit = async (event) => {
@@ -197,8 +200,8 @@ export const SubtuneForm = ({ children, style }) => {
                             // startIcon={<AddPhotoAlternateIcon />}
                             variant="contained"
                         >
-                            <AddPhotoAlternateIcon />
                             <VisuallyHiddenInput type="file" onChange={handleImageUpload}  />
+                            <AddPhotoAlternateIcon />
                         </Button>
                         {
                             imageFile ?
@@ -239,8 +242,8 @@ export const SubtuneForm = ({ children, style }) => {
                                             }
                                         }}
                                     >
+                                        <HexColorInput className='color-input' color={subtuneData.subtuneColor}  style={{marginBottom: "5px"}}/>
                                         <HexColorPicker color={subtuneData.subtuneColor} onChange={handleColorChange} />
-                                        <HexColorInput className='color-input' color={subtuneData.subtuneColor} />
                                     </motion.div>
                                 )}
                             </AnimatePresence>
