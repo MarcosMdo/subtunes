@@ -14,12 +14,12 @@ export const Tune = ({ tune, style, id }: { tune: tune; style: any; id: any }) =
         ...style,
     };
 
-    const audioRef = useRef(new Audio(tune.external)); // Initialize with the Audio object
+    const audioRef = useRef(tune.external !== null ? new Audio(tune.external) : null); // Initialize with the Audio object
 
     const handlePlayPause = () => {
-        const audio = audioRef.current;
+        const audio = audioRef.current !== null ? audioRef.current : null;
 
-        if (isPlaying) {
+        if (isPlaying && audio !== null) {
             audio.pause();
         } else {
             audio.currentTime = 0; // Reset audio to the beginning
@@ -35,6 +35,7 @@ export const Tune = ({ tune, style, id }: { tune: tune; style: any; id: any }) =
     // Cleanup when component unmounts
     useEffect(() => {
         return () => {
+            if (audioRef.current === null) return;
             audioRef.current.pause(); // Pause audio on unmount
             audioRef.current.currentTime = 0; // Reset audio to the beginning
             setIsPlaying(false); // Reset state

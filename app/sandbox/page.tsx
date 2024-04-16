@@ -78,7 +78,6 @@ const sandbox = () => {
                             />
                         ) : null}
                     </DragOverlay>
-
                 </DndContext>
             </div>
         </div>
@@ -110,7 +109,7 @@ const sandbox = () => {
 
     function handleDragOver(event: any) {
         const { active, over, draggingRect } = event;
-        // console.log("event: ", event)
+        console.log("event: ", event)
 
         const { id } = active;
         const { id: overId } = over;
@@ -209,7 +208,7 @@ const sandbox = () => {
     }
 
     function handleDragCancel(event: any) {
-
+        setActiveId(null);
     }
 
     function handleDragMove(event: any) {
