@@ -1,7 +1,7 @@
 import requests
 import copy
 import secrets
-import boto3
+#import boto3
 import json
 import uuid
 from urllib.parse import quote
@@ -35,17 +35,17 @@ def get_image_url(img_path):
     return image_url
 
 # save subtune image to aws s3 bucket
-def save_image_to_s3(file, img_path):
-    s3 = boto3.client('s3', 
-            aws_access_key_id=current_app.config["AWS_ACCESS_KEY_ID"],
-            aws_secret_access_key=current_app.config["AWS_SECRET_ACCESS_KEY"],
-            region_name='us-east-2')
-    try:
-        s3.upload_fileobj(file, 'subtunes', img_path)
-        return True, get_image_url(img_path)
-    except Exception as e:
-        print(e)
-        return False, e
+# def save_image_to_s3(file, img_path):
+#     s3 = boto3.client('s3', 
+#             aws_access_key_id=current_app.config["AWS_ACCESS_KEY_ID"],
+#             aws_secret_access_key=current_app.config["AWS_SECRET_ACCESS_KEY"],
+#             region_name='us-east-2')
+#     try:
+#         s3.upload_fileobj(file, 'subtunes', img_path)
+#         return True, get_image_url(img_path)
+#     except Exception as e:
+#         print(e)
+#         return False, e
 
 # delete subtune image from aws s3 bucket
 def delete_file_from_s3(file_url):
@@ -145,14 +145,15 @@ def save_subtune():
     # save image to s3 bucket
     if image_file:
         img_path = f'user/{current_user.id}/subtunes/{uuid.uuid4()}'
-        isSaved, url_or_error = save_image_to_s3(image_file, img_path)
+        #isSaved, url_or_error = save_image_to_s3(image_file, img_path)
+        isSaved = None
     
     subtune = Subtune(
             name=name, 
             description=description, 
             user_id=current_user.id, 
             color=color, 
-            image_url=url_or_error if isSaved else None
+            #image_url=url_or_error if isSaved else None
         )
     db.session.add(subtune)
     
