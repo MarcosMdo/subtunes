@@ -12,7 +12,6 @@ export function middleware(request: NextRequest) {
   } else {
     // Token does not exist, redirect to Spotify login
     console.log("no spotify token found, redirecting")
-
     const redirectUrl = new URL('/api/login', request.url);
     return NextResponse.redirect(redirectUrl);
   }
