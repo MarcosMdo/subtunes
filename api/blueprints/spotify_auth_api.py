@@ -11,7 +11,7 @@ import json
 import os
 
 
-from flask import request, redirect, Blueprint, session, current_app, url_for
+from flask import request, redirect, Blueprint, session, current_app, url_for, make_response
 from flask_login import login_user
 
 bp = Blueprint('spotify_auth_api', __name__)
@@ -63,9 +63,9 @@ def get_auth_header(expire_time = -1):
         response = requests.post(SPOTIFY_TOKEN_URL, headers=headers, params=refresh_payload)
 
         session['access_token'] = response.json()["access_token"]
-        session['token_expires_in'] = response.json()["expires_in"]
+        session['expires_in'] = response.json()["expires_in"]
         session['token_type'] = response.json()["token_type"]
-        session['expire_time'] = time.time() + session['token_expires_in']
+        session['expire_time'] = time.time() + session['expires_in']
 
     return {"Authorization": "Bearer " + session['access_token']}
 
@@ -123,21 +123,28 @@ def callback():
     response = requests.post(SPOTIFY_TOKEN_URL, headers=headers, params=code_payload)
 
     if response.status_code == 200:
-        # Store tokens in the session
-        session['access_token'] = response.json()["access_token"]
-        session['refresh_token'] = response.json()["refresh_token"]
-        session['token_expires_in'] = response.json()["expires_in"]
-        session['token_type'] = response.json()["token_type"]
-        session['expire_time'] = time.time() + session['token_expires_in']
+
+        token_data = response.json()
+        access_token = token_data["access_token"]
+        refresh_token = token_data["refresh_token"]
+        expires_in = token_data["expires_in"]
+        token_type = token_data["token_type"]
+
+        session['access_token'] = access_token
+        session['refresh_token'] = refresh_token
+        session['expires_in'] = expires_in
+        session['token_type'] = token_type
+        session['expire_time'] = time.time() + expires_in
         current_app.logger.info(session)
 
-        access_token = response.json()["access_token"]
-        refresh_token = response.json()["refresh_token"]
-        login_successful = login_user_from_spotify(access_token, refresh_token)
+        response = make_response(redirect(url_for("index"))) 
+        response.set_cookie("access_token", access_token, max_age=expires_in)
+        response.set_cookie("refresh_token", refresh_token, max_age=expires_in)
+        response.set_cookie("token_type", token_type, max_age=expires_in)
+        response.set_cookie("expire_time", str(time.time() + expires_in), max_age=expires_in)
 
-        if login_successful:
-            # Redirect to the home page or wherever you want
-            return redirect(url_for('index'))
+        if login_user_from_spotify(access_token, refresh_token):
+            return response
         else:
             return {'error': 'Failed to log in user'}, 500
     else:
