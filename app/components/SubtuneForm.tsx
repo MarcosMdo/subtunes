@@ -1,5 +1,5 @@
 'use client'
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import styles from "./Component.module.css"
 
@@ -20,10 +20,7 @@ import { HexColorPicker, HexColorInput } from "react-colorful";
 
 
 export default function SubtuneForm({onColorChange, onImageChange, subtuneTunes}:{ onColorChange: (color: number[]) => void; onImageChange: (imageurl: string )=> void; subtuneTunes: tune[]}) {
-    let reader: any;
-    if (typeof window !== undefined){
-        reader = new FileReader();
-    }
+    const [file, setFile] = useState<any>(null);
     const [image, setImage] = useState<string | null>(null);
     const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
     const [compColor, setCompColor] = useState<string>("#000000");
@@ -74,13 +71,16 @@ export default function SubtuneForm({onColorChange, onImageChange, subtuneTunes}
     const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         // checks 
         if (!e.target.files) return console.log("No files selected");
-        console.log(e.target.files[0].type);
+        setFile(e.target.files[0])
         setSubtuneData({...subtuneData, subtuneImage: e.target.files[0]})
+    }
+    useEffect(() => {
+        const reader = new FileReader();
         
         // we first read the contents of the file and store it in the file reader object
-        if (e.target.files[0]){
-            reader.readAsDataURL(e.target.files[0]);
-            setSubtuneData({...subtuneData, subtuneImage: e.target.files[0]})
+        if (file){
+            reader.readAsDataURL(file);
+            setSubtuneData({...subtuneData, subtuneImage: file})
         }
 
         // then we store it in state var
@@ -88,7 +88,7 @@ export default function SubtuneForm({onColorChange, onImageChange, subtuneTunes}
             setImage(reader.result as string);
             onImageChange(reader.result as string);
         }
-    }
+    }, [file]);
 
     const VisuallyHiddenInput = styled('input')({
         clip: 'rect(0 0 0 0)',
