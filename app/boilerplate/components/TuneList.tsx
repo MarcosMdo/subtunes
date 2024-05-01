@@ -1,15 +1,22 @@
 import Tune from "./Tune"
-import React from 'react';
+import { tune } from '../../subtuneTypes/Tune';
+import React, {useState} from 'react';
+
+import { Reorder } from 'framer-motion';
 
 // components/SongList.js
 const TuneList = ({ tunes, onAddTune }) => {
+  const [tunesList, setTunesList] = useState(tunes);
+
   return (
-    <ul>
-      {tunes && tunes.map((tune, index) => (
+    <Reorder.Group values={tunesList} onReorder={setTunesList}>
+      {tunesList.map((tune, index) => (
           <Tune key={index} tuneObj={tune} onClick={() => onAddTune(tune)} />
       ))}
-    </ul>
+  </Reorder.Group>
   );
 };
+
+
   
 export default TuneList;

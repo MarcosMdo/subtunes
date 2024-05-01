@@ -130,6 +130,8 @@ def save_subtune():
     
     image_file = request.files["image"] if "image" in request.files else None
     request_body = json.loads(request.form.to_dict()['data'])
+    isSaved = False
+    current_app.logger.info("subtune Request body",request_body)
 
     if "name" not in request_body:
         return {"error": "subtune name is required"}, 400

@@ -17,6 +17,9 @@ aws_creds.json
 
 # production
 /build
+/app/devComponents
+/app/sandbox
+/app/poc
 
 # misc
 .DS_Store
@@ -46,3 +49,5 @@ __pycache__
 
 # database
 migrations/
+# React Component Preview
+previewConfig.json

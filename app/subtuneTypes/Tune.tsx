@@ -2,6 +2,16 @@ export type tune = {
     id: string;
     name: string;
     artist: string;
-    url_preview: string;
+    external: string | null;
+    cover: string | null;
+    color: string;
 };
 
+export function isTune(obj: any): obj is tune {
+    return (
+        obj &&
+        typeof obj.id === 'string' &&
+        typeof obj.name === 'string' &&
+        typeof obj.artist === 'string'
+    )
+}
