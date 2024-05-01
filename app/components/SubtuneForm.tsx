@@ -1,3 +1,4 @@
+'use client'
 import { useState } from "react";
 
 import styles from "./Component.module.css"
@@ -19,7 +20,10 @@ import { HexColorPicker, HexColorInput } from "react-colorful";
 
 
 export default function SubtuneForm({onColorChange, onImageChange, subtuneTunes}:{ onColorChange: (color: number[]) => void; onImageChange: (imageurl: string )=> void; subtuneTunes: tune[]}) {
-    const reader = new FileReader();
+    let reader: any;
+    if (typeof window !== undefined){
+        reader = new FileReader();
+    }
     const [image, setImage] = useState<string | null>(null);
     const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
     const [compColor, setCompColor] = useState<string>("#000000");

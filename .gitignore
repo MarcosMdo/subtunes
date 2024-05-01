@@ -18,6 +18,8 @@ aws_creds.json
 # production
 /build
 /app/devComponents
+/app/sandbox
+/app/poc
 
 # misc
 .DS_Store

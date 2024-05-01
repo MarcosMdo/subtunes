@@ -26,7 +26,7 @@ const Subtune = ({ subtuneObj }: {subtuneObj: subtune}) => {
           </div>
         </div>
         <div className='tunes'>
-          <TuneList tunes={subtune.tunes} onAddTune={null} />
+          {subtune.tunes && <TuneList tunes={subtune.tunes} onAddTune={null} />}
         </div>
       </div>
     </Link>

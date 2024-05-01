@@ -212,7 +212,6 @@ export default function CreateSubtune() {
                     };
                 }
                 else if(overContainer === 'subtune' && present === false){ // re-add to subtune container only once
-                    console.log("get fuuucked");
                     return {
                         ...prev,
                         ['subtune' as keyof typeof prev]: [

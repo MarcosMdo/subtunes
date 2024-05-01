@@ -39,7 +39,7 @@ const EditSubtune = ({searchParams}) => {
 
       </div>
       <div className='edit-subtune-center'>
-      <TuneList tunes={subtune.tunes} onAddTune={null} />
+      { subtune.tunes && <TuneList tunes={subtune.tunes} onAddTune={null} />}
       </div>
       <div className='edit-subtune-playlists'>
 

@@ -1,3 +1,4 @@
+'use client'
 import { useState } from 'react';
 import TuneList from './TuneList';
 
@@ -61,7 +62,7 @@ const SubtuneForm = ({ onSubmit, tunes, onTitleChange, onDescriptionChange, subt
             <br />
             <input type='file' onChange={onSetImage} />
         </div>
-          <TuneList tunes={tunes} onAddTune={null}/>
+          { tunes && <TuneList tunes={tunes} onAddTune={null}/>}
       </form>
     );
   };
