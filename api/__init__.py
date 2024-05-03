@@ -5,6 +5,8 @@ import secrets
 from .database.db import db
 from flask_login import LoginManager, current_user, login_required, logout_user
 import json
+from dotenv import load_dotenv
+import os
 
 def create_app():
     
@@ -21,6 +23,8 @@ def create_app():
     register_extensions(app)
     
     add_aws_configs(app)
+
+    add_env_vars(app)
     
     return app
 
@@ -31,6 +35,10 @@ def add_aws_configs(app):
 
 def app_configs(app, configs):
     pass
+
+def add_env_vars(app):
+    if os.environ.get("ENV") == None:
+        load_dotenv()
 
 
 def register_blueprints(app):

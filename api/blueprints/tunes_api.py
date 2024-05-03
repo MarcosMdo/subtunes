@@ -1,6 +1,7 @@
 """" This module contains the blueprint for the tunes api endpoints. """
 
 import requests
+import os
 
 from ..database.db import db
 
@@ -17,7 +18,8 @@ from flask import Flask, request, redirect, session, url_for, Blueprint, jsonify
 bp = Blueprint('tunes_api', __name__)
 
 
-SPOTIFY_API_URL = spotify_endpoints['SPOTIFY_API_URL']
+SPOTIFY_API_URL = f"{os.environ.get('SPOTIFY_API_BASE_URL')}/{os.environ.get('SPOTIFY_API_VERSION')}"
+
 
 
 @bp.route("/tune/<id>", methods=["GET"])
