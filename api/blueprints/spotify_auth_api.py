@@ -70,6 +70,9 @@ def login():
         login endpoint for spotify. redirects to the spotify login page.
         after logging in, spotify redirects to the callback endpoint.
     """
+    current_app.logger.info(CLIENT_ID)
+    current_app.logger.info(SPOTIFY_REDIRECT_URI)
+    current_app.logger.info(SCOPE)
 
     params = {
         "client_id": CLIENT_ID,
