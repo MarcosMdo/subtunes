@@ -20,6 +20,7 @@ const SearchBar = (
         clearFilter?: (clear: boolean) => void;
     }) => {
     const [query, setQuery] = useState('');
+    
     const handleFilter = async () => {
         try{
             console.log(`filtering ${searchTarget} for: `, query);
