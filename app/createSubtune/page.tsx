@@ -23,9 +23,10 @@ import SidePanel from "../components/SidePanel"
 import SubtuneForm from "../components/SubtuneForm"
 import { CurrentPreviewProvider } from "../contexts/audioPreviewContext"
 
-import { motion, useAnimate, LayoutGroup } from "framer-motion";
+import { motion, useAnimate } from "framer-motion";
 
 import { nanoid } from 'nanoid';
+import TabbedSidePanel from '../components/TabbedSidePanel';
 
 export default function CreateSubtune() {
     const [scope, animate] = useAnimate();
@@ -41,24 +42,30 @@ export default function CreateSubtune() {
     const [results, setResult] = useState<{
         tunes: tune[]; // left panel
         subtune: tune[]; // center/subtune
-        playlist: playlist[];// right panel // if we are going to abstract this page we need a bette name for this 
+        library: playlist[] | subtune[];// right panel // if we are going to abstract this page we need a bette name for this 
     }>({
         tunes: [],
         subtune: [],
-        playlist: []
+        library: []
     });
 
-    const processIds = (data?: tune[] | subtune[] | playlist[]) => {
+    const processIds = (data?: tune[] | subtune[] | playlist[], dataType?: 'tune' | 'playlist' | 'subtune') => {
         console.log("processing ids...", data);
         if (data !== undefined){
-            if (isTune(data[0])){
+            if (dataType === 'tune'){
                 console.log("prepending ids")
                 data.forEach((tune) => {
                     tune.id =  `${nanoid(11)}.${tune.id}`;
                 });
             }
             else{
-                // TODO: process ids for subtune and playlist tunes
+                data.forEach((item) => {
+                    if('tunes' in item){
+                        item.tunes.forEach((tune) => {
+                            tune.id = `${nanoid(11)}.${tune.id}`;
+                        });
+                    }
+            })
             }
         }
     }
@@ -66,7 +73,7 @@ export default function CreateSubtune() {
     // uugglyy pero fuckitin
     const handlePanelResults = async (data: tune[] | subtune[] | playlist[], dataType: 'tune' | 'subtune' | 'playlist', clear?: boolean) =>{
         let resultData = await data;
-        processIds(data); // only works for tunes or a single tune right now
+        processIds(resultData); // only works for tunes or a single tune right now
         if (dataType === 'tune') {
             if (clear === false || clear === undefined){
                 return setResult((prev) => ({
@@ -85,7 +92,7 @@ export default function CreateSubtune() {
         else{
             setResult((prev) => ({
                 ...prev,
-                [dataType]: resultData
+                ['library' as keyof typeof results]: resultData
             }));
         }
     }
@@ -149,10 +156,12 @@ export default function CreateSubtune() {
         }
         // else find the container which holds tune with id
         for (const [key, value] of Object.entries(results)) {
-            if (key === 'playlist') {
-                for (const playlist of results.playlist) {
+            if (key === 'library') {
+                console.log("searching in library...")
+                for (const playlist of results.library) {
+                    console.log("search playlist", playlist)
                     const tune = playlist.tunes.find((tune) => tune.id === id);
-                    if (tune) {
+                    if (tune !== undefined) {
                         // Found the tune with matching id in the playlist
                         // Do something with it
                         console.log("Found tune:", tune);
@@ -174,7 +183,7 @@ export default function CreateSubtune() {
         const activeContainer = findContainer(id) as keyof typeof results;
         setOriginalContainer(activeContainer);
 
-        if (activeContainer === 'playlist'){
+        if (activeContainer === 'library'){
             const playlist = results[activeContainer].find((playlist) => playlist.tunes.find((tune) => tune.id === active.id));
             dragginTune.current = playlist?.tunes.find((tune) => tune.id === active.id);
             setOriginalIndex(playlist?.tunes.findIndex((tune) => tune.id === active.id) || null);
@@ -235,7 +244,9 @@ export default function CreateSubtune() {
         ) {
             return;
         } 
-
+        if(activeContainer === 'library'){
+        
+        }else{
         setResult((prev) => {
             const activeItems = prev[activeContainer as keyof typeof prev];
             const overItems = prev[overContainer as keyof typeof prev];
@@ -287,6 +298,7 @@ export default function CreateSubtune() {
                 ]
             });
         });
+    }   
     }
 
     function handleDragEnd(event: any) {
@@ -367,14 +379,21 @@ export default function CreateSubtune() {
                                 >
                                     <DndList id='subtune' tunes={results.subtune} mini={false} />
                                 </div>
-                                <SidePanel 
+                                <TabbedSidePanel 
                                     id="right-panel" 
                                     side='right' 
-                                    searchTarget="playlist" 
-                                    items={results.playlist}
+                                    items={results.library}
                                     toggleListener={() =>{setRightPanelState(!rightPanelState)}}
                                     onResults={handlePanelResults}
                                 />
+                                {/* <SidePanel 
+                                    id="right-panel" 
+                                    side='right' 
+                                    searchTarget="playlist" 
+                                    items={results.library}
+                                    toggleListener={() =>{setRightPanelState(!rightPanelState)}}
+                                    onResults={handlePanelResults}
+                                /> */}
                             </div>
                         <DragOverlay
                             className="w-full h-full content-center items-center justify-center"

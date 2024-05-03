@@ -12,17 +12,18 @@ import { DndList } from './DndList';
 import { nanoid } from 'nanoid';
 
 
-export default function DDContainer({ item }: { item: playlist | subtune }) {
+
+export default function DDContainer({ item }: { item: playlist | subtune}) {
     const [toggle, setToggle] = useState(false);
 
     const handleToggle = () => {
         setToggle(!toggle);
+        // setToggle(true)
     }
-    if('subtune' in item){
-        item = item.subtune as subtune;
-    }
-    else if('playlist' in item){
-        item = item.playlist as playlist;
+    if('playlist' in item){
+        item = item as playlist;
+    }else{
+        item = item as subtune;
     }
 
     return (

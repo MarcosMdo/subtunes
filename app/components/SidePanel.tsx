@@ -14,6 +14,7 @@ import { subtune } from '../subtuneTypes/Subtune';
 import { playlist } from '../subtuneTypes/Playlist';
 
 import { AnimatePresence } from 'framer-motion';
+import DDContainer from './DDContainer';
 
 export default function SidePanel({
         side, 

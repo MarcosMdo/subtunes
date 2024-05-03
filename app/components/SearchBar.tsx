@@ -7,11 +7,12 @@ import { Autocomplete } from '@mui/material';
 
 import { tune } from '../subtuneTypes/Tune';
 
-const SearchBar = ({ onSubmit, searchTarget }: { onSubmit: (data: any, hasNext?: boolean, clear?: boolean) => void; searchTarget: 'tune' | 'playlist' | 'subtune'}) => {
+const SearchBar = ({ onSubmit, searchTarget, isFilter }: { onSubmit: (data: any, hasNext?: boolean, clear?: boolean) => void; searchTarget: 'tune' | 'playlist' | 'subtune';  isFilter?: boolean}) => {
     const [query, setQuery] = useState('');
 
     const handleSearch = async (event: any) => {
         event.preventDefault();
+        if (isFilter)
 
         // Trigger API call with query and update searchResults
         try {
