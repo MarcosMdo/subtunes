@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import SearchIcon from '@mui/icons-material/Search';
 import { IconButton } from '@mui/material';
@@ -6,12 +6,49 @@ import { InputBase } from '@mui/material';
 import { Autocomplete } from '@mui/material';
 
 import { tune } from '../subtuneTypes/Tune';
+import { on } from 'events';
 
-const SearchBar = ({ onSubmit, searchTarget }: { onSubmit: (data: any, hasNext?: boolean, clear?: boolean) => void; searchTarget: 'tune' | 'playlist' | 'subtune'}) => {
+const SearchBar = (
+        {   
+            onSubmit, 
+            searchTarget, 
+            isFilter,
+            clearFilter,
+        }: 
+        { 
+            onSubmit: (data: any, hasNext?: boolean, clear?: boolean) => void; 
+            searchTarget: 'tune' | 'playlist' | 'subtune'; 
+            isFilter?: boolean
+            clearFilter?: (clear: boolean) => void;
+        }) => {
+
     const [query, setQuery] = useState('');
+    
+    const handleFilter = async () => {
+        try{
+            console.log(`filtering ${searchTarget} for: `, query);
+            const response = await fetch(`/api/search/${searchTarget}?query=${encodeURIComponent(query)}`);
+            const data = await response.json();
+            onSubmit(data, false, true);
+            console.log("filter results: ", data);
+            return;
+
+        } catch (error) {
+            console.error('Error fetching filter results:', error);
+        }
+    }   
+
+    useEffect(() => {
+        if (isFilter !== true) return;
+        clearFilter && clearFilter(query.length < 1);
+    }, [query]);
 
     const handleSearch = async (event: any) => {
         event.preventDefault();
+        if (isFilter){
+            handleFilter();
+            return;
+        }
 
         // Trigger API call with query and update searchResults
         try {
@@ -63,12 +100,12 @@ const SearchBar = ({ onSubmit, searchTarget }: { onSubmit: (data: any, hasNext?:
                     )} /> */}
                 <InputBase
                     className="h-full rounded-md w-full px-4 bg-transparent focus:outline-none"
-                    autoComplete='on'
+                    autoComplete='off'
                     name="search"
-                    type="text"
+                    type="search"
                     value={query}
-                    placeholder="Search tunes..."
-                    onChange={(e) => setQuery(e.target.value)}
+                    placeholder={isFilter ? `Filter ${searchTarget}s...` : `Search ${searchTarget}...`}
+                    onChange={(e) => {setQuery(e.target.value)}}
                 />
                 <IconButton type="submit">
                     <SearchIcon fontSize='medium'/>

@@ -15,7 +15,8 @@ import { playlist } from '../subtuneTypes/Playlist';
 
 import { AnimatePresence } from 'framer-motion';
 
-export default function SidePanel({
+export default function SidePanel(
+    {
         side, 
         searchTarget, 
         id, 

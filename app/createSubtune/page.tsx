@@ -20,12 +20,14 @@ import { subtune } from "../subtuneTypes/Subtune"
 import { DndList } from "../components/DndList"
 import SortableTune  from "../components/SortableTune"
 import SidePanel from "../components/SidePanel"
+import TabbedSidePanel from '../components/TabbedSidePanel';
 import SubtuneForm from "../components/SubtuneForm"
 import { CurrentPreviewProvider } from "../contexts/audioPreviewContext"
 
 import { motion, useAnimate, LayoutGroup } from "framer-motion";
 
 import { nanoid } from 'nanoid';
+import { platform } from 'os';
 
 export default function CreateSubtune() {
     const [scope, animate] = useAnimate();
@@ -41,24 +43,43 @@ export default function CreateSubtune() {
     const [results, setResult] = useState<{
         tunes: tune[]; // left panel
         subtune: tune[]; // center/subtune
-        playlist: playlist[];// right panel // if we are going to abstract this page we need a bette name for this 
+        library: playlist[] | subtune[];// right panel // if we are going to abstract this page we need a bette name for this 
     }>({
         tunes: [],
         subtune: [],
-        playlist: []
+        library: []
     });
 
-    const processIds = (data?: tune[] | subtune[] | playlist[]) => {
-        console.log("processing ids...", data);
+    const processIds = (data?: tune[] | subtune[] | playlist[], dataType?: 'tune' | 'subtune' | 'playlist') => {
         if (data !== undefined){
-            if (isTune(data[0])){
-                console.log("prepending ids")
+            if (dataType === 'tune'){
+
                 data.forEach((tune) => {
                     tune.id =  `${nanoid(11)}.${tune.id}`;
                 });
             }
-            else{
-                // TODO: process ids for subtune and playlist tunes
+            else if (dataType === 'subtune'){
+
+                let subtunedata = data as subtune[];
+                subtunedata.forEach((subtune: any) => {
+                    // let subtune = subtuneObj.subtune as subtune;
+                    if(subtune.tunes && subtune.tunes.length > 0){
+
+                        subtune.tunes.forEach((tune : tune) => {
+                            tune.id = `${nanoid(11)}.${tune.id}`;
+                        });
+                    }
+                });
+            }else{
+                console.log("prepending playlist tune ids")
+                let playlistdata = data as playlist[];
+                playlistdata.forEach((playlist: playlist) => {
+                    if(playlist.tunes && playlist.tunes.length > 0){
+                        playlist.tunes.forEach((tune : tune) => {
+                            tune.id = `${nanoid(11)}.${tune.id}`;
+                        });
+                    }
+                });
             }
         }
     }
@@ -66,7 +87,7 @@ export default function CreateSubtune() {
     // uugglyy pero fuckitin
     const handlePanelResults = async (data: tune[] | subtune[] | playlist[], dataType: 'tune' | 'subtune' | 'playlist', clear?: boolean) =>{
         let resultData = await data;
-        processIds(data); // only works for tunes or a single tune right now
+        processIds(resultData, dataType);
         if (dataType === 'tune') {
             if (clear === false || clear === undefined){
                 return setResult((prev) => ({
@@ -85,7 +106,7 @@ export default function CreateSubtune() {
         else{
             setResult((prev) => ({
                 ...prev,
-                [dataType]: resultData
+                ['library' as keyof typeof results]: resultData
             }));
         }
     }
@@ -149,14 +170,14 @@ export default function CreateSubtune() {
         }
         // else find the container which holds tune with id
         for (const [key, value] of Object.entries(results)) {
-            if (key === 'playlist') {
-                for (const playlist of results.playlist) {
-                    const tune = playlist.tunes.find((tune) => tune.id === id);
-                    if (tune) {
-                        // Found the tune with matching id in the playlist
-                        // Do something with it
-                        console.log("Found tune:", tune);
-                        return key;
+            if (key === 'library') {
+                for (const playlist of results.library) {
+                    let tune = null;
+                    if(playlist?.tunes && playlist.tunes.length > 0){
+                        tune = playlist.tunes.find((tune) => tune.id === id);
+                        if (tune !== null) {
+                            return key;
+                        }
                     }
                 }
             }
@@ -165,6 +186,22 @@ export default function CreateSubtune() {
             }
         }
     }
+
+    const findTuneInLibrary = (id: string) => {
+        for (const playlist of results.library) {
+            let tune = null;
+            tune = playlist.tunes.find((tune) => tune.id === id);
+            if (tune !== null && tune !== undefined) {
+                // console.log("tune found: ", tune)
+                const index = playlist.tunes.findIndex((tune) => tune.id === id);
+                const playlist_index = results.library.findIndex((item) => item.id === playlist.id);
+                // console.log("in playlist_index: ", playlist_index)
+                return {tune: tune, index: index, playlist_index: playlist_index};
+            }
+        }
+        console.log("skipping above step")
+        return {tune: undefined, index: -1, playlist_index: -1};
+    }
     
     function handleDragStart(event: any) {
         // let dragginTune: tune | undefined;
@@ -172,12 +209,15 @@ export default function CreateSubtune() {
         const id = active.id;
         setActiveId(id);
         const activeContainer = findContainer(id) as keyof typeof results;
+        console.log("Active container: ", activeContainer);
         setOriginalContainer(activeContainer);
 
-        if (activeContainer === 'playlist'){
-            const playlist = results[activeContainer].find((playlist) => playlist.tunes.find((tune) => tune.id === active.id));
-            dragginTune.current = playlist?.tunes.find((tune) => tune.id === active.id);
-            setOriginalIndex(playlist?.tunes.findIndex((tune) => tune.id === active.id) || null);
+        if (activeContainer === 'library'){
+            // console.log("!!!active.id: ", active.id);
+            const {tune, index} = findTuneInLibrary(active.id) as unknown as {tune: tune | undefined, index: number};
+            // console.log("dragginTune: ", tune);
+            dragginTune.current = tune !== null ? tune : undefined;
+            setOriginalIndex(index || null);
         }else{
             dragginTune.current = results[activeContainer].find((tune) => tune.id === active.id);
             setOriginalIndex(results[activeContainer].findIndex((tune) => tune.id === active.id) || null);
@@ -187,10 +227,11 @@ export default function CreateSubtune() {
 
     function handleDragOver(event: any) {
         const { active, over, draggingRect } = event;
-        console.log("Over event: ", event)
+        // console.log("Over event: ", event)
 
         const { id } = active;
         const overId = over !== null ? over.id : null;
+        // console.log("active id: ", id);
 
         // Find the containers
         const activeContainer = findContainer(id);
@@ -237,12 +278,27 @@ export default function CreateSubtune() {
         } 
 
         setResult((prev) => {
-            const activeItems = prev[activeContainer as keyof typeof prev];
-            const overItems = prev[overContainer as keyof typeof prev];
+            let activeItems = null;
+            let overItems = null;
+            activeItems = prev[activeContainer as keyof typeof prev];
+            overItems = prev[overContainer as keyof typeof prev];
+            console.log("Active items: ", activeItems);
+            console.log("Over items: ", overItems);
 
             // Find the indexes for the items
-            const activeIndex = activeItems.findIndex((item) => item.id === id);
+            let activeIndex = null;
+            let activePlaylistIndex = null;
+            if (activeContainer === 'library'){
+                const {index: index, playlist_index: pIndex } = findTuneInLibrary(dragginTune.current?.id as string) as unknown as {index: number, playlist_index: number};
+                activeIndex = index;
+                activePlaylistIndex = pIndex;
+            }else{
+                activeIndex = activeItems.findIndex((item) => item.id === id);
+            }
             const overIndex = overItems.findIndex((item) => item.id === overId);
+            // console.log("activeIndex: ", activeIndex);
+            // console.log("overIndex: ", overIndex);
+            // console.log("activePlaylistIndex: ", activePlaylistIndex);
 
             let newIndex;
             if (overId in prev) {
@@ -250,8 +306,15 @@ export default function CreateSubtune() {
                 newIndex = overItems.length;
             } else {
                 // activeVal and overVal are the 'height' of each draggable item to calc if active should be placed below the last item
-                const activeVal = event.collisions[event.collisions.findIndex((items: any) => items.id == id)].data.value;
-                const overVal = event.collisions[event.collisions.findIndex((items: any) => items.id == overId)].data.value;
+                let activeVal = null;
+                let overVal = null;
+                if(activeContainer === 'library'){
+                    
+                }else{
+                    activeVal = event.collisions[event.collisions.findIndex((items: any) => items.id == id)].data.value;
+                    overVal = event.collisions[event.collisions.findIndex((items: any) => items.id == overId)].data.value;
+                }
+                console.log("activeVal: ", activeVal)
 
                 const isBelowLastItem =
                     over &&
@@ -265,11 +328,26 @@ export default function CreateSubtune() {
 
             let originalTune: tune = JSON.parse(JSON.stringify((prev[activeContainer as keyof typeof prev][activeIndex] as tune)));
             if (activeIndex != -1){
-                dragginTune.current = prev[activeContainer as keyof typeof prev][activeIndex] as tune;
-                if(activeContainer === 'tunes' && overContainer === 'subtune'){
-                    const spotifyId = originalTune.id.split('.')[1];
-                    originalTune.id = `${nanoid(11)}.${spotifyId}`;
+                if(activeContainer === 'library'){
+                    originalTune = JSON.parse(JSON.stringify((dragginTune.current as tune)));
+                    const playlist = prev[activeContainer as keyof typeof prev][activePlaylistIndex as number] as playlist;
+
+                    const tune = playlist.tunes[activeIndex];
+                    dragginTune.current = tune;
+                    if(overContainer === 'subtune'){
+
+                        const spotifyId = originalTune.id.split('.')[1];
+                        originalTune.id = `${nanoid(11)}.${spotifyId}`;
+                        console.log("new id: ", originalTune.id);
+                    }
+                }else{
+                    dragginTune.current = prev[activeContainer as keyof typeof prev][activeIndex] as tune;
+                    if(activeContainer === 'tunes' && overContainer === 'subtune'){
+                        const spotifyId = originalTune.id.split('.')[1];
+                        originalTune.id = `${nanoid(11)}.${spotifyId}`;
+                    }
                 }
+
             }
 
             return (
@@ -367,14 +445,21 @@ export default function CreateSubtune() {
                                 >
                                     <DndList id='subtune' tunes={results.subtune} mini={false} />
                                 </div>
-                                <SidePanel 
+                                <TabbedSidePanel 
+                                    id="right-panel" 
+                                    side='right' 
+                                    searchTarget="subtune" 
+                                    items={results.library}
+                                    toggleListener={() =>{setRightPanelState(!rightPanelState)}}
+                                    onResults={handlePanelResults} />
+                                {/* <SidePanel 
                                     id="right-panel" 
                                     side='right' 
                                     searchTarget="playlist" 
-                                    items={results.playlist}
+                                    items={results.library}
                                     toggleListener={() =>{setRightPanelState(!rightPanelState)}}
                                     onResults={handlePanelResults}
-                                />
+                                /> */}
                             </div>
                         <DragOverlay
                             className="w-full h-full content-center items-center justify-center"
@@ -392,3 +477,71 @@ export default function CreateSubtune() {
     )
 
 }
+
+// setResult((prev) => {
+//     const activeItems = prev[activeContainer as keyof typeof prev];
+//     const overItems = prev[overContainer as keyof typeof prev];
+//     console.log("Active items: ", activeItems);
+//     console.log("Over items: ", overItems);
+
+//     // Find the indexes for the items
+//     let activeIndex = null;
+//     if (activeContainer === 'library'){
+//         const {index: index } = findTuneInLibrary(id);
+//         activeIndex = index;
+//     }else{
+//         activeIndex = activeItems.findIndex((item) => item.id === id);
+//     }
+//     const overIndex = overItems.findIndex((item) => item.id === overId);
+
+//     let newIndex;
+//     if (overId in prev) {
+//         // We're at the root droppable of a container
+//         newIndex = overItems.length;
+//     } else {
+//         // activeVal and overVal are the 'height' of each draggable item to calc if active should be placed below the last item
+//         let activeVal = null;
+//         let overVal = null;
+//         if(activeContainer === 'library'){
+            
+//         }else{
+//             activeVal = event.collisions[event.collisions.findIndex((items: any) => items.id == id)].data.value;
+//             overVal = event.collisions[event.collisions.findIndex((items: any) => items.id == overId)].data.value;
+//         }
+//         console.log("activeVal: ", activeVal)
+
+//         const isBelowLastItem =
+//             over &&
+//             overIndex === overItems.length - 1 &&
+//             activeVal > overVal;
+            
+//         const modifier = isBelowLastItem ? 1 : 0;
+        
+//         newIndex = overIndex >= 0 ? overIndex + modifier : overItems.length + 1;
+//     }
+
+//     let originalTune: tune = JSON.parse(JSON.stringify((prev[activeContainer as keyof typeof prev][activeIndex] as tune)));
+//     console.log("activeIndex now: ", activeIndex);
+//     if (activeIndex != -1){
+//         dragginTune.current = prev[activeContainer as keyof typeof prev][activeIndex] as tune;
+//         if(activeContainer === 'tunes' && overContainer === 'subtune'){
+//             const spotifyId = originalTune.id.split('.')[1];
+//             originalTune.id = `${nanoid(11)}.${spotifyId}`;
+//         }
+//     }
+
+//     return (
+//         {
+//         ...prev,
+//         [activeContainer as keyof typeof prev]: [
+//             ...prev[activeContainer as keyof typeof prev].slice(0, activeIndex),
+//             originalTune,
+//             ...prev[activeContainer as keyof typeof prev].slice(activeIndex + 1),
+//         ],
+//         [overContainer as keyof typeof prev]: [
+//             ...prev[overContainer as keyof typeof prev].slice(0, newIndex),
+//             dragginTune.current as tune,
+//             ...prev[overContainer as keyof typeof prev].slice(newIndex, prev[overContainer as keyof typeof prev].length)
+//         ]
+//     });
+// });

@@ -40,7 +40,7 @@ export default function Tune({ tune, style, mini }: { tune: tune; style?: CSSPro
     };
 
     useEffect(() => {
-        if (currentPlayingTune?.id === tune.id) {
+        if (currentPlayingTune?.id === tune?.id) {
             setIsPlaying(true);
         } else {
             setIsPlaying(false);
@@ -52,7 +52,7 @@ export default function Tune({ tune, style, mini }: { tune: tune; style?: CSSPro
     }, []);
 
     useEffect(() => {
-        if(currentPlayingTune?.id === tune.id){
+        if(currentPlayingTune?.id === tune?.id){
             setPosition(currentTime);
             if(currentTime === duration){
                 setIsPlaying(false);
@@ -68,8 +68,9 @@ export default function Tune({ tune, style, mini }: { tune: tune; style?: CSSPro
     return (
         <div  className="tune flex flex-row grow shrink min-w-fit max-w-full w-full min-h-[80px] h-full mr-4 pr-2">
             <div  className="album-cover flex pl-2 items-center justify-center content-center">
-                { tune.cover !== null ?
-                        <img src={tune.cover} alt={tune.name} className={`object-scale-down flex shrink ${mini ? 'w-12' : 'w-24'}  shadow-lg shadow-slate-400 rounded`} /> :
+                {tune && tune.image_url !== null ?
+                        <img src={tune.image_url} className={`object-scale-down flex shrink ${mini ? 'w-12' : 'w-24'}  shadow-lg shadow-slate-400 rounded`} /> 
+                        :
                         <IconButton size='large' sx={{color: "black"}}>
                             <ImageNotSupportedRoundedIcon fontSize='large' />
                         </IconButton>    
@@ -78,10 +79,11 @@ export default function Tune({ tune, style, mini }: { tune: tune; style?: CSSPro
             <div  className="flex flex-col grow shrink w-full pl-2">
                 <div  className="flex flex-col grow shrink w-fit justify-start">
                     <h2   className="line-clamp-1 max-w-[23ch] h-full text-xl"  >
-                        {tune.name}
+                        {tune?.name}
                     </h2>
+                    <p>{tune.id}</p>
                     <p  className="line-clamp-1 h-full text-gray-600">
-                        {tune.artist}
+                        {tune?.artist}
                     </p>
                 </div>
                 { mini ? null :

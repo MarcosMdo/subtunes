@@ -69,7 +69,7 @@ def search_tune(query = "name=nadie sabe lo que"):
             del session['next']
         current_app.logger.info(tracks[0].keys())
         # Extract relevant information from each track
-        track_info = [{'id': track['id'], 'name': track['name'], 'artist': track['artists'][0]['name'], 'external': track['preview_url'], 'cover': track['album']['images'][0]['url']} for track in tracks]
+        track_info = [{'id': track['id'], 'name': track['name'], 'artist': track['artists'][0]['name'], 'external': track['preview_url'], 'image_url': track['album']['images'][0]['url']} for track in tracks]
 
         return jsonify({'tracks': track_info, 'next': True if next_results else None}), 200
     else:
@@ -78,7 +78,7 @@ def search_tune(query = "name=nadie sabe lo que"):
 @bp.route("/search/subtune", methods=["GET"])
 def search_subtune(query = ""):
     query = "{}%".format(request.args.get('query'))
-
+    current_app.logger.info("query={}".format(query))
     if not query:
         return jsonify({'error': 'Query parameter "query" is required'}), 400
     

@@ -3,7 +3,7 @@ export type tune = {
     name: string;
     artist: string;
     external: string | null;
-    cover: string | null;
+    image_url: string | null;
     color: string;
 };
 
