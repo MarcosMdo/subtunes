@@ -6,19 +6,22 @@ import { InputBase } from '@mui/material';
 import { Autocomplete } from '@mui/material';
 
 import { tune } from '../subtuneTypes/Tune';
+import { on } from 'events';
 
 const SearchBar = (
-    { 
-        onSubmit, 
-        searchTarget, 
-        isFilter,
-        clearFilter
-    }: { 
-        onSubmit: (data: any, hasNext?: boolean, clear?: boolean) => void; 
-        searchTarget: 'tune' | 'playlist' | 'subtune';  
-        isFilter?: boolean
-        clearFilter?: (clear: boolean) => void;
-    }) => {
+        {   
+            onSubmit, 
+            searchTarget, 
+            isFilter,
+            clearFilter,
+        }: 
+        { 
+            onSubmit: (data: any, hasNext?: boolean, clear?: boolean) => void; 
+            searchTarget: 'tune' | 'playlist' | 'subtune'; 
+            isFilter?: boolean
+            clearFilter?: (clear: boolean) => void;
+        }) => {
+
     const [query, setQuery] = useState('');
     
     const handleFilter = async () => {
