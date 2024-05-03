@@ -29,48 +29,99 @@ export default function TabbedSidePanel({
     const [contents, setContents] = useState<subtune[] | playlist[]>([]);
     const [contentType, setContentType] = useState<string>('subtunes');
 
-    const searchTarget = 'tune'
-    const handleSearchResults = (data: any) => {
-        console.log(data)
-    }
-    const loadPlaylists = async () => {
+    // const searchTarget = 'tune'
+    // const handleSearchResults = (data: any) => {
+    //     console.log(data)
+    // }
+    // const loadPlaylists = async () => {
 
+    //     try {
+    //         const response = await fetch(`/api/user/1/playlist`);
+    //         const data = await response.json();
+    //         // setContents(data);
+    //         onResults(data, 'playlist')
+    //         console.log(data);
+    //     } catch (error) {
+    //         console.error('Error fetching playlists:', error);
+    //     }
+    // }
+
+    // const loadSubtunes = async () => { 
+    //     try {
+    //         const response = await fetch(`/api/user/1/subtunes`);
+    //         let data = await response.json();
+    //         data = data.map((item: any) => item.subtune);
+    //         onResults(data, 'subtune')
+    //         console.log(data);
+    //         console.log(data);
+    //     } catch (error) {
+    //         console.error('Error fetching subtunes:', error);
+    //     }
+    
+    // }
+
+    // useEffect(() => {
+    //     if(contentType === 'subtunes'){
+    //         loadSubtunes()
+    //     }else if(contentType === 'playlists'){
+    //         loadPlaylists();
+    //     }
+    // }, [contentType]);
+
+    // const toggleContents = (e: any) => {
+    //     console.log(e.target.name)
+    //     setContentType(e.target.name)
+    // }
+    const handleSearchResults = (data: any, hasNext?: boolean, clear?: boolean) => {
+        console.log(data)
+        // setContents(data);
+        onResults(data, contentType as 'subtune' | 'playlist', clear);
+    }
+    // UPDATE TO FETCH <USER_id> SPECIFIC DATA
+    const loadPlaylists = async () => {
         try {
             const response = await fetch(`/api/user/1/playlist`);
             const data = await response.json();
             // setContents(data);
-            onResults(data, 'playlist')
-            console.log(data);
+            onResults(data, 'playlist');
         } catch (error) {
             console.error('Error fetching playlists:', error);
         }
     }
 
+    // UPDATE TO FETCH <USER_id> SPECIFIC DATA
     const loadSubtunes = async () => { 
         try {
             const response = await fetch(`/api/user/1/subtunes`);
-            let data = await response.json();
-            data = data.map((item: any) => item.subtune);
-            onResults(data, 'subtune')
-            console.log(data);
-            console.log(data);
+            const data = await response.json();
+            // setContents(data);
+            const cleanData = data.map((item: { subtune: subtune }) => item.subtune);
+            onResults(cleanData, 'subtune');
         } catch (error) {
             console.error('Error fetching subtunes:', error);
         }
     
     }
 
-    useEffect(() => {
-        if(contentType === 'subtunes'){
-            loadSubtunes()
-        }else if(contentType === 'playlists'){
-            loadPlaylists();
+    const handleFilterStatus = (clear: boolean) => {
+        if(clear){
+            if(contentType === 'subtune'){
+                loadSubtunes();
+            } else if(contentType === 'playlist'){
+                loadPlaylists();
+            }
         }
-    }, [contentType]);
+    }
 
     const toggleContents = (e: any) => {
-        console.log(e.target.name)
+        const prevContentType = contentType;
         setContentType(e.target.name)
+        // TODO: add a check to prevent reloading the same content
+        if(contentType === 'subtune'){
+            loadSubtunes();
+        } else if(contentType === 'playlist'){
+            loadPlaylists();
+        }
     }
 
     return (
@@ -80,7 +131,7 @@ export default function TabbedSidePanel({
                         <button name="subtunes" onClick={toggleContents} className="border-2 border-green-500" >subtunes</button>
                         <button name="playlists" onClick={toggleContents} className="border-2 border-green-500" >playlists</button>
                     </div>
-                    <SearchBar isFilter onSubmit={handleSearchResults} searchTarget={searchTarget}/>
+                    <SearchBar isFilter onSubmit={handleSearchResults} searchTarget={contentType as 'subtune' | 'playlist'}/>
                         <motion.div 
                         className="contents-container flex flex-col grow shrink no-scrollbar overflow-y-scroll mt-4 content-center rounded-2xl shadow-md" >
                         {
