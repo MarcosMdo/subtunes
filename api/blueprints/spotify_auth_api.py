@@ -30,8 +30,11 @@ CLIENT_ID = os.environ.get('CLIENT_ID')
 SCOPE = os.environ.get('SCOPE')
 CLIENT_SECRET = os.environ.get('CLIENT_SECRET')
 ENCODED_CLIENT_CREDS = base64.b64encode((CLIENT_ID + ":" + CLIENT_SECRET).encode("ascii")).decode("ascii")
+if os.environ.get('ENV') == 'development':
+    SPOTIFY_REDIRECT_URI = f"{os.environ.get('SPOTIFY_LOCAL_URL')}:{os.environ.get('SPOTIFY_PORT')}/callback"
+else:
+    SPOTIFY_REDIRECT_URI = f"{os.environ.get('VERCEL_URL')}/callback"
 
-SPOTIFY_REDIRECT_URI = f"{os.environ.get('SPOTIFY_LOCAL_URL')}:{os.environ.get('SPOTIFY_PORT')}/callback"
 SPOTIFY_AUTH_URL = os.environ.get('SPOTIFY_AUTH_URL')
 SPOTIFY_TOKEN_URL = os.environ.get('SPOTIFY_TOKEN_URL')
 SPOTIFY_API_URL = f"{os.environ.get('SPOTIFY_API_BASE_URL')}/{os.environ.get('SPOTIFY_API_VERSION')}"
