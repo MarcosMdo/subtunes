@@ -33,7 +33,7 @@ ENCODED_CLIENT_CREDS = base64.b64encode((CLIENT_ID + ":" + CLIENT_SECRET).encode
 if os.environ.get('ENV') == 'development':
     SPOTIFY_REDIRECT_URI = f"{os.environ.get('SPOTIFY_LOCAL_URL')}:{os.environ.get('SPOTIFY_PORT')}/callback"
 else:
-    SPOTIFY_REDIRECT_URI = f"{os.environ.get('VERCEL_URL')}/callback"
+    SPOTIFY_REDIRECT_URI = f"https://{os.environ.get('VERCEL_URL')}/callback"
 
 SPOTIFY_AUTH_URL = os.environ.get('SPOTIFY_AUTH_URL')
 SPOTIFY_TOKEN_URL = os.environ.get('SPOTIFY_TOKEN_URL')
