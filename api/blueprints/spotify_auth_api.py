@@ -89,7 +89,7 @@ def login():
     url_args = "&".join(["{}={}".format(key, quote(val)) for key, val in params.items()])
     auth_url = "{}/?{}".format(SPOTIFY_AUTH_URL, url_args)   
 
-    print("auth url: {}".formar(SPOTIFY_AUTH_URL)) 
+    print("auth url: {}".format(SPOTIFY_AUTH_URL)) 
 
     return redirect(auth_url)
 
