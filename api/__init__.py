@@ -11,7 +11,10 @@ import os
 def create_app():
     
     app = Flask(__name__)
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('POSTGRES_URL')
+    if os.environ.get('ENV') == 'development':
+        app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('POSTGRES_URL')
+    else:
+        app.config['SQLALCHEMY_DATABASE_URI'] = f"postgresql://{os.environ.get('POSTGRES_USER')}:{os.environ.get('POSTGRES_PASSWORD')}@{os.environ.get('POSTGRES_HOST')}/{os.environ.get('POSTGRES_DATABASE')}"
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['SESSION_TYPE'] = 'filesystem' 
 
