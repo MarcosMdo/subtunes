@@ -14,7 +14,10 @@ app = create_app()
 
 @app.route("/")
 def index():
-    return redirect(url_for('spotify_auth_api.login'))
+    if os.environment.get('ENV') == 'development':
+        return redirect('http://127.0.0.1:3000/')
+    else:
+        return redirect(os.environ.get('$VERCEL_URL'))
 
 @app.route("/logout")
 def logout():
