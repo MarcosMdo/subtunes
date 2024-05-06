@@ -14,7 +14,7 @@ app = create_app()
 
 @app.route("/")
 def index():
-    if os.environment.get('ENV') == 'development':
+    if os.environ.get('ENV') == 'development':
         return redirect('http://127.0.0.1:3000/')
     else:
         return redirect(os.environ.get('$VERCEL_URL'))
@@ -32,7 +32,7 @@ def logout():
 def home():
     # TODO: redirect based on not logged in home page vs user dashboard when paths defined
     #if current_user.is_authenticated:
-    if os.environment.get('ENV') == 'development':
+    if os.environ.get('ENV') == 'development':
         return redirect('http://127.0.0.1:3000/')
     else:
         return redirect(os.environ.get('$VERCEL_URL'))
