@@ -16,15 +16,6 @@ from flask_login import login_user
 
 bp = Blueprint('spotify_auth_api', __name__)
 
-# CLIENT = json.load(open("./api/spotify_secrets.json", "r+"))
-# client_id = CLIENT['client_id']
-# scope = CLIENT['scope']
-# client_secret =  CLIENT['client_secret']
-
-# SPOTIFY_REDIRECT_URI = spotify_endpoints['SPOTIFY_REDIRECT_URI']
-# SPOTIFY_AUTH_URL = spotify_endpoints['SPOTIFY_AUTH_URL']
-# SPOTIFY_TOKEN_URL = spotify_endpoints['SPOTIFY_TOKEN_URL']
-# SPOTIFY_API_URL = spotify_endpoints['SPOTIFY_API_URL']
 # via env file
 CLIENT_ID = os.environ.get('CLIENT_ID')
 SCOPE = os.environ.get('SCOPE')
