@@ -31,9 +31,8 @@ SCOPE = os.environ.get('SCOPE')
 CLIENT_SECRET = os.environ.get('CLIENT_SECRET')
 ENCODED_CLIENT_CREDS = base64.b64encode((CLIENT_ID + ":" + CLIENT_SECRET).encode("ascii")).decode("ascii")
 
-VERCEL_PROJECT_PRODUCTION_URL = os.environ.get('VERCEL_PROJECT_PRODUCTION_URL')
 if os.environ.get('VERCEL_ENV') == 'production':
-    SPOTIFY_REDIRECT_URI = f"https://{VERCEL_PROJECT_PRODUCTION_URL}/callback"
+    SPOTIFY_REDIRECT_URI = f"https://{os.environ.get('VERCEL_PROJECT_PRODUCTION_URL')}/callback"
 elif os.environ.get('VERCEL_ENV') == 'preview':
     SPOTIFY_REDIRECT_URI = f"https://{os.environ.get('VERCEL_URL')}/callback"
 else:
