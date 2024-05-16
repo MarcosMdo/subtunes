@@ -5,3 +5,5 @@ charset_normalizer
 idna
 certifi
 psycopg2-binary
+python-dotenv
+requests

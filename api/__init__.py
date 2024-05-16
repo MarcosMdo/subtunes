@@ -5,11 +5,16 @@ import secrets
 from .database.db import db
 from flask_login import LoginManager, current_user, login_required, logout_user
 import json
+from dotenv import load_dotenv
+import os
 
 def create_app():
     
     app = Flask(__name__)
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:password@localhost/subtunes'
+    if os.environ.get('ENV') == 'development':
+        app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('POSTGRES_URL')
+    else:
+        app.config['SQLALCHEMY_DATABASE_URI'] = f"postgresql://{os.environ.get('POSTGRES_USER')}:{os.environ.get('POSTGRES_PASSWORD')}@{os.environ.get('POSTGRES_HOST')}/{os.environ.get('POSTGRES_DATABASE')}"
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['SESSION_TYPE'] = 'filesystem' 
 
@@ -20,17 +25,23 @@ def create_app():
     
     register_extensions(app)
     
-    add_aws_configs(app)
+    # add_aws_configs(app)
+
+    add_env_vars(app)
     
     return app
 
-def add_aws_configs(app):
-    aws_configs = json.load(open("./api/aws_creds.json", "r+")) #api/aws_creds.json
-    app.config["AWS_ACCESS_KEY_ID"] = aws_configs["aws_access_key_id"]
-    app.config["AWS_SECRET_ACCESS_KEY"] = aws_configs["aws_secret_access_key"]
+# def add_aws_configs(app):
+#     aws_configs = json.load(open("./api/aws_creds.json", "r+")) #api/aws_creds.json
+#     app.config["AWS_ACCESS_KEY_ID"] = aws_configs["aws_access_key_id"]
+#     app.config["AWS_SECRET_ACCESS_KEY"] = aws_configs["aws_secret_access_key"]
 
 def app_configs(app, configs):
     pass
+
+def add_env_vars(app):
+    if os.environ.get("ENV") == None:
+        load_dotenv()
 
 
 def register_blueprints(app):

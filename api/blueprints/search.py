@@ -9,11 +9,13 @@ from ..model.tune import Tune
 from ..spotify_api_endpoints import spotify_endpoints
 from ..blueprints.spotify_auth_api import get_auth_header
 import requests
+import os
 
 
 bp = Blueprint('search_api', __name__)
 
-SPOTIFY_API_URL = spotify_endpoints['SPOTIFY_API_URL']
+#SPOTIFY_API_URL = spotify_endpoints['SPOTIFY_API_URL']
+SPOTIFY_API_URL = f"{os.environ.get('SPOTIFY_API_BASE_URL')}/{os.environ.get('SPOTIFY_API_VERSION')}"
 SPOTIFY_SEARCH_API_URL = f"{SPOTIFY_API_URL}/search"
 
 the_query="nadie&type=album&include_external=audio&locale=en-US%2Cen%3Bq%3D0.9%2Ces%3Bq%3D0.8&offset=0&limit=20"

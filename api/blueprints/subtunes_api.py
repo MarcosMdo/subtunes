@@ -5,6 +5,7 @@ import secrets
 import json
 import uuid
 from urllib.parse import quote
+import os
 
 from ..database.db import db
 from flask_sqlalchemy import SQLAlchemy
@@ -27,7 +28,7 @@ from flask_login import current_user, login_required
 
 bp = Blueprint('subtunes_api', __name__)
 
-SPOTIFY_API_URL = spotify_endpoints['SPOTIFY_API_URL']
+SPOTIFY_API_URL = f"{os.environ.get('SPOTIFY_API_BASE_URL')}/{os.environ.get('SPOTIFY_API_VERSION')}"
 
 def get_image_url(img_path):
     s3_base_url = f'https://subtunes.s3.amazonaws.com/'

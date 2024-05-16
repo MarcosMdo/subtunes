@@ -8,6 +8,7 @@ import requests
 import base64
 import time
 import json
+import os
 
 
 from flask import request, redirect, Blueprint, session, current_app, url_for
@@ -15,16 +16,28 @@ from flask_login import login_user
 
 bp = Blueprint('spotify_auth_api', __name__)
 
-CLIENT = json.load(open("./api/spotify_secrets.json", "r+"))
-client_id = CLIENT['client_id']
-scope = CLIENT['scope']
-client_secret =  CLIENT['client_secret']
-encoded_client_creds = base64.b64encode((client_id + ":" + client_secret).encode("ascii")).decode("ascii")
+# CLIENT = json.load(open("./api/spotify_secrets.json", "r+"))
+# client_id = CLIENT['client_id']
+# scope = CLIENT['scope']
+# client_secret =  CLIENT['client_secret']
 
-SPOTIFY_REDIRECT_URI = spotify_endpoints['SPOTIFY_REDIRECT_URI']
-SPOTIFY_AUTH_URL = spotify_endpoints['SPOTIFY_AUTH_URL']
-SPOTIFY_TOKEN_URL = spotify_endpoints['SPOTIFY_TOKEN_URL']
-SPOTIFY_API_URL = spotify_endpoints['SPOTIFY_API_URL']
+# SPOTIFY_REDIRECT_URI = spotify_endpoints['SPOTIFY_REDIRECT_URI']
+# SPOTIFY_AUTH_URL = spotify_endpoints['SPOTIFY_AUTH_URL']
+# SPOTIFY_TOKEN_URL = spotify_endpoints['SPOTIFY_TOKEN_URL']
+# SPOTIFY_API_URL = spotify_endpoints['SPOTIFY_API_URL']
+# via env file
+CLIENT_ID = os.environ.get('CLIENT_ID')
+SCOPE = os.environ.get('SCOPE')
+CLIENT_SECRET = os.environ.get('CLIENT_SECRET')
+ENCODED_CLIENT_CREDS = base64.b64encode((CLIENT_ID + ":" + CLIENT_SECRET).encode("ascii")).decode("ascii")
+if os.environ.get('ENV') == 'development':
+    SPOTIFY_REDIRECT_URI = f"{os.environ.get('SPOTIFY_LOCAL_URL')}:{os.environ.get('SPOTIFY_PORT')}/callback"
+else:
+    SPOTIFY_REDIRECT_URI = f"https://{os.environ.get('VERCEL_URL')}/callback"
+
+SPOTIFY_AUTH_URL = os.environ.get('SPOTIFY_AUTH_URL')
+SPOTIFY_TOKEN_URL = os.environ.get('SPOTIFY_TOKEN_URL')
+SPOTIFY_API_URL = f"{os.environ.get('SPOTIFY_API_BASE_URL')}/{os.environ.get('SPOTIFY_API_VERSION')}"
 
 # don't know the best place for this just yet, maybe separate concerns and make a decorator or 2 from this?
 def get_auth_header(expire_time = -1):
@@ -42,7 +55,7 @@ def get_auth_header(expire_time = -1):
         }
         headers = {
             "content-type": "application/x-www-form-urlencoded", 
-            "Authorization": "Basic " + encoded_client_creds
+            "Authorization": "Basic " + ENCODED_CLIENT_CREDS
         }
         response = requests.post(SPOTIFY_TOKEN_URL, headers=headers, params=refresh_payload)
 
@@ -60,16 +73,26 @@ def login():
         login endpoint for spotify. redirects to the spotify login page.
         after logging in, spotify redirects to the callback endpoint.
     """
+    current_app.logger.info(CLIENT_ID)
+    current_app.logger.info(SPOTIFY_REDIRECT_URI)
+    current_app.logger.info(SCOPE)
+
+    print("client id: {}".format(CLIENT_ID))
+    print("spotify redirect uri: {}".format(SPOTIFY_REDIRECT_URI))
+    print("scope: {}".format(SCOPE))
+
     params = {
-        "client_id": client_id,
+        "client_id": CLIENT_ID,
         "response_type": "code",
         "redirect_uri": SPOTIFY_REDIRECT_URI,
-        "scope": scope,
+        "scope": SCOPE,
         "show_dialog": "true",
     }
 
     url_args = "&".join(["{}={}".format(key, quote(val)) for key, val in params.items()])
-    auth_url = "{}/?{}".format(SPOTIFY_AUTH_URL, url_args)    
+    auth_url = "{}/?{}".format(SPOTIFY_AUTH_URL, url_args)   
+
+    print("auth url: {}".format(SPOTIFY_AUTH_URL)) 
 
     return redirect(auth_url)
 
@@ -84,7 +107,7 @@ def callback():
 
     headers = {
         "content-type": "application/x-www-form-urlencoded", 
-        "Authorization": "Basic " + encoded_client_creds
+        "Authorization": "Basic " + ENCODED_CLIENT_CREDS
     }
 
     code_payload = {
@@ -111,7 +134,7 @@ def callback():
 
         if login_successful:
             # Redirect to the home page or wherever you want
-            return redirect(url_for('home'))
+            return redirect(url_for('index'))
         else:
             return {'error': 'Failed to log in user'}, 500
     else:

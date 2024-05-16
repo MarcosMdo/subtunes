@@ -3,5 +3,8 @@
         "api/**": {
             "excludeFiles": "{.next,*.cache,node_modules,public,app}/**"
         }
-    }
+    },
+    "rewrites": [
+        { "source": "/(.*)", "destination": "/api/index" }
+      ]
 }
