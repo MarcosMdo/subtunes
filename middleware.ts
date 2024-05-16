@@ -12,12 +12,12 @@ export function middleware(request: NextRequest) {
   } else {
     // Token does not exist, redirect to Spotify login
     console.log("no spotify token found, redirecting")
-    
+
     const redirectUrl = new URL('/api/login', request.url);
     return NextResponse.redirect(redirectUrl);
   }
 }
 
 export const config = {
-  matcher: ['/boilerplate/home', '/boilerplate/createsubtune', '/boilerplate/createplaylist', 'createSubtune'], // Routes to apply middleware
+  matcher: ['/boilerplate/home', '/boilerplate/createsubtune', '/boilerplate/createplaylist', '/createSubtune'], // Routes to apply middleware
 };
