@@ -1,12 +1,12 @@
 import React, { ForwardedRef, forwardRef } from 'react';
 
-import { tune } from '../../subtuneTypes/Tune';
+import { Ttune } from '../../subtuneTypes/Tune';
 
 import { CSS } from '@dnd-kit/utilities';
 
 // (props: { tuneObj: tune; onClick: (arg0: { tune: tune; }) => void; })
-export const Tune = (props: { tuneObj: tune; onClick: (arg0: { tune: tune; }) => void; })=> {
-  const tune: tune = props.tuneObj;
+export const Tune = (props: { tuneObj: Ttune; onClick: (arg0: { tune: Ttune; }) => void; })=> {
+  const tune: Ttune = props.tuneObj;
 
   return (
     <div className='tune'>

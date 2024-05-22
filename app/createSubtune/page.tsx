@@ -220,7 +220,6 @@ export default function CreateSubtune() {
                             >
                                 {(provided, snapshot) => (
                                     <div
-                                        key={nanoid(11)}
                                         ref={provided.innerRef}
                                     >
                                         <SubtuneForm key={`subtuneForm`} onColorChange={updateSubtunePanelBg} onImageChange={updateBackground} subtuneTunes={subtune} />

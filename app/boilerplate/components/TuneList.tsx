@@ -1,5 +1,5 @@
 import Tune from "./Tune"
-import { tune } from '../../subtuneTypes/Tune';
+import { Ttune } from '../../subtuneTypes/Tune';
 import React, {useState} from 'react';
 
 import { Reorder } from 'framer-motion';
