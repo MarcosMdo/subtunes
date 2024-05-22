@@ -15,12 +15,12 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
+    <html lang="en" className="no-scrollbar">
       <head>
         <meta name="viewport" content="initial-scale=1, width=device-width" />
       </head>
       <AppRouterCacheProvider>
-      <body className={inter.className}>{children}</body>
+        <body className={inter.className}>{children}</body>
       </AppRouterCacheProvider>
     </html>
   )

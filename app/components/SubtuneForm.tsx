@@ -13,13 +13,13 @@ import Stack from '@mui/material/Stack';
 import { styled } from '@mui/material/styles';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { tune } from "../subtuneTypes/Tune";
+import { Ttune } from "../subtuneTypes/Tune";
 
 import { HexColorPicker, HexColorInput } from "react-colorful";
 
 
 
-export default function SubtuneForm({onColorChange, onImageChange, subtuneTunes}:{ onColorChange: (color: number[]) => void; onImageChange: (imageurl: string )=> void; subtuneTunes: tune[]}) {
+export default function SubtuneForm({onColorChange, onImageChange, subtuneTunes}:{ onColorChange: (color: number[]) => void; onImageChange: (imageurl: string )=> void; subtuneTunes: Ttune[]}) {
     const [file, setFile] = useState<any>(null);
     const [image, setImage] = useState<string | null>(null);
     const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
@@ -108,7 +108,7 @@ export default function SubtuneForm({onColorChange, onImageChange, subtuneTunes}
         console.log("event", event);
 
         // remove the prepended unique id from the spotify id
-        subtuneData.subtuneTuneIds = subtuneTunes.map(tune => tune.id.split('.')[1]);
+        subtuneData.subtuneTuneIds = subtuneTunes.map(tune => tune.id);
         console.log("subtuneData: ", subtuneData);
         const data = {
             "name": subtuneData.title,
@@ -207,11 +207,11 @@ export default function SubtuneForm({onColorChange, onImageChange, subtuneTunes}
                         <div>
                             <AnimatePresence>
                                 {open && (
-                                    <motion.div className='color-picker' style={{ overflow: "hidden" }}
+                                    <motion.div className='color-picker flex flex-col justify-items-start' style={{ overflow: "hidden" }}
                                         key="color-picker"
-                                        initial={{ opacity: 0, scale: 0.25, rotate: -90 }}
+                                        initial={{ opacity: 0, scale: 0.25, rotate: -35 }}
                                         animate={{ opacity: 1, scale: 1, rotate: 0 }}
-                                        exit={{ opacity: 0, scale: 0.125, rotate: -90 }}
+                                        exit={{ opacity: 0, scale: 0.125, rotate: -15 }}
                                         transition={{
                                             duration: 0.3,
                                             ease: [0, 0.71, 0.45, 1.01],
@@ -223,7 +223,7 @@ export default function SubtuneForm({onColorChange, onImageChange, subtuneTunes}
                                             }
                                         }}
                                     >
-                                        <HexColorInput className='color-input' color={subtuneData.subtuneColor}  style={{marginBottom: "5px"}}/>
+                                        <HexColorInput className='flex self-stretch color-input mx-0' color={subtuneData.subtuneColor}  style={{marginBottom: "5px"}} prefixed/>
                                         <HexColorPicker color={subtuneData.subtuneColor} onChange={handleColorChange} />
                                     </motion.div>
                                 )}

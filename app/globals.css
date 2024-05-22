@@ -39,6 +39,10 @@
     }
   }
 
+.dnd-copy ~ div {
+    transform: none !important;
+}
+
 body {
   /* color: rgb(var(--foreground-rgb));
   background: linear-gradient(

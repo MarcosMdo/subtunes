@@ -1,6 +1,6 @@
 import React, {useState} from 'react'
-import { tune } from '../subtuneTypes/Tune';
-import { subtune } from '../subtuneTypes/Subtune';
+import { Ttune } from '../subtuneTypes/Tune';
+import { Tsubtune } from '../subtuneTypes/Subtune';
 
 import { Typography } from '@mui/material';
 
@@ -10,7 +10,7 @@ import { motion } from 'framer-motion';
 
 
 
-export default function Card({subtune}:{subtune: subtune}) {
+export default function Card({subtune}:{subtune: Tsubtune}) {
 
     return (
         <div className="flex w-[32vw] min-w-96 h-96 content-center justify-center bg-slate-100/25 rounded-3xl shadow-xl ring-1 ring-slate-200"

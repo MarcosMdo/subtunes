@@ -70,7 +70,8 @@ def search_tune(query = ""):
 
         current_app.logger.debug(tracks[0].keys())
         # Extract relevant information from each track
-        track_info = [{'id': track['id'], 'name': track['name'], 'artist': track['artists'][0]['name'], 'external': track['preview_url'], 'cover': track['album']['images'][0]['url']} for track in tracks]
+        track_info = [{'id': track['id'], 'name': track['name'], 'artist': track['artists'][0]['name'], 'external': track['preview_url'], 'image_url': track['album']['images'][0]['url']} for track in tracks]
+
         return jsonify({'tracks': track_info, 'next': True if next_results else None}), 200
     else:
         return jsonify({'error': 'Failed to fetch tracks from Spotify'}), response.status_code
@@ -89,18 +90,21 @@ def search_subtune(query = ""):
         
         # check if the subtune exists
         if subtunes is None:
-            return {"error": "no subtunes like {}".format(query)}, 404
+            current_app.logger.info("query={}".format(query))
+            return {"error": "subtune not found"}, 404
         
         current_app.logger.debug(subtunes)
 
         response = []
 
         for subtune in subtunes:
-            subtune_obj = {"name": subtune.name, "description": subtune.description, "id": subtune.id}
+            subtune_obj = {"name": subtune.name, "description": subtune.description, "id": subtune.id, 'created_at': subtune.created_at, 'color': subtune.color}
             tunes = sorted(subtune.subtune_tunes, key=lambda subtune_tune: subtune_tune.order_in_subtune)
             subtune_obj["tunes"] = [subtune_tune.tune for subtune_tune in tunes]
             
-            response.append({"subtune": subtune_obj})
+            resp.append({"subtune": subtune_obj})
+            resp = sorted(resp, key=lambda x: x['subtune']['created_at'], reverse=True)
+            current_app.logger.info("\n\n\nresp:", str(resp), "\n\n\n")
         
         current_app.logger.debug(response)
         

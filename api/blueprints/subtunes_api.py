@@ -66,7 +66,7 @@ def get_subtune_by_id(id=1):
         if subtune.user_id != user_id:
             return {"error": "user does not own this subtune"}, 401
         
-        subtune_obj = {"name": subtune.name, "description": subtune.description}
+        subtune_obj = {"name": subtune.name, "description": subtune.description, 'created_at': subtune.created_at, 'color': subtune.color, 'image_url': subtune.image_url}
         
         # get relevant rows from link table
         subtune_tunes = sorted(subtune.subtune_tunes, key=lambda subtune_tune: subtune_tune.order_in_subtune)
@@ -106,6 +106,7 @@ def get_user_subtunes(spotify_id="ALL"):
             if "error" in res:
                 return jsonify(res), code
             response.append(res)
+            response = sorted(response, key=lambda x: x['subtune']['created_at'], reverse=True)
         
         return jsonify(response), 200
 

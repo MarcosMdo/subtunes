@@ -1,12 +1,13 @@
-import { tune } from './Tune';
-import { subtune } from './Subtune';
+import { Ttune } from './Tune';
+import { Tsubtune } from './Subtune';
 
-export type playlist = {
+export type Tplaylist = {
     id: string;
     name: string;
     description?: string;
     image_url?: string;
-    tunes: Array<tune>;
-    subtunes?: Array<subtune>;
+    tunes: Array<Ttune>;
+    subtunes?: Array<Tsubtune>;
     color: string;
+    droppableId?: string;
 }
