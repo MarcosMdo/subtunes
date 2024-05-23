@@ -1,18 +1,16 @@
 """"This blueprint handles the authentication with Spotify."""
 
-from urllib.parse import quote
-from ..spotify_api_endpoints import spotify_endpoints
-from ..model.user import User
-from ..database.db import db
 import requests
 import base64
 import time
-import json
 import os
 
+from ..model.user import User
+from ..database.db import db
 
 from flask import request, redirect, Blueprint, session, current_app, url_for, make_response
 from flask_login import login_user
+from urllib.parse import quote
 
 bp = Blueprint('spotify_auth_api', __name__)
 
@@ -134,7 +132,9 @@ def callback():
         response.set_cookie("token_type", token_type, max_age=expires_in)
         response.set_cookie("expire_time", str(time.time() + expires_in), max_age=expires_in)
 
-        if login_user_from_spotify(access_token, refresh_token):
+        success_login, user = login_user_from_spotify(access_token, refresh_token)
+        if success_login:
+            response.set_cookie("spotify_id", str(user.id))
             return response
         else:
             return {'error': 'Failed to log in user'}, 500
@@ -155,10 +155,10 @@ def login_user_from_spotify(access_token, refresh_token):
 
         #Check if the user exists in the database, otherwise create a new user
         with current_app.app_context():
-            user = User.query.filter_by(spotify_id=user_info['id']).first()
+            user = User.query.filter_by(id=user_info['id']).first()
         if not user:
             user = User(
-                spotify_id=user_info['id'],
+                id=user_info['id'],
                 display_name=user_info.get('display_name'),
                 email=user_info.get('email'),
                 image=user_info.get('images')[0]['url'] if user_info.get('images') else None,
@@ -171,7 +171,7 @@ def login_user_from_spotify(access_token, refresh_token):
         login_user(user)
         current_app.logger.info(f"\n\n\tuser logged in: {user}\n\n")
 
-        return True  # User successfully logged in
+        return True, user  # User successfully logged in
     else:
         # If the status code is not 200, handle the error
-        return False  # User login failed
+        return False, None  # User login failed

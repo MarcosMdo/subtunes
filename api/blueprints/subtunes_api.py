@@ -1,30 +1,14 @@
-import requests
-import copy
-import secrets
-#import boto3
 import json
-import uuid
-from urllib.parse import quote
 import os
+import uuid
 
+from ..blueprints.tunes_api import get_tune
 from ..database.db import db
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.dialects.postgresql import insert
-
 from ..model.subtune import Subtune
 from ..model.subtune_tune import Subtune_Tune
-from ..model.tune import Tune
 
-from ..spotify_api_endpoints import spotify_endpoints
-
-from ..blueprints.spotify_auth_api import get_auth_header
-from ..blueprints.tunes_api import get_tune
-
-from flask import Flask, request, redirect, session, url_for, Blueprint, jsonify, current_app
+from flask import request, Blueprint, jsonify, current_app
 from flask_login import current_user, login_required
-
-
-
 
 bp = Blueprint('subtunes_api', __name__)
 
@@ -98,27 +82,32 @@ def get_subtune_by_id(id=1):
     return {"error": "something went really wrong"}, 500
 
 # get all subtunes for a user
-@bp.route("/user/<user_id>/subtunes", methods=["GET"])
+@bp.route("/user/subtunes", methods=["GET"])
 @login_required
-def get_user_subtunes(user_id=-1):
+def get_user_subtunes(spotify_id="ALL"):
     with current_app.app_context():
-        # return all subtunes for this user
-        user_subtunes = Subtune.query.filter_by(user_id=user_id).all()
+        spotify_id = int(request.cookies.get('spotify_id'))
+
+        if spotify_id is None:
+            return jsonify({"error": "user_id is required"}), 400
+
+        if spotify_id == "ALL":
+            user_subtunes = Subtune.query.all()
+        else:
+            user_subtunes = Subtune.query.filter_by(user_id=spotify_id).all()
 
         if not user_subtunes:
-            return {"error": "no subtunes found for this user"}, 404
+            return jsonify({"error": "no subtunes found for this user"}), 404
         
         response = []
 
         for subtune in user_subtunes:
             res, code = get_subtune_by_id(subtune.id)
-
             if "error" in res:
-                return res, code
-            
+                return jsonify(res), code
             response.append(res)
         
-        return response, 200
+        return jsonify(response), 200
 
 # save subtune to db
 @bp.route("/subtune", methods=["POST"])

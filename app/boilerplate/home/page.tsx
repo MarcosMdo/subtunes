@@ -20,11 +20,20 @@ const Home = ({searchParams}) => {
   useEffect(() => {
     const fetchSubtunes = async () => {
       try {
-        const response = await fetch('/api/user/1/subtunes');
+        const response = await fetch('/api/user/subtunes', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include', // Ensure cookies are sent with the request
+        });
+        if (!response.ok) {
+          throw new Error(`Error fetching subtunes: ${response.statusText}`);
+        }
         const data = await response.json();
         setSubtunes(data);
       } catch (error) {
-        console.error('Error fetching subtune:', error);
+        console.error('Error fetching subtunes:', error);
       }
     };
 
