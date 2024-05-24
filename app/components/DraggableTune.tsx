@@ -43,7 +43,7 @@ function DraggableTune({ tune, index, isDropDisabled, mini, styles }: { tune: Tt
                         ref={provided.innerRef}
                         key={`draggable-${tune.draggableId}`}
                         {...provided.draggableProps}
-                        className={` flex flex-row grow shrink min-w-fit max-w-full w-full px-2 ${mini ? 'h-20 py-2' : 'h-26 pt-6 pb-2'} max-h-28 content-center items-center rounded-xl shadow-xl border-1 border-solid border-slate-200 ring-1 ring-slate-200  hover:ring-slate-300 hover:border-slate-300 hover:shadow-2xl`}
+                        className={` flex flex-row grow shrink min-w-fit max-w-full w-full px-2 ${mini ? 'h-20 py-2' : 'h-24 pt-6 pb-2'} max-h-26 content-center items-center rounded-xl shadow-xl border-1 border-solid border-slate-200 ring-1 ring-slate-200  hover:ring-slate-300 hover:border-slate-300 hover:shadow-2xl`}
                         style={{
                             ...provided.draggableProps.style,
                             ...styles,
