@@ -7,7 +7,7 @@ from ..database.db import db
 from ..model.subtune import Subtune
 from ..model.subtune_tune import Subtune_Tune
 
-from flask import request, Blueprint, jsonify, current_app
+from flask import Blueprint, current_app, jsonify, request
 from flask_login import current_user, login_required
 
 bp = Blueprint('subtunes_api', __name__)
@@ -33,20 +33,20 @@ def get_image_url(img_path):
 #         return False, e
 
 # delete subtune image from aws s3 bucket
-def delete_file_from_s3(file_url):
+# def delete_file_from_s3(file_url):
 
-    # Initialize the S3 resource
-    s3 = boto3.resource('s3',
-                        aws_access_key_id=current_app.config["AWS_ACCESS_KEY_ID"],
-                        aws_secret_access_key=current_app.config["AWS_SECRET_ACCESS_KEY"])
+#     # Initialize the S3 resource
+#     s3 = boto3.resource('s3',
+#                         aws_access_key_id=current_app.config["AWS_ACCESS_KEY_ID"],
+#                         aws_secret_access_key=current_app.config["AWS_SECRET_ACCESS_KEY"])
 
-    # Delete the file from the S3 bucket
-    try:
-        s3.Object(bucket_name, file_key).delete()
-        return True  # Deletion successful
-    except Exception as e:
-        print(e)  # Handle or log the error
-        return False  # Deletion failed
+#     # Delete the file from the S3 bucket
+#     try:
+#         s3.Object(bucket_name, file_key).delete()
+#         return True  # Deletion successful
+#     except Exception as e:
+#         print(e)  # Handle or log the error
+#         return False  # Deletion failed
 
 # get subtune by id
 @bp.route("/subtune/<id>", methods=["GET"])

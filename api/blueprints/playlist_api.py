@@ -1,13 +1,12 @@
-import requests
-from urllib.parse import quote
 import os
+import requests
 
 from ..blueprints.spotify_auth_api import get_auth_header
 from ..database.db import db
 from ..model.playlist import Playlist
 from ..model.playlist_tune import Playlist_Tune
 
-from flask import request, session, Blueprint, jsonify, current_app
+from flask import Blueprint, current_app, jsonify, request, session
 from flask_login import current_user, login_required
 
 bp = Blueprint('playlist_api', __name__)
@@ -50,10 +49,12 @@ def save_playlist():
         "name": playlist_name,
         "description": description,
     }
-    playlist_res = requests.post(f"{SPOTIFY_API_URL}/users/{user_spotify_id}/playlists", headers=headers, json=body)
+    response = requests.post(f"{SPOTIFY_API_URL}/users/{user_spotify_id}/playlists", headers=headers, json=body)
+    spotify_playlist_id = response.json()['id']
+    playlist_snapshot_id = response.json()['snapshot_id']
 
-    spotify_playlist_id = playlist_res.json()['id']
-    playlist_snapshot_id = playlist_res.json()['snapshot_id']
+    if response.status_code != 200:
+        return jsonify({"error": response.content}), 404
     
     playlist = Playlist(
         id=spotify_playlist_id,
@@ -87,12 +88,10 @@ def save_playlist():
 @login_required
 def get_playlist_by_id(id=1):
     user_id = current_user.id
-    subtunes_in_playlist = {}
     playlist = None
 
     with current_app.app_context():
         playlist = Playlist.query.get(id)
-        
         # check if the playlist exists
         if playlist is None:
             return {"error": "playlist not found"}, 404
@@ -103,7 +102,6 @@ def get_playlist_by_id(id=1):
         
         playlist_obj = {"name": playlist.name, "description": playlist.description}
         
-        
         # get relevant rows from link table
         playlist_tunes = sorted(playlist.playlist_tunes, key=lambda playlist_tune: playlist_tune.order_in_playlist)
         
@@ -113,19 +111,18 @@ def get_playlist_by_id(id=1):
 
         return {"playlist" : playlist_obj}, 200
 
-    return {"error": "something went really wrong"}, 500
-
 # get all playlists for a user
-@bp.route("/user/<user_id>/playlists", methods=["GET"])
+@bp.route("/user/playlists", methods=["GET"])
 @login_required
-def get_user_playlists(user_id=-1):
+def get_user_playlists(user_id="ALL"):
     with current_app.app_context():
         # return all subtunes for this user
+        user_id = int(request.cookies.get('spotify_id'))
+        if user_id is None:
+            return jsonify({"error": "user_id is required"}), 400
+        
         user_playlists = Playlist.query.filter_by(user_id=user_id).all()
 
-        if not user_playlists:
-            return {"error": "no subtunes found for this user"}, 404
-        
         response = []
 
         for playlist in user_playlists:
@@ -136,7 +133,7 @@ def get_user_playlists(user_id=-1):
             
             response.append(res)
         
-        return response, 200
+        return jsonify(response), 200
 
 # Delete playlist from db
 @bp.route("/playlist/<id>", methods=["DELETE"]) 
