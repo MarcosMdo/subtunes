@@ -104,8 +104,8 @@ function TabbedSidePanel({
     }
 
     return (
-        <div id={id} onDoubleClick={toggleListener} className={` flex w-full min-h-[80vh] max-h-[80vh] py-8 px-4 ${side === 'left' ? "flex-row" : "flex-row-reverse"}`}>
-            <div className="flex flex-col h-full grow shrink rounded-3xl px-4 py-4 bg-slate-100/[15%] align-start ring-1 ring-slate-100">
+        <motion.div layout  id={id} onDoubleClick={toggleListener} className={`flex flex-row grow shrink w-full min-w-[566px] min-h-[80vh] max-h-[80vh] py-8 px-4 ${side === 'left' ? "flex-row" : "flex-row-reverse"}`}>
+            <div className="flex flex-col h-full grow shrink rounded-3xl px-4 py-4 bg-slate-100/[15%] align-end ring-1 ring-slate-100">
                 <SearchBar isFilter clearFilter={handleFilterStatus} onSubmit={handleSearchResults} searchTarget={contentType as 'subtune' | 'playlist'} />
                 <div className="flex flex-row w-full justify-evenly py-2.5 ">
                     {tabs.map((tab) => (
@@ -147,7 +147,7 @@ function TabbedSidePanel({
                     <DragIndicatorRoundedIcon fontSize='large' />
                 </IconButton>
             </div>
-        </div>
+        </motion.div>
     )
 }
 

@@ -10,14 +10,13 @@ import SidePanel from "../components/SidePanel"
 import SubtuneForm from "../components/SubtuneForm"
 import { CurrentPreviewProvider } from "../contexts/audioPreviewContext"
 
-import { motion, useAnimate, useMotionTemplate, useMotionValue, animate } from "framer-motion";
+import { motion, useAnimate, useMotionTemplate, useMotionValue, animate, LayoutGroup } from "framer-motion";
 
 import { nanoid } from 'nanoid';
 import TabbedSidePanel from '../components/TabbedSidePanel';
 import { DragDropContext, Droppable } from '@hello-pangea/dnd';
 import { setDraggableId, setDraggableIds, hexToRGB, rgbaToHex } from '../utils/helperFunctions';
-import invariant from 'tiny-invariant';
-import { breadcrumbsClasses } from '@mui/material';
+
 
 const renderClone = (provided: any, snapshot: any, rubric: any) => (
     <div
@@ -35,7 +34,7 @@ export default function CreateSubtune() {
     const [rightPanelState, setRightPanelState] = useState<boolean>(true);
     const [subtuneColor, setSubtuneColor] = useState<number[]>([0, 0, 0, 0]);
     const [subtuneBackgroundImage, setSubtuneBackgroundImage] = useState<string>("");
-    
+
     // the three containers' states
     const [tunes, setTunes] = useState<Ttune[]>([])
     const [subtune, setSubtune] = useState<Ttune[]>([]);
@@ -46,7 +45,7 @@ export default function CreateSubtune() {
     const auraColor = useMotionValue(AURACOLORS[0]);
     const backgroundImage = useMotionTemplate`radial-gradient(125% 125% at 50% 0%, transparent 75%, ${auraColor})`
 
-    useEffect(()=> {
+    useEffect(() => {
         animate(auraColor, AURACOLORS, {
             ease: 'easeInOut',
             duration: 5,
@@ -83,27 +82,25 @@ export default function CreateSubtune() {
     }
 
     useEffect(() => {
-        if (!leftPanelState) {
-            animatePanels("#tunes-panel", { x: "-75%", width: '100%' }, { type: 'spring', bounce: 0.35 });
-        }
-        if (!rightPanelState) {
-            animatePanels("#right-panel", { x: "75%", width: '100%' }, { type: 'spring', bounce: 0.35 });
-        }
         if (leftPanelState && rightPanelState) {
-            animatePanels("#playlist", { x: 0, width: '100%' }, { type: 'spring', bounce: 0.35 });
             animatePanels("#tunes-panel", { x: "0%", width: '100%' }, { type: 'spring', bounce: 0.35 });
+            animatePanels("#playlist", { x: 0, width: '100%' }, { type: 'spring', bounce: 0.35 });
             animatePanels("#right-panel", { x: "0%", width: '100%' }, { type: 'spring', bounce: 0.35 });
         }
         if (!leftPanelState && !rightPanelState) {
-            animatePanels("#playlist", { x: 0, width: '250%' }, { type: 'spring', bounce: 0.35 });
+            animatePanels("#tunes-panel", { x: "-75%", width: '100%' }, { type: 'spring', bounce: 0.35 });
+            animatePanels("#playlist", { x: 80, width: '250%' }, { type: 'spring', bounce: 0.35 });
+            animatePanels("#right-panel", { x: "85%", width: '100%' }, { type: 'spring', bounce: 0.35 });
         }
         if (leftPanelState && !rightPanelState) {
-            animatePanels("#tunes-panel", { x: "0%", width: '350%' }, { type: 'spring', bounce: 0.35 });
-            animatePanels("#playlist", { x: 80, width: '350%' }, { type: 'spring', bounce: 0.35 });
+            animatePanels("#tunes-panel", { x: "0%", width: '100%' }, { type: 'spring', bounce: 0.35 });
+            animatePanels("#playlist", { x: 80, width: "1100%" }, { type: 'spring', bounce: 0.35 });
+            animatePanels("#right-panel", { x: "85%", width: '100%' }, { type: 'spring', bounce: 0.35 });
         }
         if (!leftPanelState && rightPanelState) {
-            animatePanels("#right-panel", { x: "0%", width: '350%' }, { type: 'spring', bounce: 0.35 });
+            animatePanels("#tunes-panel", { x: "-75%", width: '100%' }, { type: 'spring', bounce: 0.35 });
             animatePanels("#playlist", { x: -80, width: '350%' }, { type: 'spring', bounce: 0.35 });
+            animatePanels("#right-panel", { x: "0%", width: '100%' }, { type: 'spring', bounce: 0.35 });
         }
     }, [leftPanelState, rightPanelState])
 
@@ -204,13 +201,12 @@ export default function CreateSubtune() {
                 }}
             >
                 <motion.div
-                    layoutRoot
                     className="flex flex-col w-full h-full"
-                    style={{backgroundImage,}}
+                    style={{ backgroundImage, }}
                 >
                     <div className="flex flex-col w-full h-full backdrop-blur-md" >
-                        <DragDropContext 
-                            onDragStart={onDragStart} 
+                        <DragDropContext
+                            onDragStart={onDragStart}
                             onDragEnd={onDragEnd}
                         >
                             <Droppable
@@ -227,40 +223,45 @@ export default function CreateSubtune() {
                                 )}
                             </Droppable>
                             <motion.div
+                                layout
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 transition={{ duration: 0.5, when: "beforeChildren" }}
-                                className=" flex flex-row ">
-                                <div
-                                    ref={scope}
-                                    className="motion flex flex-row grow shrink w-full overflow-x-clip"
-                                >
-                                    <SidePanel
-                                        id="tunes-panel"
-                                        side='left'
-                                        searchTarget="tune"
-                                        items={tunes}
-                                        toggle={leftPanelState}
-                                        toggleListener={() => { setLeftPanelState(!leftPanelState) }}
-                                        onResults={handleTunesResults}
-                                    />
+                                className=" flex flex-row "
+                            >
+                                <LayoutGroup>
                                     <div
-                                        id='playlist'
-                                        className="flex flex-col justify-center content-center p-4 my-8 ring-1 ring-slate-100 rounded-2xl shadow-2xl w-full overflow-y-auto no-scrollbar hover:ring-2 hover:ring-slate-200/50"
-                                        // style={{ backgroundColor: `rgba(${subtuneColor.join(',')})` }}
-                                        onDoubleClick={hideShowPanels}
+                                        ref={scope}
+                                        className="motion flex flex-row grow shrink w-full overflow-x-clip"
                                     >
-                                        <DndList color={subtuneColor.toString()} disableDroppable={false} id='droppable-subtune' tunes={subtune} mini={false} />
+                                        <SidePanel
+                                            id="tunes-panel"
+                                            side='left'
+                                            searchTarget="tune"
+                                            items={tunes}
+                                            toggle={leftPanelState}
+                                            toggleListener={() => { setLeftPanelState(!leftPanelState) }}
+                                            onResults={handleTunesResults}
+                                        />
+                                        <motion.div
+                                            layout
+                                            id='playlist'
+                                            className="flex flex-col float-right shrink grow w-full justify-center content-center p-4 my-8 ring-1 ring-slate-100 rounded-2xl shadow-2xl overflow-y-auto no-scrollbar hover:ring-2 hover:ring-slate-200/50"
+                                            // style={{ backgroundColor: `rgba(${subtuneColor.join(',')})` }}
+                                            onDoubleClick={hideShowPanels}
+                                        >
+                                            <DndList color={subtuneColor.toString()} disableDroppable={false} id='droppable-subtune' tunes={subtune} mini={false} />
+                                        </motion.div>
+                                        <TabbedSidePanel
+                                            side='right'
+                                            id={'right-panel'}
+                                            items={library}
+                                            toggle={rightPanelState}
+                                            toggleListener={() => { setRightPanelState(!rightPanelState) }}
+                                            onResults={handleTabbedResults}
+                                        />
                                     </div>
-                                    <TabbedSidePanel
-                                        side='right'
-                                        id={'right-panel'}
-                                        items={library}
-                                        toggle={rightPanelState}
-                                        toggleListener={() => { setRightPanelState(!rightPanelState) }}
-                                        onResults={handleTabbedResults}
-                                    />
-                                </div>
+                                </LayoutGroup>
                             </motion.div>
                         </DragDropContext>
                     </div>

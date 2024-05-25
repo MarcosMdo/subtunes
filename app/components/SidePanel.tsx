@@ -72,7 +72,7 @@ export default function SidePanel({
     }
 
     return (
-            <div id={`${id}`} onDoubleClick={toggleListener} className={`flex w-full min-h-[80vh] max-h-[80vh] py-8 px-4 ${side === 'left' ? "flex-row" : "flex-row-reverse"}`}>
+            <motion.div id={`${id}`} onDoubleClick={toggleListener} className={`flex w-full min-h-[80vh] max-h-[80vh] py-8 px-4 ${side === 'left' ? "flex-row" : "flex-row-reverse"}`}>
                 <div className="flex flex-col h-full grow shrink rounded-3xl p-4  bg-slate-100/[15%] align-start ring-1 ring-slate-100">
                     <SearchBar onSubmit={handleSearchResults} searchTarget={searchTarget} />
                     <AnimatePresence>
@@ -115,7 +115,7 @@ export default function SidePanel({
                         />
                     </IconButton>
                 </div>
-            </div>
+            </motion.div>
     )
 }
 
