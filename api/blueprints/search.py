@@ -86,7 +86,8 @@ def search_subtune(query = ""):
     current_app.logger.debug("query={}".format(query))
 
     with current_app.app_context():
-        subtunes = Subtune.query.filter(Subtune.name.ilike(query)).all()
+        # ilike was not properly matching any word of the subtune name, just the first word. 
+        subtunes = Subtune.query.filter(Subtune.name.contains(query)).all()
         
         # check if the subtune exists
         if subtunes is None:

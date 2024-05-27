@@ -1,12 +1,10 @@
-import { Suspense, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import SearchIcon from '@mui/icons-material/Search';
 import { IconButton } from '@mui/material';
 import { InputBase } from '@mui/material';
-import { Autocomplete } from '@mui/material';
 
 import { Ttune } from '../subtuneTypes/Tune';
-import { on } from 'events';
 import { Tsubtune } from '../subtuneTypes/Subtune';
 
 import { setDraggableIds, setDroppableIds } from '../utils/helperFunctions';
@@ -30,7 +28,6 @@ const SearchBar = (
     
     const handleFilter = async () => {
         try{
-            console.log(`filtering ${searchTarget} for: `, query);
             const response = await fetch(`/api/search/${searchTarget}?query=${encodeURIComponent(query)}`);
             const data = await response.json();
             let cleanData;
@@ -63,7 +60,6 @@ const SearchBar = (
 
         // Trigger API call with query and update searchResults
         try {
-            console.log("quering backend for: ", query);
             const response = await fetch(`/api/search/${searchTarget}?query=${encodeURIComponent(query)}`);
             const data = await response.json();
 
@@ -90,24 +86,6 @@ const SearchBar = (
             <form onSubmit={handleSearch}
                 className="flex flex-row grow shrink justify-between items-center w-full"
             >
-                {/* <Autocomplete
-                    className="h-full rounded-md w-full self-end px-4 bg-transparent focus:outline-none"
-                    id="search-bar"
-                    freeSolo
-                    // TODO: query db as user types and add to options list
-                    options = {[]}
-                    renderInput={(params) => (
-                        <InputBase
-                            {...params}
-                            autoComplete='on'
-                            name="search"
-                            type="search"
-                            value={query}
-                            placeholder={`Search ${searchTarget}...`}
-                            onChange={(e) => setQuery(e.target.value)}
-                            onDoubleClick={(e) => e.stopPropagation()}
-                        />
-                    )} /> */}
                 <InputBase
                     className="h-full rounded-md w-full px-4 bg-transparent focus:outline-none"
                     autoComplete='off'

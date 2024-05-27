@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import { useEffect, useState } from "react";
 
 import styles from "./Component.module.css"
@@ -9,7 +9,6 @@ import SaveRoundedIcon from '@mui/icons-material/SaveRounded';
 import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
 import ColorLensRoundedIcon from '@mui/icons-material/ColorLensRounded';
 import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
-import Stack from '@mui/material/Stack';
 import { styled } from '@mui/material/styles';
 
 import { motion, AnimatePresence } from 'framer-motion';
@@ -52,7 +51,6 @@ export default function SubtuneForm({onColorChange, onImageChange, subtuneTunes}
 
     const findComplementaryColor = (subtuneColor: string) => {
         const rgb: number[] | undefined = subtuneData.subtuneColor.match(/\w\w/g)?.map(x => parseInt(x, 16)) as number[];
-        console.log("subtune color rgb: ", rgb)
         rgb && setSubtuneColorRGBA([...rgb, 0.5]);
         onColorChange(subtuneColorRGBA);
         const complementaryRgb = rgb?.map(x => 255 - x); // complementary color in rgb
@@ -62,8 +60,6 @@ export default function SubtuneForm({onColorChange, onImageChange, subtuneTunes}
 
     const handleColorChange = (color: string) => {
         findComplementaryColor(color);
-        // console.log("color: ", color, "compColor: ", compColor);
-        // setAngle((angle) => angle + 5 % 360);
         setSubtuneData({ ...subtuneData, subtuneColor: color });
     }
 
@@ -107,9 +103,8 @@ export default function SubtuneForm({onColorChange, onImageChange, subtuneTunes}
         console.log("children: ", subtuneTunes);
         console.log("event", event);
 
-        // remove the prepended unique id from the spotify id
+        // create list of spotify track ids
         subtuneData.subtuneTuneIds = subtuneTunes.map(tune => tune.id);
-        console.log("subtuneData: ", subtuneData);
         const data = {
             "name": subtuneData.title,
             "description": subtuneData.description,

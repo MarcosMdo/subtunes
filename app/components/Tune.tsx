@@ -1,17 +1,16 @@
-'use client'
-
-import react, { useRef, useEffect, CSSProperties } from 'react';
+'use client';
+import react, { useEffect, CSSProperties } from 'react';
 import { Ttune } from '../subtuneTypes/Tune';
 import { useCurrentPreview } from '../contexts/audioPreviewContext';
 
-import { IconButton, Typography } from '@mui/material';
+import { IconButton } from '@mui/material';
 import PlayArrowRoundedIcon from '@mui/icons-material/PlayArrowRounded';
 import PauseRoundedIcon from '@mui/icons-material/PauseRounded';
 import PlayDisabledRoundedIcon from '@mui/icons-material/PlayDisabledRounded';
 import Slider from '@mui/material/Slider';
 import ImageNotSupportedRoundedIcon from '@mui/icons-material/ImageNotSupportedRounded';
 
-import { motion } from 'framer-motion';
+
 
 export default function Tune({ tune, style, mini }: { tune: Ttune; style?: CSSProperties; mini?: boolean;}) {
     const [isPlaying, setIsPlaying] = react.useState(false);
@@ -31,7 +30,7 @@ export default function Tune({ tune, style, mini }: { tune: Ttune; style?: CSSPr
         setIsPlaying(!isPlaying);
     }
 
-    //allows to change the current time of tune to where slider is
+    //allows to change the current time of tune to slider handle position
     const handleSliderChange = (_: Event, value: number | number[]) => {
         const newPosition = Array.isArray(value) ? value[0] : value;
         if (currentPlayingTune?.id === tune.id && currentPlayingTune?.draggableId === tune.draggableId) {

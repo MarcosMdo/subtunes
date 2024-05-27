@@ -14,7 +14,6 @@ import { Tsubtune } from '../subtuneTypes/Subtune';
 import { Tplaylist } from '../subtuneTypes/Playlist';
 
 import { AnimatePresence } from 'framer-motion';
-import { nanoid } from 'nanoid';
 
 export default function SidePanel({
     side,

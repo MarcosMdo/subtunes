@@ -1,21 +1,19 @@
 'use client'
-import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 
 import { Ttune } from "../subtuneTypes/Tune"
 import { Tplaylist } from "../subtuneTypes/Playlist"
 import { Tsubtune } from "../subtuneTypes/Subtune"
 import DndList from "../components/DndList"
-import DraggableTune from "../components/DraggableTune"
 import SidePanel from "../components/SidePanel"
 import SubtuneForm from "../components/SubtuneForm"
 import { CurrentPreviewProvider } from "../contexts/audioPreviewContext"
 
 import { motion, useAnimate, useMotionTemplate, useMotionValue, animate, LayoutGroup } from "framer-motion";
 
-import { nanoid } from 'nanoid';
 import TabbedSidePanel from '../components/TabbedSidePanel';
 import { DragDropContext, Droppable } from '@hello-pangea/dnd';
-import { setDraggableId, setDraggableIds, hexToRGB, rgbaToHex } from '../utils/helperFunctions';
+import { setDraggableId, rgbaToHex } from '../utils/helperFunctions';
 
 
 const renderClone = (provided: any, snapshot: any, rubric: any) => (
@@ -30,10 +28,13 @@ const renderClone = (provided: any, snapshot: any, rubric: any) => (
 
 export default function CreateSubtune() {
     const [scope, animatePanels] = useAnimate();
+
     const [leftPanelState, setLeftPanelState] = useState<boolean>(true);
     const [rightPanelState, setRightPanelState] = useState<boolean>(true);
+
     const [subtuneColor, setSubtuneColor] = useState<number[]>([0, 0, 0, 0]);
     const [subtuneBackgroundImage, setSubtuneBackgroundImage] = useState<string>("");
+    const subtuneColorFlag = useRef(false)
 
     // the three containers' states
     const [tunes, setTunes] = useState<Ttune[]>([])
@@ -55,12 +56,11 @@ export default function CreateSubtune() {
     })
 
     const updateSubtunePanelBg = (color: number[]) => {
-        console.log("Subtune color received: ", color);
+        subtuneColorFlag.current = true
         setSubtuneColor(color);
     }
 
     const updateBackground = (imageurl: string) => {
-        console.log("Background image received: ", imageurl);
         setSubtuneBackgroundImage(imageurl);
     }
 
@@ -82,31 +82,34 @@ export default function CreateSubtune() {
     }
 
     useEffect(() => {
+        // both open
         if (leftPanelState && rightPanelState) {
             animatePanels("#tunes-panel", { x: "0%", width: '100%' }, { type: 'spring', bounce: 0.35 });
             animatePanels("#playlist", { x: 0, width: '100%' }, { type: 'spring', bounce: 0.35 });
             animatePanels("#right-panel", { x: "0%", width: '100%' }, { type: 'spring', bounce: 0.35 });
         }
+        // both closed
         if (!leftPanelState && !rightPanelState) {
-            animatePanels("#tunes-panel", { x: "-75%", width: '100%' }, { type: 'spring', bounce: 0.35 });
-            animatePanels("#playlist", { x: 80, width: '250%' }, { type: 'spring', bounce: 0.35 });
-            animatePanels("#right-panel", { x: "85%", width: '100%' }, { type: 'spring', bounce: 0.35 });
+            animatePanels("#tunes-panel", { x: "-55%", width: '100%' }, { type: 'spring', bounce: 0.35 });
+            animatePanels("#playlist", { x: 160, width: '550%' }, { type: 'spring', bounce: 0.35 });
+            animatePanels("#right-panel", { x: "83%", width: '100%' }, { type: 'spring', bounce: 0.35 });
         }
+        // only left open
         if (leftPanelState && !rightPanelState) {
             animatePanels("#tunes-panel", { x: "0%", width: '100%' }, { type: 'spring', bounce: 0.35 });
-            animatePanels("#playlist", { x: 80, width: "1100%" }, { type: 'spring', bounce: 0.35 });
             animatePanels("#right-panel", { x: "85%", width: '100%' }, { type: 'spring', bounce: 0.35 });
+            animatePanels("#playlist", { x: 220, width: "100%" }, { type: 'spring', bounce: 0.35 });
         }
+        // only right open
         if (!leftPanelState && rightPanelState) {
-            animatePanels("#tunes-panel", { x: "-75%", width: '100%' }, { type: 'spring', bounce: 0.35 });
-            animatePanels("#playlist", { x: -80, width: '350%' }, { type: 'spring', bounce: 0.35 });
+            animatePanels("#tunes-panel", { x: "-85%", width: '100%' }, { type: 'spring', bounce: 0.35 });
+            animatePanels("#playlist", { x: -160, width: '100%' }, { type: 'spring', bounce: 0.35 });
             animatePanels("#right-panel", { x: "0%", width: '100%' }, { type: 'spring', bounce: 0.35 });
         }
     }, [leftPanelState, rightPanelState])
 
     const onDragStart = (result: any) => {
         const { source, draggableId } = result;
-        console.log("tunes length", tunes.length)
         if (source.droppableId !== "droppable-subtune" && source.droppableId !== "droppable-tunes-panel") {
             const playlist = library.find(item => {
                 return item.droppableId === source.droppableId
@@ -120,18 +123,12 @@ export default function CreateSubtune() {
         }
     }
 
-    const onDragUpdate = (result: any) => {
-        console.log(result);
-    };
-
     const onDragEnd = useCallback((result: any) => {
-        // console.log("on end result: ", result);
         if (!result.destination) return;
 
         // trash
         if (result.destination.droppableId !== "droppable-subtune") {
             if (result.source.droppableId === "droppable-subtune") {
-                console.log('removing');
                 const new_subtune = subtune.filter(tune => tune.draggableId !== result.draggableId);
                 setSubtune(new_subtune);
             }
@@ -147,7 +144,6 @@ export default function CreateSubtune() {
                 let new_tune = { ...tune };
                 new_tune = setDraggableId(new_tune);
                 setSubtune([...subtune, new_tune]);
-                console.log("tune added to subtune: ", new_tune)
             }
         }
         // add tune from any playlist/subtune in library
@@ -186,7 +182,6 @@ export default function CreateSubtune() {
 
     const handleTunesResults = async (data: Ttune[] | Tsubtune[] | Tplaylist[], dataType: 'tune' | 'subtune' | 'playlist', clear?: boolean) => {
         const tabData = data;
-        // console.log("tunes results: ", tabData);
         setTunes(tabData as Ttune[]);
     }
 
@@ -214,24 +209,25 @@ export default function CreateSubtune() {
                                 mode="virtual"
                                 renderClone={renderClone}
                             >
-                                {(provided, snapshot) => (
-                                    <div
+                                {(provided, snapshot) => {
+                                    return (<div
                                         ref={provided.innerRef}
                                     >
                                         <SubtuneForm key={`subtuneForm`} onColorChange={updateSubtunePanelBg} onImageChange={updateBackground} subtuneTunes={subtune} />
-                                    </div>
-                                )}
+                                    </div>)
+                                }}
                             </Droppable>
                             <motion.div
                                 layout
+                                ref={scope}
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 transition={{ duration: 0.5, when: "beforeChildren" }}
-                                className=" flex flex-row "
+                                className=" flex flex-row w-full "
                             >
                                 <LayoutGroup>
-                                    <div
-                                        ref={scope}
+                                    <motion.div
+                                        layout
                                         className="motion flex flex-row grow shrink w-full overflow-x-clip"
                                     >
                                         <SidePanel
@@ -246,8 +242,8 @@ export default function CreateSubtune() {
                                         <motion.div
                                             layout
                                             id='playlist'
-                                            className="flex flex-col float-right shrink grow w-full justify-center content-center p-4 my-8 ring-1 ring-slate-100 rounded-2xl shadow-2xl overflow-y-auto no-scrollbar hover:ring-2 hover:ring-slate-200/50"
-                                            // style={{ backgroundColor: `rgba(${subtuneColor.join(',')})` }}
+                                            className="flex flex-col shrink grow w-full justify-center content-center justify-self-stretch p-4 my-8 mx-0 ring-1 ring-slate-100 rounded-2xl shadow-2xl overflow-y-auto no-scrollbar hover:ring-2 hover:ring-slate-200/50"
+                                            style={{ backgroundColor: subtuneColorFlag.current === true ? `rgba(${subtuneColor.slice(0,-1).join(',')},0.2)` : '' }}
                                             onDoubleClick={hideShowPanels}
                                         >
                                             <DndList color={subtuneColor.toString()} disableDroppable={false} id='droppable-subtune' tunes={subtune} mini={false} />
@@ -260,7 +256,7 @@ export default function CreateSubtune() {
                                             toggleListener={() => { setRightPanelState(!rightPanelState) }}
                                             onResults={handleTabbedResults}
                                         />
-                                    </div>
+                                    </motion.div>
                                 </LayoutGroup>
                             </motion.div>
                         </DragDropContext>

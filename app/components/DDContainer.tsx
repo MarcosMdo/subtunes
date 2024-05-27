@@ -28,7 +28,6 @@ function DDContainer({ item }: { item: Tplaylist | Tsubtune }) {
         } else {
             setItemType('subtune');
         }
-        // console.log("in DDContainer: ", item);
     }, [item]);
 
     const calcDDListHeight = (tunes: any) => {
@@ -41,7 +40,7 @@ function DDContainer({ item }: { item: Tplaylist | Tsubtune }) {
             <div 
                 key={`playlist-${item.name}`} 
                 id={`playlist-${item.droppableId}`} 
-                className={`flex shrink flex-col basis-3/4 rounded-xl mt-4 shadow-xl ring-2 ring-slate-200 hover:ring-slate-100 hove:shadow-2xl`}
+                className={`flex shrink flex-col rounded-xl mt-4 shadow-xl ring-2 ring-slate-200 hover:ring-slate-100 hove:shadow-2xl`}
                 style={{ backgroundColor: item.color.length > 0 ? hexToRGB(item.color, 0.25) : 'slate' }}
             >
 
@@ -68,7 +67,7 @@ function DDContainer({ item }: { item: Tplaylist | Tsubtune }) {
                     {toggle &&
                         <motion.div
                             key={`motion-div.${item.name}.${nanoid(11)}`}
-                            className="no-scrollbar" // overflow-y-scroll overflow-x-hidden
+                            className="no-scrollbar" 
                             initial="collapsed"
                             animate="open"
                             exit="collapsed"

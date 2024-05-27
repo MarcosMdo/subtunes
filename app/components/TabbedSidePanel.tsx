@@ -1,5 +1,7 @@
-'use client'
-import React, { memo, useCallback, useEffect, useState } from 'react'
+// TODO: have a 'db listener' to see if a 
+// new subtune/playlist has been created to re-fetch data
+'use client';
+import React, { memo, useEffect, useState } from 'react'
 import SearchBar from './SearchBar'
 import DDContainer from './DDContainer';
 
@@ -11,8 +13,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 
 import { IconButton } from '@mui/material';
 import DragIndicatorRoundedIcon from '@mui/icons-material/DragIndicatorRounded';
-import { prepPlaylistsForDnd, prepSubtunesForDnd, setDraggableIds, setDroppableId, setDroppableIds } from '../utils/helperFunctions';
-import { Ttune } from '../subtuneTypes/Tune';
+import { prepPlaylistsForDnd, prepSubtunesForDnd} from '../utils/helperFunctions';
 
 const tabs = [
     { id: 'stubtune', label: 'Subtunes' },
@@ -34,26 +35,18 @@ function TabbedSidePanel({
     toggleListener: (data: any) => void;
     onResults: (data: Tsubtune[] | Tplaylist[], dataType: 'subtune' | 'playlist', clear?: boolean) => void;
 }) {
-    const [contents, setContents] = useState<Tsubtune[] | Tplaylist[]>([]);
     const [contentType, setContentType] = useState<string>('subtune');
     const [activeTab, setActiveTab] = useState<string>('subtune');
 
-    // useEffect(() =>{
-    //     loadSubtunes();
-    // }, []);
-
     useEffect(() => {
         if (contentType === 'subtune') {
-            console.log("loading all subtunes");
             loadSubtunes();
         } else if (contentType === 'playlist') {
-            console.log("loading all playlists");
             loadPlaylists();
         }
     }, [contentType])
 
     const handleSearchResults = (data: any, hasNext?: boolean, clear?: boolean) => {
-        // // setContents(data);
         onResults(data, contentType as 'subtune' | 'playlist', clear);
     }
 
@@ -82,7 +75,6 @@ function TabbedSidePanel({
             }
             let cleanData = prepSubtunesForDnd(data);
             onResults(cleanData, 'subtune');
-            // console.log(cleanData);
         } catch (error) {
             console.error('Error fetching subtunes:', error);
         }
@@ -99,12 +91,11 @@ function TabbedSidePanel({
     }
 
     const toggleContents = (e: any) => {
-        // const prevContentType = contentType;
         setContentType(e.target.innerText.slice(0, -1));
     }
 
     return (
-        <motion.div layout  id={id} onDoubleClick={toggleListener} className={`flex flex-row grow shrink w-full min-w-[566px] min-h-[80vh] max-h-[80vh] py-8 px-4 ${side === 'left' ? "flex-row" : "flex-row-reverse"}`}>
+        <motion.div id={id} onDoubleClick={toggleListener} className={`flex flex-row grow shrink w-full min-w-[566px] min-h-[80vh] max-h-[80vh] py-8 px-4 ${side === 'left' ? "flex-row" : "flex-row-reverse"}`}>
             <div className="flex flex-col h-full grow shrink rounded-3xl px-4 py-4 bg-slate-100/[15%] align-end ring-1 ring-slate-100">
                 <SearchBar isFilter clearFilter={handleFilterStatus} onSubmit={handleSearchResults} searchTarget={contentType as 'subtune' | 'playlist'} />
                 <div className="flex flex-row w-full justify-evenly py-2.5 ">
