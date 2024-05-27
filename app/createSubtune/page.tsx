@@ -182,13 +182,19 @@ export default function CreateSubtune() {
 
     const handleTunesResults = async (data: Ttune[] | Tsubtune[] | Tplaylist[], dataType: 'tune' | 'subtune' | 'playlist', clear?: boolean) => {
         const tabData = data;
-        setTunes(tabData as Ttune[]);
+        if(clear){
+            setTunes(tabData as Ttune[]);
+        } else{
+            setTunes([...tunes, ...tabData as Ttune[]]);
+        }
     }
 
     return (
         <CurrentPreviewProvider>
             <div className="flex flex-col w-full h-full overflow-y-clip no-scrollbar"
-                style={{
+                style={{ 
+                    // fresh load can take a while to load this from github. 
+                    // ideally we have a defualt background image and not fetch it from github or elsewhere maybe as .webp format
                     backgroundImage: `url(${subtuneBackgroundImage !== "" ? subtuneBackgroundImage : "https://raw.githubusercontent.com/MarcosMdo/subtunes/9b6594c460204437b9c2b3d517238da5fb38e1b5/public/background.png"})`,
                     backgroundSize: `cover`,
                     backgroundPosition: `center`,

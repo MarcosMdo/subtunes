@@ -57,7 +57,7 @@ export default function SidePanel({
             const response = await fetch(`/api/search/next`);
             const data = await response.json();
             if (searchTarget === 'tune') {
-                return handleSearchResults(data.tracks, data.next);
+                return handleSearchResults(data.tracks, data.next, false);
             }
             if (searchTarget === 'subtune') {
                 return handleSearchResults(data.subtune, data.next);
