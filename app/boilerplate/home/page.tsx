@@ -43,13 +43,23 @@ const Home = ({searchParams}) => {
   useEffect(() => {
     const fetchPlaylists = async () => {
       try {
-        const response = await fetch('/api/user/1/playlists');
+        const response = await fetch('/api/user/playlists', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include', // Ensure cookies are sent with the request
+        });
+        if (!response.ok) {
+          throw new Error(`Error fetching playlists: ${response.statusText}`);
+        }
         const data = await response.json();
         setPlaylists(data);
       } catch (error) {
-        console.error('Error fetching playlist:', error);
+        console.error('Error fetching playlists:', error);
       }
     };
+    
 
     fetchPlaylists();
   }, []);

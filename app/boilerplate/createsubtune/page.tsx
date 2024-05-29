@@ -1,6 +1,6 @@
 'use client'
 
-import { ChangeEvent, useState }  from 'react';
+import { ChangeEvent, useState , useEffect}  from 'react';
 import useSWR from 'swr';
 import Navigation from '../components/Navigation';
 import SearchBar from '../components/SearchBar';
@@ -40,6 +40,31 @@ const SubtuneCreator = () => {
       console.error('Error fetching search results:', error);
     }
   };
+
+   
+  useEffect(() => {
+    const fetchTopTunes = async () => {
+      try {
+        const response = await fetch('/api/tune/top', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include', // Ensure cookies are sent with the request
+        });
+        if (!response.ok) {
+          throw new Error(`Error fetching tunes: ${response.statusText}`);
+        }
+        const data = await response.json();
+        setSearchResults(data['tracks']);
+        console.log(data);
+      } catch (error) {
+        console.error('Error fetching top tunes:', error);
+      }
+    };
+
+    fetchTopTunes();
+  }, []);
 
   const handleAddTune = (tune : tune) => {
     // Add the selected song to the playlist
