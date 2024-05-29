@@ -1,57 +1,18 @@
 import requests
-import copy
-import uuid
 from urllib.parse import quote
 import os
 
+from ..blueprints.spotify_auth_api import get_auth_header
 from ..database.db import db
-from flask_sqlalchemy import SQLAlchemy
-
 from ..model.playlist import Playlist
 from ..model.playlist_tune import Playlist_Tune
-from ..model.subtune import Subtune
-from ..model.subtune_tune import Subtune_Tune
-from ..model.tune import Tune
 
-from ..spotify_api_endpoints import spotify_endpoints
-
-
-from ..blueprints.spotify_auth_api import get_auth_header
-from ..blueprints.subtunes_api import get_subtune_by_id
-# from ..blueprints.tunes_api import get_tune
-
-from flask import Flask, request, redirect, session, url_for, Blueprint, jsonify, current_app
+from flask import request, session, Blueprint, jsonify, current_app
 from flask_login import current_user, login_required
-
 
 bp = Blueprint('playlist_api', __name__)
 
 SPOTIFY_API_URL = f"{os.environ.get('SPOTIFY_API_BASE_URL')}/{os.environ.get('SPOTIFY_API_VERSION')}"
-
-
-
-# PROOF OF CONCEPT - this is a very naive implementation of a playlist creation endpoint
-# we must accept the tunes/subtune data in a way where we can define order. right now we iterate over subtunes and assign order via that
-
-
-# {
-#     "name": "name",
-#     "description": "yer",
-#     "tunes": [
-#         {
-#             "tune_id": "3424242",
-#             "subtune_id": "2"
-#         },
-#         {
-#             "tune_id": "65633",
-#             "subtune_id": "2"
-#         },
-#         {
-#             "tune_id": "1166565",
-#             "subtune_id": "1"
-#         },
-#     ]
-# }
 
 @bp.route("/playlist", methods=["POST"])
 def save_playlist():
@@ -72,7 +33,7 @@ def save_playlist():
     else:
         description = request_body["description"]
 
-    user_spotify_id = current_user.spotify_id
+    user_spotify_id = current_user.id
     user_id = current_user.id
 
     tunes = request_body["tunes"]

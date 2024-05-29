@@ -14,10 +14,12 @@ app = create_app()
 
 @app.route("/")
 def index():
-    if os.environ.get('ENV') == 'development':
-        return redirect('http://127.0.0.1:3000/')
+    if os.environ.get('VERCEL_ENV') == 'production':
+        return redirect(f"https://{os.environ.get('VERCEL_PROJECT_PRODUCTION_URL')}")
+    elif os.environ.get('VERCEL_ENV') == 'preview':
+        return redirect(os.environ.get('VERCEL_URL'))
     else:
-        return redirect(os.environ.get('$VERCEL_URL'))
+        return redirect('http://127.0.0.1:3000/')
 
 @app.route("/logout")
 def logout():
@@ -31,11 +33,12 @@ def logout():
 @app.route("/home")
 def home():
     # TODO: redirect based on not logged in home page vs user dashboard when paths defined
-    #if current_user.is_authenticated:
-    if os.environ.get('ENV') == 'development':
-        return redirect('http://127.0.0.1:3000/')
+    if os.environ.get('VERCEL_ENV') == 'production':
+        return redirect(f"https://{os.environ.get('VERCEL_PROJECT_PRODUCTION_URL')}")
+    elif os.environ.get('VERCEL_ENV') == 'preview':
+        return redirect(os.environ.get('VERCEL_URL'))
     else:
-        return redirect(os.environ.get('$VERCEL_URL'))
+        return redirect('http://127.0.0.1:3000/')
 
 
 @app.login_manager.user_loader

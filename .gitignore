@@ -51,3 +51,6 @@ __pycache__
 migrations/
 # React Component Preview
 previewConfig.json
+
+# flask
+/*_session/
