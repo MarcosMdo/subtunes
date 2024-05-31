@@ -97,7 +97,7 @@ def get_user_subtunes(spotify_id="ALL"):
             user_subtunes = Subtune.query.filter_by(user_id=spotify_id).all()
 
         if not user_subtunes:
-            return jsonify({"error": "no subtunes found for this user"}), 404
+            return jsonify({"error": "no subtunes found for this user"}), 204
         
         response = []
 

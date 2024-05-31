@@ -125,7 +125,7 @@ def get_user_playlists(user_id="ALL"):
 
         if not user_playlists:
             current_app.logger.info("no subtunes found for this user")
-            return {"error": "no subtunes found for this user"}
+            return {"error": "no subtunes found for this user"}, 204
         
         response = []
 

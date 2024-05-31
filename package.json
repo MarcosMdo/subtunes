@@ -18,6 +18,8 @@
     "@mui/icons-material": "^5.15.15",
     "@mui/material": "^5.15.15",
     "@mui/material-nextjs": "^5.15.11",
+    "@tanstack/react-query": "^5.40.0",
+    "@tanstack/react-query-devtools": "^5.40.0",
     "@types/node": "18.x",
     "@types/react": "18.2.6",
     "@types/react-dom": "18.2.4",

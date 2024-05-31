@@ -1,6 +1,9 @@
 'use client'
 import { useState, useEffect, useRef, useCallback } from 'react';
 
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+
 import { Ttune } from "../subtuneTypes/Tune"
 import { Tplaylist } from "../subtuneTypes/Playlist"
 import { Tsubtune } from "../subtuneTypes/Subtune"
@@ -25,6 +28,8 @@ const renderClone = (provided: any, snapshot: any, rubric: any) => (
         }}
     />
 );
+
+const queryClient = new QueryClient();
 
 export default function CreateSubtune() {
     const [scope, animatePanels] = useAnimate();
@@ -103,7 +108,7 @@ export default function CreateSubtune() {
         // only right open
         if (!leftPanelState && rightPanelState) {
             animatePanels("#tunes-panel", { x: "-85%", width: '100%' }, { type: 'spring', bounce: 0.35 });
-            animatePanels("#playlist", { x: -160, width: '100%' }, { type: 'spring', bounce: 0.35 });
+            animatePanels("#playlist", { x: -220, width: '100%' }, { type: 'spring', bounce: 0.35 });
             animatePanels("#right-panel", { x: "0%", width: '100%' }, { type: 'spring', bounce: 0.35 });
         }
     }, [leftPanelState, rightPanelState])
@@ -190,6 +195,7 @@ export default function CreateSubtune() {
     }
 
     return (
+        <QueryClientProvider client={queryClient}>
         <CurrentPreviewProvider>
             <div className="flex flex-col w-full h-full overflow-y-clip no-scrollbar"
                 style={{ 
@@ -219,7 +225,12 @@ export default function CreateSubtune() {
                                     return (<div
                                         ref={provided.innerRef}
                                     >
-                                        <SubtuneForm key={`subtuneForm`} onColorChange={updateSubtunePanelBg} onImageChange={updateBackground} subtuneTunes={subtune} />
+                                        <SubtuneForm 
+                                            key={`subtuneForm`} 
+                                            onColorChange={updateSubtunePanelBg} 
+                                            onImageChange={updateBackground} 
+                                            subtuneTunes={subtune} 
+                                        />
                                     </div>)
                                 }}
                             </Droppable>
@@ -248,7 +259,7 @@ export default function CreateSubtune() {
                                         <motion.div
                                             layout
                                             id='playlist'
-                                            className="flex flex-col shrink grow w-full justify-center content-center justify-self-stretch p-4 my-8 mx-0 ring-1 ring-slate-100 rounded-2xl shadow-2xl overflow-y-auto no-scrollbar hover:ring-2 hover:ring-slate-200/50"
+                                            className="flex flex-col shrink w-full max-h-[74vh] justify-center content-center justify-self-stretch p-4 my-8 mx-0 overflow-y-clip ring-1 ring-slate-100 rounded-2xl shadow-2xl no-scrollbar hover:ring-2 hover:ring-slate-200/50"
                                             style={{ backgroundColor: subtuneColorFlag.current === true ? `rgba(${subtuneColor.slice(0,-1).join(',')},0.2)` : '' }}
                                             onDoubleClick={hideShowPanels}
                                         >
@@ -270,6 +281,8 @@ export default function CreateSubtune() {
                 </motion.div>
             </div>
         </CurrentPreviewProvider>
+        <ReactQueryDevtools initialIsOpen={false} />
+        </QueryClientProvider>
     )
 
 }

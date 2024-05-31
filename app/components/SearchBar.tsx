@@ -28,7 +28,14 @@ const SearchBar = (
     
     const handleFilter = async () => {
         try{
-            const response = await fetch(`/api/search/${searchTarget}?query=${encodeURIComponent(query)}`);
+            const response = await fetch(`/api/search/${searchTarget}?query=${encodeURIComponent(query)}`,
+            {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include', // Ensure cookies are sent with the request
+            });
             const data = await response.json();
             let cleanData;
             if('subtune' in data[0]){
@@ -60,7 +67,14 @@ const SearchBar = (
 
         // Trigger API call with query and update searchResults
         try {
-            const response = await fetch(`/api/search/${searchTarget}?query=${encodeURIComponent(query)}`);
+            const response = await fetch(`/api/search/${searchTarget}?query=${encodeURIComponent(query)}`,
+            {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include', // Ensure cookies are sent with the request
+            });
             const data = await response.json();
 
             if (searchTarget === 'tune') {

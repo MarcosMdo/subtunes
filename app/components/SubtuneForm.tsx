@@ -12,16 +12,25 @@ import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
 import { styled } from '@mui/material/styles';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { Ttune } from "../subtuneTypes/Tune";
 
 import { HexColorPicker, HexColorInput } from "react-colorful";
 
+import { Ttune } from "../subtuneTypes/Tune";
 
-
-export default function SubtuneForm({onColorChange, onImageChange, subtuneTunes}:{ onColorChange: (color: number[]) => void; onImageChange: (imageurl: string )=> void; subtuneTunes: Ttune[]}) {
+export default function SubtuneForm({
+    onColorChange,
+    onImageChange,
+    subtuneTunes, 
+}: {
+    onColorChange: (color: number[]) => void;
+    onImageChange: (imageurl: string) => void;
+    subtuneTunes: Ttune[]
+}) {
     const [file, setFile] = useState<any>(null);
     const [image, setImage] = useState<string | null>(null);
+
     const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
+
     const [compColor, setCompColor] = useState<string>("#000000");
     const [subtuneColorRGBA, setSubtuneColorRGBA] = useState<number[]>([0, 0, 0, 0]);
     const [subtuneData, setSubtuneData] = useState<{
@@ -68,15 +77,15 @@ export default function SubtuneForm({onColorChange, onImageChange, subtuneTunes}
         // checks 
         if (!e.target.files) return console.log("No files selected");
         setFile(e.target.files[0])
-        setSubtuneData({...subtuneData, subtuneImage: e.target.files[0]})
+        setSubtuneData({ ...subtuneData, subtuneImage: e.target.files[0] })
     }
     useEffect(() => {
         const reader = new FileReader();
-        
+
         // we first read the contents of the file and store it in the file reader object
-        if (file){
+        if (file) {
             reader.readAsDataURL(file);
-            setSubtuneData({...subtuneData, subtuneImage: file})
+            setSubtuneData({ ...subtuneData, subtuneImage: file })
         }
 
         // then we store it in state var
@@ -140,7 +149,7 @@ export default function SubtuneForm({onColorChange, onImageChange, subtuneTunes}
     return (
         <div className="flex grow shrink h-1/4">
             <form
-                onSubmit={handleSubmit} 
+                onSubmit={handleSubmit}
                 className="flex flex-col grow shrink w-full h-full p-4 content-center justify-center"
             >
                 {/* {
@@ -151,22 +160,22 @@ export default function SubtuneForm({onColorChange, onImageChange, subtuneTunes}
                     /> : null
                 } */}
                 <div className="flex flex-col w-full h-full content-center justify-center">
-                    <input 
+                    <input
                         required
-                        type="text" 
-                        name="subtune-name" 
-                        id="subtune-name" 
-                        placeholder="Subtune Name" 
-                        onChange={(e) => setSubtuneData({...subtuneData, title: e.target.value})}
+                        type="text"
+                        name="subtune-name"
+                        id="subtune-name"
+                        placeholder="Subtune Name"
+                        onChange={(e) => setSubtuneData({ ...subtuneData, title: e.target.value })}
                         className="text-7xl w-full text-center self-center p-2 bg-transparent placeholder:text-center placeholder:text-gray-50 focus:outline-none"
                     />
-                    <input 
+                    <input
                         required
-                        type="text" 
-                        name="subtune-description" 
-                        id="subtune-description" 
+                        type="text"
+                        name="subtune-description"
+                        id="subtune-description"
                         placeholder="Subtune Description"
-                        onChange={(e) => setSubtuneData({...subtuneData, description: e.target.value})} 
+                        onChange={(e) => setSubtuneData({ ...subtuneData, description: e.target.value })}
                         className="text-3xl text-center self-center bg-transparent placeholder:text-center placeholder:text-gray-50  focus:outline-none w-full p-2"
                     />
                     <div className="flex flex-row justify-center content-center">
@@ -179,9 +188,9 @@ export default function SubtuneForm({onColorChange, onImageChange, subtuneTunes}
                             component="label"
                             role={undefined}
                             tabIndex={-1}
-                            // startIcon={<AddPhotoAlternateIcon />}
+                        // startIcon={<AddPhotoAlternateIcon />}
                         >
-                            <VisuallyHiddenInput type="file" onChange={handleImageUpload}  />
+                            <VisuallyHiddenInput type="file" onChange={handleImageUpload} />
                             <AddPhotoAlternateIcon />
                         </Button>
                         <Popover
@@ -199,33 +208,33 @@ export default function SubtuneForm({onColorChange, onImageChange, subtuneTunes}
                             }}
                             className={styles.transparentChild}
                         >
-                        <div>
-                            <AnimatePresence>
-                                {open && (
-                                    <motion.div className='color-picker flex flex-col justify-items-start' style={{ overflow: "hidden" }}
-                                        key="color-picker"
-                                        initial={{ opacity: 0, scale: 0.25, rotate: -35 }}
-                                        animate={{ opacity: 1, scale: 1, rotate: 0 }}
-                                        exit={{ opacity: 0, scale: 0.125, rotate: -15 }}
-                                        transition={{
-                                            duration: 0.3,
-                                            ease: [0, 0.71, 0.45, 1.01],
-                                            scale: {
-                                                type: "spring",
-                                                damping: 15,
-                                                stiffness: 100,
-                                                restDelta: 0.001
-                                            }
-                                        }}
-                                    >
-                                        <HexColorInput className='flex self-stretch color-input mx-0' color={subtuneData.subtuneColor}  style={{marginBottom: "5px"}} prefixed/>
-                                        <HexColorPicker color={subtuneData.subtuneColor} onChange={handleColorChange} />
-                                    </motion.div>
-                                )}
-                            </AnimatePresence>
-                        </div>
-                    </Popover>
-                </div>
+                            <div>
+                                <AnimatePresence>
+                                    {open && (
+                                        <motion.div className='color-picker flex flex-col justify-items-start' style={{ overflow: "hidden" }}
+                                            key="color-picker"
+                                            initial={{ opacity: 0, scale: 0.25, rotate: -35 }}
+                                            animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                                            exit={{ opacity: 0, scale: 0.125, rotate: -15 }}
+                                            transition={{
+                                                duration: 0.3,
+                                                ease: [0, 0.71, 0.45, 1.01],
+                                                scale: {
+                                                    type: "spring",
+                                                    damping: 15,
+                                                    stiffness: 100,
+                                                    restDelta: 0.001
+                                                }
+                                            }}
+                                        >
+                                            <HexColorInput className='flex self-stretch color-input mx-0' color={subtuneData.subtuneColor} style={{ marginBottom: "5px" }} prefixed />
+                                            <HexColorPicker color={subtuneData.subtuneColor} onChange={handleColorChange} />
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+                            </div>
+                        </Popover>
+                    </div>
                 </div>
             </form>
         </div>
