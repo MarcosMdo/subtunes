@@ -150,7 +150,7 @@ export default function CreateSubtune() {
                 new_tune = setDraggableId(new_tune);
                 const destinationIndex = result.destination.index;
                 const newSubtune = [...subtune];
-                newSubtune.splice(result.source.index, 1);
+                // newSubtune.splice(result.source.index, 1);
                 newSubtune.splice(destinationIndex, 0, new_tune);
                 setSubtune(newSubtune);
             }
