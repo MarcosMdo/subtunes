@@ -148,7 +148,11 @@ export default function CreateSubtune() {
             if (tune) {
                 let new_tune = { ...tune };
                 new_tune = setDraggableId(new_tune);
-                setSubtune([...subtune, new_tune]);
+                const destinationIndex = result.destination.index;
+                const newSubtune = [...subtune];
+                newSubtune.splice(result.source.index, 1);
+                newSubtune.splice(destinationIndex, 0, new_tune);
+                setSubtune(newSubtune);
             }
         }
         // add tune from any playlist/subtune in library
@@ -159,7 +163,12 @@ export default function CreateSubtune() {
                 if (tune) {
                     let new_tune = { ...tune };
                     new_tune = setDraggableId(new_tune);
-                    setSubtune([...subtune, new_tune]);
+                    const destinationIndex = result.destination.index;
+                    const newSubtune = [...subtune];
+                    newSubtune.splice(result.source.index, 1);
+                    newSubtune.splice(destinationIndex, 0, new_tune);
+                    setSubtune(newSubtune);
+
                 }
             }
         }
