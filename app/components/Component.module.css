@@ -3,3 +3,15 @@
     overflow: hidden !important;
     box-shadow: none !important;
 }
+
+/* CSS for the drag preview element */
+.drag-preview {
+    position: fixed !important;
+    pointer-events: none !important; /* Ensures that the drag preview doesn't interfere with mouse events */
+    z-index: 1000 !important; /* Ensures that the drag preview appears on top of other elements */
+}
+
+
+.dnd-copy ~ div {
+    transform: none !important;
+}

@@ -1,103 +1,72 @@
 'use client'
-import { useState, useEffect, useLayoutEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 
-import { 
-    DndContext, 
-    useSensors, 
-    useSensor, 
-    closestCorners,
-    pointerWithin, 
-    closestCenter,
-    MouseSensor, 
-    TouchSensor, 
-    DragOverlay 
-} from "@dnd-kit/core"
-import { arrayMove } from '@dnd-kit/sortable';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 
-import { tune, isTune } from "../subtuneTypes/Tune"
-import { playlist } from "../subtuneTypes/Playlist"
-import { subtune } from "../subtuneTypes/Subtune"
-import { DndList } from "../components/DndList"
-import SortableTune  from "../components/SortableTune"
+import { Ttune } from "../subtuneTypes/Tune"
+import { Tplaylist } from "../subtuneTypes/Playlist"
+import { Tsubtune } from "../subtuneTypes/Subtune"
+import DndList from "../components/DndList"
 import SidePanel from "../components/SidePanel"
 import SubtuneForm from "../components/SubtuneForm"
 import { CurrentPreviewProvider } from "../contexts/audioPreviewContext"
 
-import { motion, useAnimate, LayoutGroup } from "framer-motion";
+import { motion, useAnimate, useMotionTemplate, useMotionValue, animate, LayoutGroup } from "framer-motion";
 
-import { nanoid } from 'nanoid';
+import TabbedSidePanel from '../components/TabbedSidePanel';
+import { DragDropContext, Droppable } from '@hello-pangea/dnd';
+import { setDraggableId, rgbaToHex } from '../utils/helperFunctions';
+
+
+const renderClone = (provided: any, snapshot: any, rubric: any) => (
+    <div
+        ref={provided.innerRef}
+        style={{
+            width: 0,
+            height: 0,
+        }}
+    />
+);
+
+const queryClient = new QueryClient();
 
 export default function CreateSubtune() {
-    const [scope, animate] = useAnimate();
-    const sensors = useSensors(useSensor(MouseSensor), useSensor(TouchSensor));
+    const [scope, animatePanels] = useAnimate();
+
     const [leftPanelState, setLeftPanelState] = useState<boolean>(true);
     const [rightPanelState, setRightPanelState] = useState<boolean>(true);
+
     const [subtuneColor, setSubtuneColor] = useState<number[]>([0, 0, 0, 0]);
-    const [backgroundImage, setBackgroundImage] = useState<string>("");
-    const [originalContainer, setOriginalContainer] = useState<string | null>(null);
-    const [originalIndex, setOriginalIndex] = useState<number | null>(null);
-    const dragginTune = useRef<tune | undefined>(undefined);
-    const [activeId, setActiveId] = useState<string | null>(null);
-    const [results, setResult] = useState<{
-        tunes: tune[]; // left panel
-        subtune: tune[]; // center/subtune
-        playlist: playlist[];// right panel // if we are going to abstract this page we need a bette name for this 
-    }>({
-        tunes: [],
-        subtune: [],
-        playlist: []
-    });
+    const [subtuneBackgroundImage, setSubtuneBackgroundImage] = useState<string>("");
+    const subtuneColorFlag = useRef(false)
 
-    const processIds = (data?: tune[] | subtune[] | playlist[]) => {
-        console.log("processing ids...", data);
-        if (data !== undefined){
-            if (isTune(data[0])){
-                console.log("prepending ids")
-                data.forEach((tune) => {
-                    tune.id =  `${nanoid(11)}.${tune.id}`;
-                });
-            }
-            else{
-                // TODO: process ids for subtune and playlist tunes
-            }
-        }
-    }
+    // the three containers' states
+    const [tunes, setTunes] = useState<Ttune[]>([])
+    const [subtune, setSubtune] = useState<Ttune[]>([]);
+    const [library, setLibrary] = useState<Tsubtune[] | Tplaylist[]>([]);
 
-    // uugglyy pero fuckitin
-    const handlePanelResults = async (data: tune[] | subtune[] | playlist[], dataType: 'tune' | 'subtune' | 'playlist', clear?: boolean) =>{
-        let resultData = await data;
-        processIds(data); // only works for tunes or a single tune right now
-        if (dataType === 'tune') {
-            if (clear === false || clear === undefined){
-                return setResult((prev) => ({
-                    ...prev,
-                    [`${dataType}s`]: [...prev[`${dataType}s`], ...resultData] 
-                }));
-            }
-            else if (clear === true){
-                return setResult((prev) => ({
-                    ...prev,
-                    [`${dataType}s`]: resultData
-                }));
-            }
+    const tuneRef = useRef<Ttune | undefined>(undefined);
+    const AURACOLORS = [rgbaToHex(subtuneColor), "#000000"];
+    const auraColor = useMotionValue(AURACOLORS[0]);
+    const backgroundImage = useMotionTemplate`radial-gradient(125% 125% at 50% 0%, transparent 75%, ${auraColor})`
 
-        }
-        else{
-            setResult((prev) => ({
-                ...prev,
-                [dataType]: resultData
-            }));
-        }
-    }
+    useEffect(() => {
+        animate(auraColor, AURACOLORS, {
+            ease: 'easeInOut',
+            duration: 5,
+            repeat: Infinity,
+            repeatType: 'mirror'
+        })
+    })
 
-    const updateSubtunePanel = (color: number[]) => {
-        console.log("Subtune color received: ", color);
+    const updateSubtunePanelBg = (color: number[]) => {
+        subtuneColorFlag.current = true
         setSubtuneColor(color);
     }
 
     const updateBackground = (imageurl: string) => {
-        console.log("Background image received: ", imageurl);
-        setBackgroundImage(imageurl);
+        setSubtuneBackgroundImage(imageurl);
     }
 
     const hideShowPanels = () => {
@@ -105,290 +74,223 @@ export default function CreateSubtune() {
             setLeftPanelState(false);
             setRightPanelState(false);
         }
-        if(!leftPanelState && !rightPanelState){
+        if (!leftPanelState && !rightPanelState) {
             setLeftPanelState(true);
             setRightPanelState(true);
         }
-        if(leftPanelState && !rightPanelState){
+        if (leftPanelState && !rightPanelState) {
             setLeftPanelState(false);
         }
-        if(!leftPanelState && rightPanelState){
+        if (!leftPanelState && rightPanelState) {
             setRightPanelState(false);
         }
     }
 
-    useLayoutEffect(() => {
-        if(!leftPanelState){
-            animate("#left-panel", {x:"-75%", width: '100%'}, {type: 'spring', bounce: 0.35});
+    useEffect(() => {
+        // both open
+        if (leftPanelState && rightPanelState) {
+            animatePanels("#tunes-panel", { x: "0%", width: '100%' }, { type: 'spring', bounce: 0.35 });
+            animatePanels("#playlist", { x: 0, width: '100%' }, { type: 'spring', bounce: 0.35 });
+            animatePanels("#right-panel", { x: "0%", width: '100%' }, { type: 'spring', bounce: 0.35 });
         }
-        if(!rightPanelState){
-            animate("#right-panel", {x:"75%", width: '100%'}, {type: 'spring', bounce: 0.35});
-        }
-        if(leftPanelState && rightPanelState) {
-            animate("#playlist", { x: 0, width: '100%'}, {type: 'spring', bounce: 0.35});
-            animate("#left-panel", {x:0, width: '100%'}, {type: 'spring', bounce: 0.35});  
-            animate("#right-panel", {x:0, width: '100%'}, {type: 'spring', bounce: 0.35});
-        }
+        // both closed
         if (!leftPanelState && !rightPanelState) {
-            animate("#playlist", { x: 0, width: '250%'}, {type: 'spring', bounce: 0.35});
+            animatePanels("#tunes-panel", { x: "-55%", width: '100%' }, { type: 'spring', bounce: 0.35 });
+            animatePanels("#playlist", { x: 160, width: '550%' }, { type: 'spring', bounce: 0.35 });
+            animatePanels("#right-panel", { x: "83%", width: '100%' }, { type: 'spring', bounce: 0.35 });
         }
-        if(leftPanelState && !rightPanelState){
-            animate("#left-panel", {x: 0, width: '350%'}, {type: 'spring', bounce: 0.35});
-            animate("#playlist", {x: 80, width: '350%'}, {type: 'spring', bounce: 0.35});
+        // only left open
+        if (leftPanelState && !rightPanelState) {
+            animatePanels("#tunes-panel", { x: "0%", width: '100%' }, { type: 'spring', bounce: 0.35 });
+            animatePanels("#right-panel", { x: "85%", width: '100%' }, { type: 'spring', bounce: 0.35 });
+            animatePanels("#playlist", { x: 220, width: "100%" }, { type: 'spring', bounce: 0.35 });
         }
+        // only right open
         if (!leftPanelState && rightPanelState) {
-            animate("#right-panel", {x: 0, width: '350%'}, {type: 'spring', bounce: 0.35});
-            animate("#playlist", {x: -80, width: '350%' }, {type: 'spring', bounce: 0.35});
+            animatePanels("#tunes-panel", { x: "-85%", width: '100%' }, { type: 'spring', bounce: 0.35 });
+            animatePanels("#playlist", { x: -220, width: '100%' }, { type: 'spring', bounce: 0.35 });
+            animatePanels("#right-panel", { x: "0%", width: '100%' }, { type: 'spring', bounce: 0.35 });
         }
     }, [leftPanelState, rightPanelState])
 
-    function findContainer(id: string) {
-        // if id is itself a container, return it
-        if (id in results) {
-            return id;
-        }
-        // else find the container which holds tune with id
-        for (const [key, value] of Object.entries(results)) {
-            if (key === 'playlist') {
-                for (const playlist of results.playlist) {
-                    const tune = playlist.tunes.find((tune) => tune.id === id);
-                    if (tune) {
-                        // Found the tune with matching id in the playlist
-                        // Do something with it
-                        console.log("Found tune:", tune);
-                        return key;
-                    }
-                }
-            }
-            if (value.find((tune) => tune.id === id)) {
-                return key;
-            }
-        }
-    }
-    
-    function handleDragStart(event: any) {
-        // let dragginTune: tune | undefined;
-        const { active } = event;
-        const id = active.id;
-        setActiveId(id);
-        const activeContainer = findContainer(id) as keyof typeof results;
-        setOriginalContainer(activeContainer);
-
-        if (activeContainer === 'playlist'){
-            const playlist = results[activeContainer].find((playlist) => playlist.tunes.find((tune) => tune.id === active.id));
-            dragginTune.current = playlist?.tunes.find((tune) => tune.id === active.id);
-            setOriginalIndex(playlist?.tunes.findIndex((tune) => tune.id === active.id) || null);
-        }else{
-            dragginTune.current = results[activeContainer].find((tune) => tune.id === active.id);
-            setOriginalIndex(results[activeContainer].findIndex((tune) => tune.id === active.id) || null);
-        }
-
-    }
-
-    function handleDragOver(event: any) {
-        const { active, over, draggingRect } = event;
-        console.log("Over event: ", event)
-
-        const { id } = active;
-        const overId = over !== null ? over.id : null;
-
-        // Find the containers
-        const activeContainer = findContainer(id);
-        const overContainer = findContainer(overId);
-        
-        // this acts like the trash event, if a tune from the subtunes container is dragged over anything that is not the subtunes container
-        // it will be removed from the subtunes container, else it will be added to the subtunes container
-        if ((activeContainer === 'subtune' || activeContainer === undefined)) {
-            // Handle the case where the active container is 'subtune' and it's dragged over anything that is not the 'subtune' container
-            const present = results['subtune' as keyof typeof results].some((tune) => tune.id === dragginTune.current?.id);
-            setResult((prev) => {
-                // remove from subtune container
-                if(overContainer !== 'subtune'){
-                    return {
-                        ...prev,
-                        ['subtune' as keyof typeof prev]: [
-                            ...prev['subtune' as keyof typeof prev].filter((item) => item.id !== dragginTune.current?.id)
-                        ],
-                    };
-                }
-                else if(overContainer === 'subtune' && present === false){ // re-add to subtune container only once
-                    return {
-                        ...prev,
-                        ['subtune' as keyof typeof prev]: [
-                            ...prev['subtune' as keyof typeof prev].slice(0, originalIndex as number),
-                            dragginTune.current as tune,
-                            ...prev['subtune' as keyof typeof prev].slice(originalIndex as number + 1),
-                        ],
-                    };
-                }
-                else{
-                    return prev;
-                }
+    const onDragStart = (result: any) => {
+        const { source, draggableId } = result;
+        if (source.droppableId !== "droppable-subtune" && source.droppableId !== "droppable-tunes-panel") {
+            const playlist = library.find(item => {
+                return item.droppableId === source.droppableId
             });
+
+            if (playlist === undefined) {
+                console.error("playlist not found")
+                return;
+            }
+            tuneRef.current = playlist.tunes.find(tune => tune.draggableId === result.draggableId);
         }
-
-        if (
-            !activeContainer ||
-            !overContainer || 
-            activeContainer === 'subtune' || 
-            activeContainer === overContainer
-        ) {
-            return;
-        } 
-
-        setResult((prev) => {
-            const activeItems = prev[activeContainer as keyof typeof prev];
-            const overItems = prev[overContainer as keyof typeof prev];
-
-            // Find the indexes for the items
-            const activeIndex = activeItems.findIndex((item) => item.id === id);
-            const overIndex = overItems.findIndex((item) => item.id === overId);
-
-            let newIndex;
-            if (overId in prev) {
-                // We're at the root droppable of a container
-                newIndex = overItems.length;
-            } else {
-                // activeVal and overVal are the 'height' of each draggable item to calc if active should be placed below the last item
-                const activeVal = event.collisions[event.collisions.findIndex((items: any) => items.id == id)].data.value;
-                const overVal = event.collisions[event.collisions.findIndex((items: any) => items.id == overId)].data.value;
-
-                const isBelowLastItem =
-                    over &&
-                    overIndex === overItems.length - 1 &&
-                    activeVal > overVal;
-                    
-                const modifier = isBelowLastItem ? 1 : 0;
-                
-                newIndex = overIndex >= 0 ? overIndex + modifier : overItems.length + 1;
-            }
-
-            let originalTune: tune = JSON.parse(JSON.stringify((prev[activeContainer as keyof typeof prev][activeIndex] as tune)));
-            if (activeIndex != -1){
-                dragginTune.current = prev[activeContainer as keyof typeof prev][activeIndex] as tune;
-                if(activeContainer === 'tunes' && overContainer === 'subtune'){
-                    const spotifyId = originalTune.id.split('.')[1];
-                    originalTune.id = `${nanoid(11)}.${spotifyId}`;
-                }
-            }
-
-            return (
-                {
-                ...prev,
-                [activeContainer as keyof typeof prev]: [
-                    ...prev[activeContainer as keyof typeof prev].slice(0, activeIndex),
-                    originalTune,
-                    ...prev[activeContainer as keyof typeof prev].slice(activeIndex + 1),
-                ],
-                [overContainer as keyof typeof prev]: [
-                    ...prev[overContainer as keyof typeof prev].slice(0, newIndex),
-                    dragginTune.current as tune,
-                    ...prev[overContainer as keyof typeof prev].slice(newIndex, prev[overContainer as keyof typeof prev].length)
-                ]
-            });
-        });
     }
 
-    function handleDragEnd(event: any) {
-        const { active, over } = event;
-        const { id } = active;
-        const { id: overId } = over;
+    const onDragEnd = useCallback((result: any) => {
+        if (!result.destination) return;
 
-        const activeContainer = findContainer(id);
-        const overContainer = findContainer(overId);
-
-        if (
-            !activeContainer ||
-            !overContainer ||
-            activeContainer !== overContainer
-        ) {
+        // trash
+        if (result.destination.droppableId !== "droppable-subtune") {
+            if (result.source.droppableId === "droppable-subtune") {
+                const new_subtune = subtune.filter(tune => tune.draggableId !== result.draggableId);
+                setSubtune(new_subtune);
+            }
             return;
         }
 
-        const activeIndex = results[activeContainer as keyof typeof results].findIndex((item) => item.id === id);
-        const overIndex = results[overContainer as keyof typeof results].findIndex((item) => item.id === overId);
+        // add tune from tunes panel
+        if (result.source.droppableId === "droppable-tunes-panel") {
+            const tune = tunes.find(tune => {
+                return tune.draggableId === result.draggableId;
+            });
+            if (tune) {
+                let new_tune = { ...tune };
+                new_tune = setDraggableId(new_tune);
+                const destinationIndex = result.destination.index;
+                const newSubtune = [...subtune];
+                // newSubtune.splice(result.source.index, 1);
+                newSubtune.splice(destinationIndex, 0, new_tune);
+                setSubtune(newSubtune);
+            }
+        }
+        // add tune from any playlist/subtune in library
+        if (result.source.droppableId !== "droppable-tunes-panel" && result.source.droppableId !== "droppable-subtune") {
+            if (result.destination.droppableId === "droppable-subtune") {
+                const tune = tuneRef.current;
+                tuneRef.current = undefined;
+                if (tune) {
+                    let new_tune = { ...tune };
+                    new_tune = setDraggableId(new_tune);
+                    const destinationIndex = result.destination.index;
+                    const newSubtune = [...subtune];
+                    newSubtune.splice(destinationIndex, 0, new_tune);
+                    setSubtune(newSubtune);
 
-        if (activeIndex !== overIndex) {
-            setResult((items) => ({
-                ...items,
-                [overContainer]: overContainer === 'tunes' ? arrayMove(results.tunes, activeIndex, overIndex) : arrayMove(results.subtune, activeIndex, overIndex)
-            }));
+                }
+            }
         }
 
-        setActiveId(null);
+        // reorder subtune tunes
+        if (result.source.droppableId === "droppable-subtune" && result.destination.droppableId === "droppable-subtune") {
+            const destinationIndex = result.destination.index;
+            const sourceTune = subtune.find(tune => tune.draggableId === result.draggableId);
+            if (sourceTune) {
+                const newSubtune = [...subtune];
+                newSubtune.splice(result.source.index, 1);
+                newSubtune.splice(destinationIndex, 0, sourceTune);
+                setSubtune(newSubtune);
+            }
+        }
+
+    }, [subtune, tunes, setSubtune]);
+
+    const handleTabbedResults = (data: Tsubtune[] | Tplaylist[], dataType: 'subtune' | 'playlist', clear?: boolean) => {
+        const tabData = data;
+        if (dataType === 'subtune') {
+            setLibrary(tabData as Tsubtune[]);
+        }
     }
 
-    function handleDragCancel(event: any) {
-        setActiveId(null);
+    const handleTunesResults = async (data: Ttune[] | Tsubtune[] | Tplaylist[], dataType: 'tune' | 'subtune' | 'playlist', clear?: boolean) => {
+        const tabData = data;
+        if(clear){
+            setTunes(tabData as Ttune[]);
+        } else{
+            setTunes([...tunes, ...tabData as Ttune[]]);
+        }
     }
-    
+
     return (
+        <QueryClientProvider client={queryClient}>
         <CurrentPreviewProvider>
-            <div className="flex flex-col w-full h-full"
-                style={{
-                    backgroundImage: `url(${backgroundImage !== "" ? backgroundImage : "https://raw.githubusercontent.com/MarcosMdo/subtunes/9b6594c460204437b9c2b3d517238da5fb38e1b5/public/background.png"})`, 
-                    backgroundSize: `cover`, 
-                    backgroundPosition: `center`, 
-                    backgroundRepeat: `no-repeat`}}
+            <div className="flex flex-col w-full h-full overflow-y-clip no-scrollbar"
+                style={{ 
+                    // fresh load can take a while to load this from github. 
+                    // ideally we have a defualt background image and not fetch it from github or elsewhere maybe as .webp format
+                    backgroundImage: `url(${subtuneBackgroundImage !== "" ? subtuneBackgroundImage : "https://raw.githubusercontent.com/MarcosMdo/subtunes/9b6594c460204437b9c2b3d517238da5fb38e1b5/public/background.png"})`,
+                    backgroundSize: `cover`,
+                    backgroundPosition: `center`,
+                    backgroundRepeat: `no-repeat`,
+                }}
             >
-                <div className="flex flex-col w-full h-full backdrop-blur-md" >
-                    <DndContext
-                        sensors={sensors}
-                        collisionDetection={closestCorners}
-                        onDragStart={handleDragStart}
-                        onDragOver={handleDragOver}
-                        onDragEnd={handleDragEnd}
-                        onDragCancel={handleDragCancel}
-                        // onDragMove={handleDragMove}
-                    >
-                        <SubtuneForm onColorChange={updateSubtunePanel} onImageChange={updateBackground} subtuneTunes={results.subtune}/>
-                        <motion.div 
-                            initial={{opacity: 0}}
-                            animate={{opacity: 1}}
-                            transition={{duration: 0.5, when: "beforeChildren"}}
-                        className="flex flex-row ">
-                            <div 
-                                ref={scope}
-                                className="motion flex flex-row grow shrink w-full overflow-x-clip"
-                            >
-                                <SidePanel 
-                                    id="left-panel" 
-                                    side='left' 
-                                    searchTarget="tune"
-                                    items={results.tunes}
-                                    toggleListener={() =>{setLeftPanelState(!leftPanelState)}}
-                                    onResults={handlePanelResults}
-                                />
-                                <div 
-                                    id='playlist' 
-                                    className="flex flex-col justify-center content-center p-4 my-8 ring-1 ring-slate-100 rounded-2xl shadow-2xl w-full overflow-y-auto no-scrollbar hover:ring-2 hover:ring-slate-200/50"
-                                    style={{backgroundColor: `rgba(${subtuneColor.join(',')})`}}
-                                    onDoubleClick={hideShowPanels}
-                                >
-                                    <DndList id='subtune' tunes={results.subtune} mini={false} />
-                                </div>
-                                <SidePanel 
-                                    id="right-panel" 
-                                    side='right' 
-                                    searchTarget="playlist" 
-                                    items={results.playlist}
-                                    toggleListener={() =>{setRightPanelState(!rightPanelState)}}
-                                    onResults={handlePanelResults}
-                                />
-                            </div>
-                        <DragOverlay
-                            className="w-full h-full content-center items-center justify-center"
-                            zIndex={10}
+                <motion.div
+                    className="flex flex-col w-full h-full"
+                    style={{ backgroundImage, }}
+                >
+                    <div className="flex flex-col w-full h-full backdrop-blur-md" >
+                        <DragDropContext
+                            onDragStart={onDragStart}
+                            onDragEnd={onDragEnd}
                         >
-                            { dragginTune &&
-                                <SortableTune tune={dragginTune.current as tune} id={'overlay'} mini={true}/>
-                            }
-                        </DragOverlay>
-                    </motion.div>
-                    </DndContext>
-                </div>
+                            <Droppable
+                                droppableId='trash'
+                                mode="virtual"
+                                renderClone={renderClone}
+                            >
+                                {(provided, snapshot) => {
+                                    return (<div
+                                        ref={provided.innerRef}
+                                    >
+                                        <SubtuneForm 
+                                            key={`subtuneForm`} 
+                                            onColorChange={updateSubtunePanelBg} 
+                                            onImageChange={updateBackground} 
+                                            subtuneTunes={subtune} 
+                                        />
+                                    </div>)
+                                }}
+                            </Droppable>
+                            <motion.div
+                                layout
+                                ref={scope}
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                transition={{ duration: 0.5, when: "beforeChildren" }}
+                                className=" flex flex-row w-full "
+                            >
+                                <LayoutGroup>
+                                    <motion.div
+                                        layout
+                                        className="motion flex flex-row grow shrink w-full overflow-x-clip"
+                                    >
+                                        <SidePanel
+                                            id="tunes-panel"
+                                            side='left'
+                                            searchTarget="tune"
+                                            items={tunes}
+                                            toggle={leftPanelState}
+                                            toggleListener={() => { setLeftPanelState(!leftPanelState) }}
+                                            onResults={handleTunesResults}
+                                        />
+                                        <motion.div
+                                            layout
+                                            id='playlist'
+                                            className="flex flex-col shrink w-full max-h-[74vh] justify-center content-center justify-self-stretch p-4 my-8 mx-0 overflow-y-clip ring-1 ring-slate-100 rounded-2xl shadow-2xl no-scrollbar hover:ring-2 hover:ring-slate-200/50"
+                                            style={{ backgroundColor: subtuneColorFlag.current === true ? `rgba(${subtuneColor.slice(0,-1).join(',')},0.2)` : '' }}
+                                            onDoubleClick={hideShowPanels}
+                                        >
+                                            <DndList color={subtuneColor.toString()} disableDroppable={false} id='droppable-subtune' tunes={subtune} mini={false} />
+                                        </motion.div>
+                                        <TabbedSidePanel
+                                            side='right'
+                                            id={'right-panel'}
+                                            items={library}
+                                            toggle={rightPanelState}
+                                            toggleListener={() => { setRightPanelState(!rightPanelState) }}
+                                            onResults={handleTabbedResults}
+                                        />
+                                    </motion.div>
+                                </LayoutGroup>
+                            </motion.div>
+                        </DragDropContext>
+                    </div>
+                </motion.div>
             </div>
         </CurrentPreviewProvider>
+        <ReactQueryDevtools initialIsOpen={false} />
+        </QueryClientProvider>
     )
 
 }

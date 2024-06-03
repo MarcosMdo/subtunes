@@ -1,41 +1,92 @@
-import { useDroppable } from "@dnd-kit/core";
-import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { forwardRef, memo, useEffect, useState } from 'react';
+import DraggableTune from './DraggableTune';
+import { Ttune } from '../subtuneTypes/Tune';
+import { Droppable } from '@hello-pangea/dnd';
+import TuneDragPreview from './TuneDragPreview';
+import { nanoid } from 'nanoid';
+import React from 'react';
 
-import  SortableTune  from './SortableTune';
-import { tune } from '../subtuneTypes/Tune';
 
-import { motion, LayoutGroup } from 'framer-motion';
+const DndList = forwardRef(function DndList(props: { id: any; tunes: Ttune[]; mini?: boolean; disableDroppable?: boolean; color?: string }, ref) {
+    const { id, tunes, mini, disableDroppable, color } = props;
+    const [draggingItem, setDraggingItem] = useState<Ttune | null>(null);
 
-export function DndList(props: any) {
-    const { id, tunes, mini } = props;
-    const { isOver, setNodeRef } = useDroppable({
-        id,
-    });
+    const onDragStart = (tune: Ttune | null) => {
+        if(tune !== undefined){
+            setDraggingItem(tune);
+        }
+    };
+
+    const onDragEnd = (content: any) => {
+        console.log("should remove preview")
+        setDraggingItem(content);
+    };
+
+    useEffect(() => {
+        setDraggingItem(draggingItem);
+    },[draggingItem]);
+
+    const getRenderItem = (items: any) => (provided: any, snapshot: any, rubric: any) => (
+        <div
+            {...provided.draggableProps}
+            {...provided.dragHandleProps}
+            ref={provided.innerRef}
+        >
+            <TuneDragPreview key={`preview-draggable-${nanoid(11)}`} tune={items[rubric.source.index]}/>
+        </div>
+    );
+    const renderItem = getRenderItem(tunes);
 
     return (
-        <SortableContext 
-            items={tunes} 
-            id={id} 
-            strategy={verticalListSortingStrategy} 
-            >
-            {/* TODO: can we abstract away what we are sorting i.e is it a sortableTune or a sortablePlaylist? -> children prop?
-                or do we conditionally render the component based on the type of item we are sorting?
-                orr do we even need to?
-            */}
-            <motion.div 
-                layout
-                layoutRoot
-                initial={{ display: 'none', opacity: 0}}
-                animate={{ display: 'flex', opacity: 1 }}
-                exit={{ display: 'none', opacity: 0 }}
-                transition={{ delay: 0.01, duration: 0.01 }}
-                ref={setNodeRef} 
-                className="flex grow shrink h-full w-full max-w-full flex-col gap-4 pt-6 pb-12 mb-8 px-4 content-center items-center rounded-xl overflow-y-auto overflow-x-clip no-scrollbar" >
-                {tunes.map((tune: tune, index: number) => (
-                    <SortableTune key={tune.id} tune={tune} id={tune.id} mini={mini}/>
-                ))}
-            </motion.div>
-        </SortableContext>
+        <Droppable
+            key={`${id}`}
+            droppableId={id}
+            isDropDisabled={disableDroppable}
+            ignoreContainerClipping={true}
+            renderClone={renderItem}
+        >
+            {(provided, snapshot) => {
+                return (<div
+                    ref={provided.innerRef}
+                    className=" flex w-full h-full max-w-full justify-center shadow-lg rounded-2xl"
+                >
+                    <div
+                        className=" flex flex-col w-full h-full min-w-[450px] max-w-full gap-4 pt-6 pb-6 mb-8 px-4 content-center items-center rounded-xl overflow-y-scroll overflow-x-clip no-scrollbar"
+                    >
+                        {tunes.map((tune: Ttune, index: number) => (
+                        <>
+                            <div key={`dContainer-${tune.draggableId}`} className="w-full max-h-28">
+                                <div
+                                    key={`dItem-${tune.draggableId}`}
+                                    className=" w-full"
+                                    onMouseDown={() => onDragStart(tune)}
+                                    >
+                                    <DraggableTune
+                                        key={`dTune.${tune.draggableId}`}
+                                        tune={tune}
+                                        index={index}
+                                        mini={mini}
+                                        styles={{ backgroundColor: color && color !== '0,0,0,0' ? `rgba(${color})` : 'rgba(226, 232, 240, 0.25)' }}
+                                    />
+                                </div>
+                                {    
+                                    snapshot.isUsingPlaceholder && 
+                                    draggingItem?.draggableId === tune.draggableId &&
+                                    id !== 'droppable-subtune' &&
+                                    <div className="w-full max-h-28">
+                                        <TuneDragPreview tune={tune} mini={mini}/>
+                                    </div>
+                                }
+                                    
+                            </div>
+                        </>
+                        ))}
+                        <span className="fixed h-0 hidden">{ provided.placeholder }</span>
+                    </div>
+                </div>)
+        }}
+        </Droppable>
     );
-}
-export default DndList;
+});
+
+export default memo(DndList);

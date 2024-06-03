@@ -1,70 +1,92 @@
-import { useState } from 'react';
+import { memo, useState, useCallback, useEffect } from 'react';
 
 import { AnimatePresence, motion } from "framer-motion";
 
 import DoubleArrowRoundedIcon from '@mui/icons-material/DoubleArrowRounded';
-import { Icon, IconButton } from '@mui/material';
+import { IconButton } from '@mui/material';
 
-import { playlist } from '../subtuneTypes/Playlist';
-import { subtune } from '../subtuneTypes/Subtune';
-import { DndList } from './DndList';
+import { Tplaylist } from '../subtuneTypes/Playlist';
+import { Tsubtune } from '../subtuneTypes/Subtune';
+import DndList from './DndList';
 
 import { nanoid } from 'nanoid';
 
+import { hexToRGB } from '../utils/helperFunctions';
 
-export default function DDContainer({ item }: { item: playlist | subtune }) {
+
+function DDContainer({ item }: { item: Tplaylist | Tsubtune }) {
     const [toggle, setToggle] = useState(false);
+    const [itemType, setItemType] = useState<string>('subtune');
 
-    const handleToggle = () => {
+    const handleToggle = useCallback((event: any) => {
         setToggle(!toggle);
-    }
-    if('subtune' in item){
-        item = item.subtune as subtune;
-    }
-    else if('playlist' in item){
-        item = item.playlist as playlist;
+    }, [toggle]);
+
+    useEffect(() => {
+        if ('subtunes' in item) {
+            setItemType('playlist');
+        } else {
+            setItemType('subtune');
+        }
+    }, [item]);
+
+    const calcDDListHeight = (tunes: any) => {
+        if (tunes.length < 1) return 112
+        return tunes.length * 112;
     }
 
     return (
-        <div key={`playlist-${item.name}`} className='flex grow flex-col basis-3/4 rounded-xl my-4 shadow-xl bg-slate-100/25'>
-            <div className='flex grow justify-start content-center items-center p-2 pr-2'>
-                <motion.div 
-                    initial={{ rotate: 0 }}
-                    animate={{ rotate: toggle ? 90 : 0 }}
-                    transition={{ 
-                        type: 'spring',
-                        bounce: 0.65,
-                        duration: 0.25,
-                    }}
-                    className="mr-4"
-                >
-                    <IconButton onClick={handleToggle} disableFocusRipple={false}>
-                        <DoubleArrowRoundedIcon />
-                    </IconButton>
-                </motion.div>
-                <p>
-                    {item.name}
-                </p>
-            </div>
-            <AnimatePresence>
-                { toggle ?
-                    <motion.div
-                        className="overflow-y-scroll overflow-x-hidden no-scrollbar pt-2"
-                        key={item.name}
-                        initial="collapsed"
-                        animate="open"
-                        exit="collapsed"
-                        variants={{
-                            open: { opacity: 1, height: 400 },
-                            collapsed: { opacity: 0, height: 0 }
-                        }}
-                        transition={{ type: 'spring' , duration: 0.65, ease: [0.04, 0.62, 0.23, 0.98] }}
-                    >
-                        <DndList key={`${nanoid(11)}-${item.name}`} tunes={item.tunes} mini={true} />
-                    </motion.div> : null
-                }
-            </AnimatePresence>
+        <>
+            <div 
+                key={`playlist-${item.name}`} 
+                id={`playlist-${item.droppableId}`} 
+                className={`flex shrink flex-col rounded-xl mt-4 shadow-xl ring-2 ring-slate-200 hover:ring-slate-100 hove:shadow-2xl`}
+                style={{ backgroundColor: item.color.length > 0 ? hexToRGB(item.color, 0.25) : 'slate' }}
+            >
 
-        </div>
+                <div className={`flex justify-start content-center items-center p-2 pr-2 `}>
+                    <motion.div
+                        initial={{ rotate: 0 }}
+                        animate={{ rotate: toggle ? 90 : 0 }}
+                        transition={{
+                            type: 'spring',
+                            bounce: 0.65,
+                            duration: 0.25,
+                        }}
+                        className="mr-4"
+                    >
+                        <IconButton onClick={handleToggle} disableFocusRipple={false}>
+                            <DoubleArrowRoundedIcon />
+                        </IconButton>
+                    </motion.div>
+                    <p>
+                        {item.name}
+                    </p>
+                </div>
+                <AnimatePresence>
+                    {toggle &&
+                        <motion.div
+                            key={`motion-div.${item.name}.${nanoid(11)}`}
+                            className="no-scrollbar" 
+                            initial="collapsed"
+                            animate="open"
+                            exit="collapsed"
+                            variants={{
+                                open: { opacity: 1, height: calcDDListHeight(item.tunes) },
+                                collapsed: { opacity: 0, height: 0 }
+                            }}
+                            transition={{ type: 'spring', duration: 0.85, ease: [0.04, 0.62, 0.23, 0.98] }}
+                        >
+                            <AnimatePresence>
+                                <DndList disableDroppable={true} key={`dnd-list-${item.droppableId}`} id={item.droppableId} tunes={item.tunes} mini={true} />
+                            </AnimatePresence>
+                        </motion.div>
+                    }
+                </AnimatePresence>
+            </div>
+        </>
+
     )
 }
+
+export default memo(DDContainer);

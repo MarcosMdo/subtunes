@@ -6,7 +6,7 @@ import Navigation from '../components/Navigation';
 import SearchBar from '../components/SearchBar';
 import SubtuneForm from '../components/SubtuneForm';
 import TuneList from '../components/TuneList';
-import { tune } from '../../subtuneTypes/Tune';
+import { Ttune } from '../../subtuneTypes/Tune';
 
 import { Reorder } from 'framer-motion';
 
@@ -15,7 +15,7 @@ import "../../globals.css"
 
 const SubtuneCreator = () => {
   const [searchResults, setSearchResults] = useState([]);
-  const [selectedTunes, setSelectedTunes] = useState<tune[]>([]);
+  const [selectedTunes, setSelectedTunes] = useState<Ttune[]>([]);
   const [subtuneTitle, setSubtuneTitle] = useState("");
   const [subtuneDescription, setSubtuneDescription] = useState("");
   const [subtuneColor, setSubtuneColor] = useState("#aabbcc");
@@ -66,9 +66,9 @@ const SubtuneCreator = () => {
     fetchTopTunes();
   }, []);
 
-  const handleAddTune = (tune : tune) => {
+  const handleAddTune = (tune : Ttune) => {
     // Add the selected song to the playlist
-    setSelectedTunes((prevTunes: tune[]) => [...prevTunes, tune]);
+    setSelectedTunes((prevTunes: Ttune[]) => [...prevTunes, tune]);
   };
 
   const handleSubmitSubtune = async () => {

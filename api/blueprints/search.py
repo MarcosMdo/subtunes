@@ -70,13 +70,14 @@ def search_tune(query = ""):
 
         current_app.logger.debug(tracks[0].keys())
         # Extract relevant information from each track
-        track_info = [{'id': track['id'], 'name': track['name'], 'artist': track['artists'][0]['name'], 'external': track['preview_url'], 'cover': track['album']['images'][0]['url']} for track in tracks]
+        track_info = [{'id': track['id'], 'name': track['name'], 'artist': track['artists'][0]['name'], 'external': track['preview_url'], 'image_url': track['album']['images'][0]['url']} for track in tracks]
+
         return jsonify({'tracks': track_info, 'next': True if next_results else None}), 200
     else:
         return jsonify({'error': 'Failed to fetch tracks from Spotify'}), response.status_code
 
 @bp.route("/search/subtune", methods=["GET"])
-def search_subtune(query = ""):
+def search_subtune(query = "", spotify_id = "ALL"):
     query = "{}%".format(request.args.get('query'))
 
     if not query:
@@ -85,29 +86,41 @@ def search_subtune(query = ""):
     current_app.logger.debug("query={}".format(query))
 
     with current_app.app_context():
-        subtunes = Subtune.query.filter(Subtune.name.ilike(query)).all()
+        spotify_id = int(request.cookies.get('spotify_id'))
+
+        if spotify_id is None:
+            return jsonify({"error": "user_id is required"}), 400
+        
+        if spotify_id == "ALL":
+            # ilike was not properly matching any word of the subtune name, just the first word. 
+            subtunes = Subtune.query.filter(Subtune.name.contains(query)).all()
+        else:
+            subtunes = Subtune.query.filter_by(user_id=spotify_id).filter(Subtune.name.contains(query)).all()
+            
+        current_app.logger.debug("\n\n\nsubtunes:", str(subtunes), "\n\n\n")
         
         # check if the subtune exists
         if subtunes is None:
-            return {"error": "no subtunes like {}".format(query)}, 404
-        
-        current_app.logger.debug(subtunes)
+            current_app.logger.info("query={}".format(query))
+            return {"error": "subtune not found"}, 404
 
         response = []
 
         for subtune in subtunes:
-            subtune_obj = {"name": subtune.name, "description": subtune.description, "id": subtune.id}
+            subtune_obj = {"name": subtune.name, "description": subtune.description, "id": subtune.id, 'created_at': subtune.created_at, 'color': subtune.color}
             tunes = sorted(subtune.subtune_tunes, key=lambda subtune_tune: subtune_tune.order_in_subtune)
             subtune_obj["tunes"] = [subtune_tune.tune for subtune_tune in tunes]
             
             response.append({"subtune": subtune_obj})
+            response = sorted(response, key=lambda x: x['subtune']['created_at'], reverse=True)
+            current_app.logger.debug("\n\n\nresp:", str(response), "\n\n\n")
         
         current_app.logger.debug(response)
         
         return response, 200
 
 @bp.route("/search/playlist", methods=["GET"])
-def search_playlist(query = ""):
+def search_playlist(query = "", spotify_id = "ALL"):
     query = "{}%".format(request.args.get('query'))
 
     if not query:
@@ -116,7 +129,16 @@ def search_playlist(query = ""):
     current_app.logger.info("query={}".format(query))
 
     with current_app.app_context():
-        playlists = Playlist.query.filter(Playlist.name.ilike(query)).all()
+        spotify_id = int(request.cookies.get('spotify_id'))
+
+        if spotify_id is None:
+            return jsonify({"error": "user_id is required"}), 400
+        
+        if spotify_id == "ALL":
+            # ilike was not properly matching any word of the playlist  name, just the first word. 
+            playlist  = Playlist.query.filter(Playlist .name.contains(query)).all()
+        else:
+            playlist  = Playlist.query.filter_by(user_id=spotify_id).all()
         
         # check if the playlist exists
         if playlists is None:

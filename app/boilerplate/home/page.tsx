@@ -7,7 +7,7 @@ import Playlist from '../components/Playlist';
 import { useRouter } from 'next/navigation';
 import { useSearchParams } from "next/navigation";
 import Link from 'next/link';
-import { subtune } from '../../subtuneTypes/Subtune';
+import { Tsubtune } from '../../subtuneTypes/Subtune';
 
 import './page.css';
 

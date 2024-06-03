@@ -1,19 +1,18 @@
-'use client'
-
-import react, { useRef, useEffect, CSSProperties } from 'react';
-import { tune } from '../subtuneTypes/Tune';
+'use client';
+import react, { useEffect, CSSProperties } from 'react';
+import { Ttune } from '../subtuneTypes/Tune';
 import { useCurrentPreview } from '../contexts/audioPreviewContext';
 
-import { IconButton, Typography } from '@mui/material';
+import { IconButton } from '@mui/material';
 import PlayArrowRoundedIcon from '@mui/icons-material/PlayArrowRounded';
 import PauseRoundedIcon from '@mui/icons-material/PauseRounded';
 import PlayDisabledRoundedIcon from '@mui/icons-material/PlayDisabledRounded';
 import Slider from '@mui/material/Slider';
 import ImageNotSupportedRoundedIcon from '@mui/icons-material/ImageNotSupportedRounded';
 
-import { motion } from 'framer-motion';
 
-export default function Tune({ tune, style, mini }: { tune: tune; style?: CSSProperties; mini?: boolean;}) {
+
+export default function Tune({ tune, style, mini }: { tune: Ttune; style?: CSSProperties; mini?: boolean;}) {
     const [isPlaying, setIsPlaying] = react.useState(false);
     const [position, setPosition] = react.useState(0);
     const { currentPlayingTune, playTune, pauseTune, currentTime, setTime, setTune, duration } = useCurrentPreview();
@@ -31,16 +30,16 @@ export default function Tune({ tune, style, mini }: { tune: tune; style?: CSSPro
         setIsPlaying(!isPlaying);
     }
 
-    //allows to change the current time of tune to where slider is
+    //allows to change the current time of tune to slider handle position
     const handleSliderChange = (_: Event, value: number | number[]) => {
         const newPosition = Array.isArray(value) ? value[0] : value;
-        if (currentPlayingTune?.id === tune.id) {
+        if (currentPlayingTune?.id === tune.id && currentPlayingTune?.draggableId === tune.draggableId) {
             setTime(newPosition);
         }
     };
 
     useEffect(() => {
-        if (currentPlayingTune?.id === tune.id) {
+        if (currentPlayingTune?.id === tune.id && currentPlayingTune?.draggableId === tune.draggableId) {
             setIsPlaying(true);
         } else {
             setIsPlaying(false);
@@ -52,7 +51,7 @@ export default function Tune({ tune, style, mini }: { tune: tune; style?: CSSPro
     }, []);
 
     useEffect(() => {
-        if(currentPlayingTune?.id === tune.id){
+        if(currentPlayingTune?.id === tune.id && currentPlayingTune?.draggableId === tune.draggableId){
             setPosition(currentTime);
             if(currentTime === duration){
                 setIsPlaying(false);
@@ -68,24 +67,24 @@ export default function Tune({ tune, style, mini }: { tune: tune; style?: CSSPro
     return (
         <div  className="tune flex flex-row grow shrink min-w-fit max-w-full w-full min-h-[80px] h-full mr-4 pr-2">
             <div  className="album-cover flex pl-2 items-center justify-center content-center">
-                { tune.cover !== null ?
-                        <img src={tune.cover} alt={tune.name} className={`object-scale-down flex shrink ${mini ? 'w-12' : 'w-24'}  shadow-lg shadow-slate-400 rounded`} /> :
+                { tune.image_url !== null ?
+                        <img src={tune.image_url} alt={tune.name} className={`object-scale-down flex shrink  ${mini ? 'w-12' : 'w-24 mb-4'}  shadow-lg shadow-slate-400 rounded`} /> :
                         <IconButton size='large' sx={{color: "black"}}>
                             <ImageNotSupportedRoundedIcon fontSize='large' />
                         </IconButton>    
                 }
             </div>
-            <div  className="flex flex-col grow shrink w-full pl-2">
-                <div  className="flex flex-col grow shrink w-fit justify-start">
-                    <h2   className="line-clamp-1 max-w-[23ch] h-full text-xl"  >
+            <div  className="flex flex-col grow shrink w-full pl-2 justify-center">
+                <div  className="flex flex-col shrink w-fit justify-start">
+                    <h2 className="line-clamp-1 max-w-full h-full leading-5 text-center text-xl ml-2 pr-4"  >
                         {tune.name}
                     </h2>
-                    <p  className="line-clamp-1 h-full text-gray-600">
+                    <p  className="line-clamp-1 h-full text-gray-600 ml-2">
                         {tune.artist}
                     </p>
                 </div>
                 { mini ? null :
-                <div className="play-pause pt-1 grow shrink flex flex-row w-full content-center py-0 my-0 pr-2 justify-end">
+                <div className="play-pause pt-1 grow shrink flex flex-row w-full content-center py-2 my-0 pr-2 justify-end">
                     <div className="flex content-end">
                         <IconButton 
                             edge="start"

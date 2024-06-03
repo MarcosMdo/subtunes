@@ -123,6 +123,10 @@ def get_user_playlists(user_id="ALL"):
         
         user_playlists = Playlist.query.filter_by(user_id=user_id).all()
 
+        if not user_playlists:
+            current_app.logger.info("no subtunes found for this user")
+            return {"error": "no subtunes found for this user"}, 204
+        
         response = []
 
         for playlist in user_playlists:

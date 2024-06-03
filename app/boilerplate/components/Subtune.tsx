@@ -1,6 +1,6 @@
 import TuneList from './TuneList';
 import TuneObj from './Tune';
-import { subtune } from '../../subtuneTypes/Subtune';
+import { Tsubtune } from '../../subtuneTypes/Subtune';
 
 import Link from 'next/link';
 
@@ -9,9 +9,9 @@ import Link from 'next/link';
 // purposes and nextjs standards, this seems expected.
 
 
-const Subtune = ({ subtuneObj }: {subtuneObj: subtune}) => {
+const Subtune = ({ subtuneObj }: {subtuneObj: Tsubtune}) => {
   //console.log(subtuneObj);
-  const subtune: subtune = subtuneObj;
+  const subtune: Tsubtune = subtuneObj;
 
   return (
     <Link href={{pathname: `/boilerplate/editsubtune`, query: {id: subtune.id}}}>
