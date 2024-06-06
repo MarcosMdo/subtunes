@@ -47,6 +47,8 @@ export default function CreateSubtune() {
     const [library, setLibrary] = useState<Tsubtune[] | Tplaylist[]>([]);
 
     const tuneRef = useRef<Ttune | undefined>(undefined);
+    const listRef = useRef<Tplaylist | Tsubtune | undefined>(undefined);
+
     const AURACOLORS = [rgbaToHex(subtuneColor), "#000000"];
     const auraColor = useMotionValue(AURACOLORS[0]);
     const backgroundImage = useMotionTemplate`radial-gradient(125% 125% at 50% 0%, transparent 75%, ${auraColor})`
@@ -114,24 +116,36 @@ export default function CreateSubtune() {
     }, [leftPanelState, rightPanelState])
 
     const onDragStart = (result: any) => {
+        console.log("result: ", result);
         const { source, draggableId } = result;
         if (source.droppableId !== "droppable-subtune" && source.droppableId !== "droppable-tunes-panel") {
-            const playlist = library.find(item => {
-                return item.droppableId === source.droppableId
-            });
+            console.log("draggableId: ", result.draggableId.split('-'))
+            if (result.draggableId.split('-')[0] !== "playlist" && result.draggableId.split('-')[0] !== "subtune") {
+                const playlist = library.find(item => {
+                    return item.droppableId === source.droppableId
+                });
 
-            if (playlist === undefined) {
-                console.error("playlist not found")
-                return;
+                if (playlist === undefined) {
+                    console.error("playlist not found")
+                    return;
+                }
+                tuneRef.current = playlist.tunes.find(tune => tune.draggableId === result.draggableId);
+            } else {
+                if (result.draggableId.split('-')[0] === "subtune"){
+                    listRef.current = library[parseInt(result.draggableId.split('-')[1])] as unknown as Tsubtune;
+                } else {
+                    listRef.current = library[parseInt(result.draggableId.split('-')[1])] as unknown as Tplaylist;
+                }
+                console.log("listRef: ", listRef.current);
             }
-            tuneRef.current = playlist.tunes.find(tune => tune.draggableId === result.draggableId);
         }
     }
 
     const onDragEnd = useCallback((result: any) => {
+        console.log("result: ", result);
         if (!result.destination) return;
 
-        // trash
+        // trash: depricated
         if (result.destination.droppableId !== "droppable-subtune") {
             if (result.source.droppableId === "droppable-subtune") {
                 const new_subtune = subtune.filter(tune => tune.draggableId !== result.draggableId);
@@ -150,24 +164,36 @@ export default function CreateSubtune() {
                 new_tune = setDraggableId(new_tune);
                 const destinationIndex = result.destination.index;
                 const newSubtune = [...subtune];
-                // newSubtune.splice(result.source.index, 1);
                 newSubtune.splice(destinationIndex, 0, new_tune);
                 setSubtune(newSubtune);
             }
         }
+
         // add tune from any playlist/subtune in library
         if (result.source.droppableId !== "droppable-tunes-panel" && result.source.droppableId !== "droppable-subtune") {
             if (result.destination.droppableId === "droppable-subtune") {
-                const tune = tuneRef.current;
-                tuneRef.current = undefined;
-                if (tune) {
-                    let new_tune = { ...tune };
-                    new_tune = setDraggableId(new_tune);
-                    const destinationIndex = result.destination.index;
-                    const newSubtune = [...subtune];
-                    newSubtune.splice(destinationIndex, 0, new_tune);
-                    setSubtune(newSubtune);
+                if (result.draggableId.split('-')[0] !== "playlist" && result.draggableId.split('-')[0] !== "subtune") {
+                    const tune = tuneRef.current;
+                    tuneRef.current = undefined;
+                    if (tune) {
+                        let new_tune = { ...tune };
+                        new_tune = setDraggableId(new_tune);
+                        const destinationIndex = result.destination.index;
+                        const newSubtune = [...subtune];
+                        newSubtune.splice(destinationIndex, 0, new_tune);
+                        setSubtune(newSubtune);
 
+                    }
+                } else {
+                    console.log("subtune added")
+                    const tunes = listRef.current?.tunes.map((tune: Ttune) => {
+                        const new_tune = {...tune}
+                        return setDraggableId(new_tune);
+                    });
+                    listRef.current = undefined;
+                    const newSubtune = [...subtune];
+                    newSubtune.splice(result.destination.index, 0, ...tunes as Ttune[]);
+                    setSubtune(newSubtune);
                 }
             }
         }
@@ -195,101 +221,102 @@ export default function CreateSubtune() {
 
     const handleTunesResults = async (data: Ttune[] | Tsubtune[] | Tplaylist[], dataType: 'tune' | 'subtune' | 'playlist', clear?: boolean) => {
         const tabData = data;
-        if(clear){
+        if (clear) {
             setTunes(tabData as Ttune[]);
-        } else{
+        } else {
             setTunes([...tunes, ...tabData as Ttune[]]);
         }
     }
 
     return (
         <QueryClientProvider client={queryClient}>
-        <CurrentPreviewProvider>
-            <div className="flex flex-col w-full h-full overflow-y-clip no-scrollbar"
-                style={{ 
-                    // fresh load can take a while to load this from github. 
-                    // ideally we have a defualt background image and not fetch it from github or elsewhere maybe as .webp format
-                    backgroundImage: `url(${subtuneBackgroundImage !== "" ? subtuneBackgroundImage : "https://raw.githubusercontent.com/MarcosMdo/subtunes/9b6594c460204437b9c2b3d517238da5fb38e1b5/public/background.png"})`,
-                    backgroundSize: `cover`,
-                    backgroundPosition: `center`,
-                    backgroundRepeat: `no-repeat`,
-                }}
-            >
-                <motion.div
-                    className="flex flex-col w-full h-full"
-                    style={{ backgroundImage, }}
+            <CurrentPreviewProvider>
+                <div className="flex flex-col w-full h-full overflow-y-clip no-scrollbar"
+                    style={{
+                        // fresh load can take a while to load this from github. 
+                        // ideally we have a defualt background image and not fetch it from github or elsewhere maybe as .webp format
+                        backgroundImage: `url(${subtuneBackgroundImage !== "" ? subtuneBackgroundImage : "https://raw.githubusercontent.com/MarcosMdo/subtunes/9b6594c460204437b9c2b3d517238da5fb38e1b5/public/background.png"})`,
+                        backgroundSize: `cover`,
+                        backgroundPosition: `center`,
+                        backgroundRepeat: `no-repeat`,
+                    }}
                 >
-                    <div className="flex flex-col w-full h-full backdrop-blur-md" >
-                        <DragDropContext
-                            onDragStart={onDragStart}
-                            onDragEnd={onDragEnd}
-                        >
-                            <Droppable
-                                droppableId='trash'
-                                mode="virtual"
-                                renderClone={renderClone}
+                    <motion.div
+                        className="flex flex-col w-full h-full"
+                        style={{ backgroundImage, }}
+                    >
+                        <div className="flex flex-col w-full h-full backdrop-blur-md" >
+                            <DragDropContext
+                                onDragStart={onDragStart}
+                                onDragEnd={onDragEnd}
                             >
-                                {(provided, snapshot) => {
-                                    return (<div
-                                        ref={provided.innerRef}
-                                    >
-                                        <SubtuneForm 
-                                            key={`subtuneForm`} 
-                                            onColorChange={updateSubtunePanelBg} 
-                                            onImageChange={updateBackground} 
-                                            subtuneTunes={subtune} 
-                                        />
-                                    </div>)
-                                }}
-                            </Droppable>
-                            <motion.div
-                                layout
-                                ref={scope}
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                transition={{ duration: 0.5, when: "beforeChildren" }}
-                                className=" flex flex-row w-full "
-                            >
-                                <LayoutGroup>
-                                    <motion.div
-                                        layout
-                                        className="motion flex flex-row grow shrink w-full overflow-x-clip"
-                                    >
-                                        <SidePanel
-                                            id="tunes-panel"
-                                            side='left'
-                                            searchTarget="tune"
-                                            items={tunes}
-                                            toggle={leftPanelState}
-                                            toggleListener={() => { setLeftPanelState(!leftPanelState) }}
-                                            onResults={handleTunesResults}
-                                        />
+                                <Droppable
+                                    droppableId='trash'
+                                    mode="virtual"
+                                    renderClone={renderClone}
+                                >
+                                    {(provided, snapshot) => {
+                                        return (<div
+                                            ref={provided.innerRef}
+                                        >
+                                            <SubtuneForm
+                                                key={`subtuneForm`}
+                                                onColorChange={updateSubtunePanelBg}
+                                                onImageChange={updateBackground}
+                                                subtuneTunes={subtune}
+                                            />
+                                        </div>)
+                                    }}
+                                </Droppable>
+                                <motion.div
+                                    layout
+                                    ref={scope}
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    transition={{ duration: 0.5, when: "beforeChildren" }}
+                                    className=" flex flex-row w-full "
+                                >
+                                    <LayoutGroup>
                                         <motion.div
                                             layout
-                                            id='playlist'
-                                            className="flex flex-col shrink w-full max-h-[74vh] justify-center content-center justify-self-stretch p-4 my-8 mx-0 overflow-y-clip ring-1 ring-slate-100 rounded-2xl shadow-2xl no-scrollbar hover:ring-2 hover:ring-slate-200/50"
-                                            style={{ backgroundColor: subtuneColorFlag.current === true ? `rgba(${subtuneColor.slice(0,-1).join(',')},0.2)` : '' }}
-                                            onDoubleClick={hideShowPanels}
+                                            className="motion flex flex-row grow shrink w-full overflow-x-clip"
                                         >
-                                            <DndList color={subtuneColor.toString()} disableDroppable={false} id='droppable-subtune' tunes={subtune} mini={false} />
+                                            <SidePanel
+                                                id="tunes-panel"
+                                                side='left'
+                                                searchTarget="tune"
+                                                items={tunes}
+                                                toggle={leftPanelState}
+                                                toggleListener={() => { setLeftPanelState(!leftPanelState) }}
+                                                onResults={handleTunesResults}
+                                            />
+                                            <motion.div
+                                                layout
+                                                id='playlist'
+                                                className="flex flex-col shrink w-full max-h-[74vh] justify-center content-center justify-self-stretch p-4 my-8 mx-0 overflow-y-clip ring-1 ring-slate-100 rounded-2xl shadow-2xl no-scrollbar hover:ring-2 hover:ring-slate-200/50"
+                                                style={{ backgroundColor: subtuneColorFlag.current === true ? `rgba(${subtuneColor.slice(0, -1).join(',')},0.2)` : '' }}
+                                                onDoubleClick={hideShowPanels}
+                                            >
+                                                <DndList color={subtuneColor.toString()} disableDroppable={false} id='droppable-subtune' tunes={subtune} mini={false} />
+                                            </motion.div>
+                                            <TabbedSidePanel
+                                                side='right'
+                                                id={'right-panel'}
+                                                items={library}
+                                                toggle={rightPanelState}
+                                                toggleListener={() => { setRightPanelState(!rightPanelState) }}
+                                                onResults={handleTabbedResults}
+                                                disableContainerDnd={false}
+                                            />
                                         </motion.div>
-                                        <TabbedSidePanel
-                                            side='right'
-                                            id={'right-panel'}
-                                            items={library}
-                                            toggle={rightPanelState}
-                                            toggleListener={() => { setRightPanelState(!rightPanelState) }}
-                                            onResults={handleTabbedResults}
-                                        />
-                                    </motion.div>
-                                </LayoutGroup>
-                            </motion.div>
-                        </DragDropContext>
-                    </div>
-                </motion.div>
-            </div>
-        </CurrentPreviewProvider>
-        <ReactQueryDevtools initialIsOpen={false} />
+                                    </LayoutGroup>
+                                </motion.div>
+                            </DragDropContext>
+                        </div>
+                    </motion.div>
+                </div>
+            </CurrentPreviewProvider>
+            <ReactQueryDevtools initialIsOpen={false} />
         </QueryClientProvider>
     )
 

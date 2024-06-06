@@ -76,8 +76,7 @@ const DndList = forwardRef(function DndList(props: { id: any; tunes: Ttune[]; mi
                                     <div className="w-full max-h-28">
                                         <TuneDragPreview tune={tune} mini={mini}/>
                                     </div>
-                                }
-                                    
+                                } 
                             </div>
                         </>
                         ))}

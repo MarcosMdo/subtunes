@@ -40,7 +40,7 @@ function DDContainer({ item }: { item: Tplaylist | Tsubtune }) {
             <div 
                 key={`playlist-${item.name}`} 
                 id={`playlist-${item.droppableId}`} 
-                className={`flex shrink flex-col rounded-xl mt-4 shadow-xl ring-2 ring-slate-200 hover:ring-slate-100 hove:shadow-2xl`}
+                className={`flex shrink flex-col w-full rounded-xl mt-4 shadow-xl ring-2 ring-slate-200 hover:ring-slate-100 hove:shadow-2xl`}
                 style={{ backgroundColor: item.color.length > 0 ? hexToRGB(item.color, 0.25) : 'slate' }}
             >
 

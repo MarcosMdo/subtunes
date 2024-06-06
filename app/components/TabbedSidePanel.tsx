@@ -14,6 +14,8 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { IconButton } from '@mui/material';
 import DragIndicatorRoundedIcon from '@mui/icons-material/DragIndicatorRounded';
 import { prepPlaylistsForDnd, prepSubtunesForDnd } from '../utils/helperFunctions';
+import { Droppable } from '@hello-pangea/dnd';
+import DraggableContainer from './DraggableContainer';
 
 const tabs = [
     { id: 'stubtune', label: 'Subtunes' },
@@ -26,7 +28,8 @@ function TabbedSidePanel({
     items,
     toggle,
     toggleListener,
-    onResults
+    onResults, 
+    disableContainerDnd
 }: {
     side: 'left' | 'right';
     id: string;
@@ -34,6 +37,7 @@ function TabbedSidePanel({
     toggle: boolean;
     toggleListener: (data: any) => void;
     onResults: (data: Tsubtune[] | Tplaylist[], dataType: 'subtune' | 'playlist', clear?: boolean) => void;
+    disableContainerDnd?: boolean;
 }) {
     const [contentType, setContentType] = useState<string>('subtune');
     const [activeTab, setActiveTab] = useState<string>(tabs[0].id);
@@ -55,7 +59,7 @@ function TabbedSidePanel({
             });
             console.log("response:", response)
             if (response.status === 204) return setIsEmpty({ ...isEmpty, playlist: true });
-            if(!response.ok) return console.error('Error fetching subtunes:', response);
+            if (!response.ok) return console.error('Error fetching subtunes:', response);
             setIsEmpty({ ...isEmpty, playlist: false });
             const data = await response.json();
             if ('error' in data) {
@@ -76,13 +80,13 @@ function TabbedSidePanel({
                     'Content-Type': 'application/json',
                 },
                 credentials: 'include', // Ensure cookies are sent with the request
-                next: {revalidate: 5} // store cached response only for 5 seconds   
+                next: { revalidate: 5 } // store cached response only for 5 seconds   
             });
             if (response.status === 204) {
                 console.log("subs: ", isEmpty.subtune);
-                return  setIsEmpty({ ...isEmpty, subtune: true });
+                return setIsEmpty({ ...isEmpty, subtune: true });
             }
-            if(!response.ok) return console.error('Error fetching subtunes:', response);
+            if (!response.ok) return console.error('Error fetching subtunes:', response);
             const data = await response.json();
             if ('error' in data) return console.error('Error fetching playlists:', data.error);
             setIsEmpty({ ...isEmpty, subtune: false });
@@ -117,6 +121,17 @@ function TabbedSidePanel({
         }
     }, [contentType])
 
+    const getRenderItem = (items: any) => (provided: any, snapshot: any, rubric: any) => (
+        <div
+            {...provided.draggableProps}
+            {...provided.dragHandleProps}
+            ref={provided.innerRef}
+        >
+            <DDContainer key={`preview-draggable-${nanoid(11)}`} item={items[rubric.source.index]} />
+        </div>
+    );
+    const renderItem = getRenderItem(items);
+
     return (
         <motion.div id={id} onDoubleClick={toggleListener} className={`flex flex-row grow shrink w-full min-w-[566px] min-h-[80vh] max-h-[80vh] py-8 px-4 ${side === 'left' ? "flex-row" : "flex-row-reverse"}`}>
             <div className="flex flex-col h-full grow shrink rounded-3xl px-4 py-4 bg-slate-100/[15%] align-end ring-1 ring-slate-100">
@@ -133,7 +148,7 @@ function TabbedSidePanel({
                                 <motion.div
                                     layoutId='active-id'
                                     transition={{ type: 'spring', stiffness: 700, damping: 30 }}
-                                    className="absolute inset-0 rounded-xl bg-slate-200/25 ring-1 ring-slate-100" 
+                                    className="absolute inset-0 rounded-xl bg-slate-200/25 ring-1 ring-slate-100"
                                 />
                             )}
                             <span className="relative">{tab.label}</span>
@@ -149,12 +164,33 @@ function TabbedSidePanel({
                             transition={{ duration: 0.25 }}
                             className=" flex flex-col h-full no-scrollbar overflow-y-scroll shadow-2xl px-4 content-center rounded-2xl pb-12"
                         >
-                            { isEmpty[contentType as keyof typeof isEmpty] ?
-                                <span className="w-full text-xl font-semibold align-middle text-center pt-8">Make your first {contentType}!</span>
-                                : items.map((item: Tsubtune | Tplaylist) => (
-                                    <DDContainer key={`${nanoid(11)}`} item={item} />
-                                ))
-                            }
+                            <Droppable
+                                key={`droppable-${id}`}
+                                droppableId={`droppable-${id}`}
+                                isDropDisabled={true}
+                                ignoreContainerClipping={true}
+                                renderClone={renderItem}
+                            >
+                                {(provided, snapshot) =>
+                                <div>
+                                    <div
+                                        ref={provided.innerRef}
+                                        className="flex flex-col w-full h-full"
+                                    >
+                                        {
+                                            isEmpty[contentType as keyof typeof isEmpty] ?
+                                                <span className="w-full text-xl font-semibold align-middle text-center pt-8">Make your first {contentType}!</span>
+                                                : items.map((item: Tsubtune | Tplaylist, index: number) => (
+                                                    <DraggableContainer id={`${contentType}-${index}`} index={index} disableDrag={disableContainerDnd} >
+                                                        <DDContainer key={`${nanoid(11)}`} item={item} />
+                                                    </DraggableContainer>
+                                                ))
+                                        }
+                                    </div>
+                                    {provided.placeholder}
+                                    </div>
+                                }
+                            </Droppable>
                         </motion.div>
                     }
                 </AnimatePresence>
@@ -169,4 +205,3 @@ function TabbedSidePanel({
 }
 
 export default memo(TabbedSidePanel);
-
