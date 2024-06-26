@@ -13,11 +13,6 @@
             "use": "@vercel/next"
         }
     ],
-    "routes": [
-        {
-            "src": "/app/api/webhook", "dest": "/app/api/webhook.py"
-        }
-    ],
     "rewrites": [
         { "source": "/(.*)", "destination": "/api/index" }
     ]
