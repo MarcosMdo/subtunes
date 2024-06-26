@@ -18,11 +18,6 @@
             "src": "/app/api/webhook", "dest": "/app/api/webhook.py"
         }
     ],
-    "functions": {
-        "api/**": {
-            "excludeFiles": "{.next,*.cache,node_modules,public,app}/**"
-        }
-    },
     "rewrites": [
         { "source": "/(.*)", "destination": "/api/index" }
     ]
