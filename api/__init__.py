@@ -25,16 +25,9 @@ def create_app():
     
     register_extensions(app)
     
-    # add_aws_configs(app)
-
     add_env_vars(app)
     
     return app
-
-# def add_aws_configs(app):
-#     aws_configs = json.load(open("./api/aws_creds.json", "r+")) #api/aws_creds.json
-#     app.config["AWS_ACCESS_KEY_ID"] = aws_configs["aws_access_key_id"]
-#     app.config["AWS_SECRET_ACCESS_KEY"] = aws_configs["aws_secret_access_key"]
 
 def app_configs(app, configs):
     pass
