@@ -1,3 +1,4 @@
+import boto3
 import json
 import os
 import uuid
@@ -19,34 +20,34 @@ def get_image_url(img_path):
     image_url = f'{s3_base_url}{img_path}'
     return image_url
 
-# save subtune image to aws s3 bucket
-# def save_image_to_s3(file, img_path):
-#     s3 = boto3.client('s3', 
-#             aws_access_key_id=current_app.config["AWS_ACCESS_KEY_ID"],
-#             aws_secret_access_key=current_app.config["AWS_SECRET_ACCESS_KEY"],
-#             region_name='us-east-2')
-#     try:
-#         s3.upload_fileobj(file, 'subtunes', img_path)
-#         return True, get_image_url(img_path)
-#     except Exception as e:
-#         print(e)
-#         return False, e
+#save subtune image to aws s3 bucket
+def save_image_to_s3(file, img_path):
+    s3 = boto3.client('s3',
+            aws_access_key_id=os.environ.get("AWS_ACCESS_KEY_ID"),
+            aws_secret_access_key=os.environ.get("AWS_SECRET_ACCESS_KEY"),
+            region_name='us-east-2')
+    try:
+        s3.upload_fileobj(file, 'subtunes', img_path)
+        return True, get_image_url(img_path)
+    except Exception as e:
+        print(e)
+        return False, e
 
 # delete subtune image from aws s3 bucket
-# def delete_file_from_s3(file_url):
+def delete_file_from_s3(file_url):
 
-#     # Initialize the S3 resource
-#     s3 = boto3.resource('s3',
-#                         aws_access_key_id=current_app.config["AWS_ACCESS_KEY_ID"],
-#                         aws_secret_access_key=current_app.config["AWS_SECRET_ACCESS_KEY"])
+    # Initialize the S3 resource
+    s3 = boto3.resource('s3',
+                        aws_access_key_id=os.environ.get("AWS_ACCESS_KEY_ID"),
+                        aws_secret_access_key=os.environ.get("AWS_SECRET_ACCESS_KEY"))
 
-#     # Delete the file from the S3 bucket
-#     try:
-#         s3.Object(bucket_name, file_key).delete()
-#         return True  # Deletion successful
-#     except Exception as e:
-#         print(e)  # Handle or log the error
-#         return False  # Deletion failed
+    # Delete the file from the S3 bucket
+    try:
+        s3.Object('subtunes', file_url).delete()
+        return True  # Deletion successful
+    except Exception as e:
+        print(e)  # Handle or log the error
+        return False  # Deletion failed
 
 # get subtune by id
 @bp.route("/subtune/<id>", methods=["GET"])
@@ -122,7 +123,6 @@ def save_subtune():
     image_file = request.files["image"] if "image" in request.files else None
     request_body = json.loads(request.form.to_dict()['data'])
     isSaved = False
-    current_app.logger.info("subtune Request body",request_body)
 
     if "name" not in request_body:
         return {"error": "subtune name is required"}, 400
@@ -138,15 +138,17 @@ def save_subtune():
     # save image to s3 bucket
     if image_file:
         img_path = f'user/{current_user.id}/subtunes/{uuid.uuid4()}'
-        #isSaved, url_or_error = save_image_to_s3(image_file, img_path)
-        isSaved = None
+        isSaved, url_or_error = save_image_to_s3(image_file, img_path)
     
+    if not isSaved:
+        current_app.logger.warn(url_or_error)
+
     subtune = Subtune(
             name=name, 
             description=description, 
             user_id=current_user.id, 
             color=color, 
-            #image_url=url_or_error if isSaved else None
+            image_url=url_or_error if isSaved else None
         )
     db.session.add(subtune)
     
@@ -215,7 +217,7 @@ def delete_subtune(id=1):
         subtune = Subtune.query.get(id)
         if subtune is None:
             return {"error": "subtune not found"}, 404
-        
+        delete_file_from_s3(subtune.image_url)
         db.session.delete(subtune)
         db.session.commit()
         
