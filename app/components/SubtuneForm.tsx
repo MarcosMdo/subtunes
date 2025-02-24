@@ -79,6 +79,7 @@ export default function SubtuneForm({
         setFile(e.target.files[0])
         setSubtuneData({ ...subtuneData, subtuneImage: e.target.files[0] })
     }
+    
     useEffect(() => {
         const reader = new FileReader();
 

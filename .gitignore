@@ -2,7 +2,6 @@
 
 # aws credentials
 aws_creds.json
-
 # dependencies
 /node_modules
 /.pnp
@@ -10,6 +9,10 @@ aws_creds.json
 
 # testing
 /coverage
+
+#frontend logs
+app/logs
+app/utils/debugLogger.ts
 
 # next.js
 /.next/

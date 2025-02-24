@@ -2,6 +2,7 @@ import './globals.css'
 import { Inter } from 'next/font/google'
 
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v13-appRouter';
+import { EditProvider } from './contexts/editContext';
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -16,13 +17,16 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-      <html lang="en" className="no-scrollbar">
-        <head>
-          <meta name="viewport" content="initial-scale=1, width=device-width" />
-        </head>
-        <AppRouterCacheProvider>
+    <html lang="en" className="no-scrollbar">
+      <head>
+        <meta name="viewport" content="initial-scale=1, width=device-width" />
+        <script src="https://sdk.scdn.co/spotify-player.js" async></script>
+      </head>
+      <AppRouterCacheProvider>
+        <EditProvider>
           <body className={inter.className}>{children}</body>
-        </AppRouterCacheProvider>
-      </html>
+        </EditProvider>
+      </AppRouterCacheProvider>
+    </html>
   )
 }

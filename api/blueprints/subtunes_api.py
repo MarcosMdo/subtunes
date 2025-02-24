@@ -174,35 +174,36 @@ def save_subtune():
 @bp.route("/subtune/<id>", methods=["PUT"])
 def update_subtune(id=-1):
     subtune = Subtune.query.get(id)
-    
     if subtune is None:
         return {"error": "subtune not found"}, 404
     
-    image_file = request.files["image"] if "image" in request.files else None
     body = json.loads(request.form.to_dict()['data'])
     
+    # Update basic fields
     if "name" in body:
         subtune.name = body["name"]
-
     if "description" in body:
         subtune.description = body["description"]
+    if "color" in body:
+        subtune.color = body["color"]
     
-    if "new_tunes" in body:
-        new_tunes = body["new_tunes"]
+    # Replace all tunes
+    if "tunes" in body:
+        # Clear existing tunes
+        Subtune_Tune.query.filter_by(subtune_id=subtune.id).delete()
         
-        for tune_id in new_tunes:
-            res, http_res_code = get_tune(tune_id)
-            
-            # something went wrong retrieving the tune
+        # Add new tunes
+        for idx, tune_data in enumerate(body["tunes"]):
+            # First ensure the tune exists
+            res, http_res_code = get_tune(tune_data["tune_id"])
             if "tune" not in res:
-                return {"error": res, "HTTPResponse code": http_res_code}, http_res_code
+                return {"error": f"Tune {tune_data['tune_id']} not found"}, http_res_code
             
-    
-    if "order" in body:
-        subtune_tune = Subtune_Tune.query.filter_by(subtune_id=subtune.id).delete()
-
-        for idx, tune_id in enumerate(body["order"]):
-            subtune.subtune_tunes.append(Subtune_Tune(tune_id=tune_id, order_in_subtune=idx))
+            # Then link it to the subtune
+            subtune.subtune_tunes.append(
+                Subtune_Tune(tune_id=tune_data["tune_id"], order_in_subtune=idx)
+            )
+    current_app.logger.info(f"\n\nsubtune: {subtune}\n\n")
     
     db.session.commit()
     return {"subtune": subtune}, 200
