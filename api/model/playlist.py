@@ -11,6 +11,8 @@ class Playlist(db.Model):
     user_id: int = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     from_subtunes: bool = db.Column(db.Boolean, default=True, nullable=True)
     snapshot_id: str = db.Column(db.String(100), nullable=True)
+    color: str = db.Column(db.String(7), nullable=True)  # For hex color codes
+    image: str = db.Column(db.String(255), nullable=True)  # For image URL
     created_at: str = db.Column(db.DateTime, nullable=False, default=db.func.current_timestamp())
     last_edited: str = db.Column(db.DateTime, nullable=False, default=db.func.current_timestamp())
     

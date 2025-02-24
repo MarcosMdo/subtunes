@@ -6,9 +6,8 @@ import { InputBase } from '@mui/material';
 
 import { Ttune } from '../subtuneTypes/Tune';
 import { Tsubtune } from '../subtuneTypes/Subtune';
-
-import { setDraggableIds, setDroppableIds } from '../utils/helperFunctions';
 import { Tplaylist } from '../subtuneTypes/Playlist';
+import { setDraggableIds, setDroppableIds } from '../utils/helperFunctions';
 
 const SearchBar = (
         {   
@@ -19,7 +18,7 @@ const SearchBar = (
         }: 
         { 
             onSubmit: (data: any, hasNext?: boolean, clear?: boolean) => void; 
-            searchTarget: 'tune' | 'playlist' | 'subtune'; 
+            searchTarget: string; 
             isFilter?: boolean
             clearFilter?: (clear: boolean) => void;
         }) => {
@@ -76,7 +75,7 @@ const SearchBar = (
                 credentials: 'include', // Ensure cookies are sent with the request
             });
             const data = await response.json();
-
+            console.log("Results->\n\n",data.tracks, "\n\nend of results!!");
             if (searchTarget === 'tune') {
                 setDraggableIds(data.tracks as Ttune[])
                 return onSubmit(data.tracks as Ttune, data.next, true);
@@ -110,9 +109,11 @@ const SearchBar = (
                     onChange={(e) => {setQuery(e.target.value)}}
                     onDoubleClick={(e) => e.stopPropagation()}
                 />
-                <IconButton type="submit">
-                    <SearchIcon fontSize='medium'/>
-                </IconButton>
+                <div className="overflow-hidden">
+                    <IconButton type="submit">
+                        <SearchIcon fontSize='medium'/>
+                    </IconButton>
+                </div>
             </form>
         </div>
     );

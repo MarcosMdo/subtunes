@@ -2,6 +2,7 @@
 
 import os
 import requests
+import json
 
 from ..blueprints.spotify_auth_api import get_auth_header
 from ..database.db import db
@@ -83,10 +84,11 @@ def delete_tune(id=None):
 @bp.route("/tune/top", methods=["GET"])
 def get_top_tunes(id="-1"):
     with current_app.app_context():
-        user_id = int(request.cookies.get('spotify_id'))
-
-        if user_id is None:
+        spotify_id = request.cookies.get('spotify_id')
+        if not spotify_id:
             return jsonify({"error": "user_id is required"}), 400
+            
+        user_id = int(spotify_id)
         
         top_tracks_url = f"{SPOTIFY_API_URL}/me/top/tracks"
 
@@ -107,3 +109,93 @@ def get_top_tunes(id="-1"):
         track_info = [{'id': track['id'], 'name': track['name'], 'artist': track['artists'][0]['name'], 'external': track['preview_url'], 'cover': track['album']['images'][0]['url']} for track in tracks]
 
         return jsonify({'tracks': track_info, 'next': True if next_results else None}), 200
+
+@bp.route("/tune/play/<uri>", methods=["PUT"])
+def play_tune(uri = None):
+    current_app.logger.debug(f"Received play request for URI: {uri}")
+    with current_app.app_context():
+        if uri is None:
+            return jsonify({"error": "uri is required"}), 400
+
+        play_endpoint = f"{SPOTIFY_API_URL}/me/player/play"
+        # Get position from request body
+        data = request.get_json(silent=True) or {}
+        position_ms = int(data.get('position', 0))
+
+        expire_time = session['expire_time'] if 'expire_time' in session else -1
+        auth_header = get_auth_header(expire_time) 
+        headers = {'Authorization': f'Bearer {auth_header}'}
+        
+        body = {
+            "uris": [uri],
+            "position_ms": position_ms
+        }
+
+        response = requests.put(play_endpoint, headers=headers, json=body)
+        current_app.logger.info(f"Play tune response status: {response.status_code}")
+        devices = get_spotify_devices()
+        return jsonify({"status": "success"}), response.status_code
+
+@bp.route("/tune/pause", methods=["PUT"])
+def pause_tune():
+    with current_app.app_context():
+        pause_endpoint = f"{SPOTIFY_API_URL}/me/player/pause"
+
+        expire_time = session['expire_time'] if 'expire_time' in session else -1
+        auth_header = get_auth_header(expire_time) 
+        headers = {'Authorization': f'Bearer {auth_header}'}
+
+        response = requests.put(pause_endpoint, headers=headers)
+        current_app.logger.info(f"Pause response status: {response.status_code}")
+        
+        return jsonify({"status": response.status_code}), response.status_code
+
+@bp.route("/tune/currently-playing", methods=["GET"])
+def get_currently_playing():
+    with current_app.app_context():
+        play_endpoint = f"{SPOTIFY_API_URL}/me/player/currently-playing"
+
+        expire_time = session['expire_time'] if 'expire_time' in session else -1
+        auth_header = get_auth_header(expire_time) 
+        headers = {'Authorization': f'Bearer {auth_header}'}
+
+        response = requests.get(play_endpoint, headers=headers)
+        # current_app.logger.info(f"Currently playing response: {response.json()}")
+        # data.item.duration_ms
+        return jsonify({ "data": response.json() }), 200
+
+@bp.route("/tune/seek/<position>", methods=["PUT"])
+def seek_position(position = None):
+    with current_app.app_context():
+        if position is None:
+            return jsonify({"error": "position is required"}), 400
+
+        seek_endpoint = f"{SPOTIFY_API_URL}/me/player/seek?position_ms={position}"
+
+        expire_time = session['expire_time'] if 'expire_time' in session else -1
+        auth_header = get_auth_header(expire_time) 
+        headers = {'Authorization': f'Bearer {auth_header}'}
+
+        response = requests.put(seek_endpoint, headers=headers)
+        current_app.logger.info(f"Seek response status: {response.status_code}")
+        
+        return jsonify({"status": "success"}), response.status_code
+
+@bp.route("/tune/player-token", methods=["GET"])
+def get_player_token():
+    with current_app.app_context():
+        expire_time = session['expire_time'] if 'expire_time' in session else -1
+        auth_header = get_auth_header(expire_time)
+        return jsonify({"token": auth_header['Authorization'].split(' ')[1]}), 200
+
+def get_spotify_devices():
+    with current_app.app_context():
+        play_endpoint = f"{SPOTIFY_API_URL}/me/player/devices"
+
+        expire_time = session['expire_time'] if 'expire_time' in session else -1
+        auth_header = get_auth_header(expire_time) 
+        headers = {'Authorization': f'Bearer {auth_header}'}
+
+        response = requests.get(play_endpoint, headers=headers)
+        current_app.logger.info(f"Current spotify device response: {json.dumps(response.json(), indent=2)}")
+        return response.json()
